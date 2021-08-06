@@ -11,8 +11,9 @@ class OpenGLApp : public AbstractApplication {
 private:
     int width, height;
     GLFWwindow *window;
+    bool *running;
 public:
-    OpenGLApp(int width, int height, const char *name);
+    OpenGLApp(int width, int height, const char *name, bool *running);
 
     void run() override;
     void terminate() override;

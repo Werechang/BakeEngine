@@ -6,7 +6,7 @@ set(GL_INCLUDE_DIR external/Libraries/include)
 set(GL_LIB_DIR external/Libraries/lib)
 set(GLFW_USE_STATIC_LIBS ON)
 
-add_executable(BakeEngine main.cpp external/glad.c window/Application.cpp window/Application.h window/OpenGLApp.cpp window/OpenGLApp.h window/AbstractApplication.h)
+add_executable(BakeEngine main.cpp external/glad.c Application/Application.cpp Application/Application.h Application/OpenGLApp.cpp Application/OpenGLApp.h Application/AbstractApplication.h)
 
 include_directories(${GL_INCLUDE_DIR})
 add_library(glfw STATIC IMPORTED)

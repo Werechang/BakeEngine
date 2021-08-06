@@ -1,5 +1,4 @@
-#include <iostream>
-#include "window/Application.h"
+#include "Application/Application.h"
 
 int main() {
     Application(true, 1600, 900, "BakeEngine");

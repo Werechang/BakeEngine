@@ -7,12 +7,10 @@ void errorCallback(int error, const char *description) {
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS) {
 
-    }
 }
 
-OpenGLApp::OpenGLApp(int width, int height, const char *name) : width(width), height(height) {
+OpenGLApp::OpenGLApp(int width, int height, const char *name, bool *running) : width(width), height(height), running(running) {
     glfwInit();
 
     // Error function to print out errors
@@ -25,12 +23,12 @@ OpenGLApp::OpenGLApp(int width, int height, const char *name) : width(width), he
     // Core for easier coding; newer devices only
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Creates window
+    // Creates Application
     window = glfwCreateWindow(width, height, name, nullptr, nullptr);
 
-    // exit when window was not initialized properly
+    // exit when Application was not initialized properly
     if (window == nullptr) {
-        std::cerr << "Error while creating window context" << std::endl;
+        std::cerr << "Error while creating Application context" << std::endl;
         glfwTerminate();
         exit(-1);
     }
@@ -60,6 +58,7 @@ void OpenGLApp::run() {
 }
 
 void OpenGLApp::terminate() {
+    running = *false;
     glfwDestroyWindow(window);
     glfwTerminate();
 }

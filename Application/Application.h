@@ -7,10 +7,10 @@
 
 class Application {
 private:
-    bool running = true;
-    bool isOGL;
-    AbstractApplication *app;
+    AbstractApplication *app = nullptr;
 public:
+    bool running = true;
+
     explicit Application(bool isOGL, int width, int height, const char *name);
 };
 
