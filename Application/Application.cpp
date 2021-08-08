@@ -1,24 +1,132 @@
 // Wir haben so vieles geschafft - wir schaffen das!
 #include "Application.h"
-#include <thread>
+#include "../Render/OpenGL/GLShader.h"
 
-Application::Application(bool isOGL, int width, int height, const char *name) {
+void errorCallback(int error, const char *description) {
+    std::cerr << "GL Error (" << error << "): " << description << std::endl;
+}
+
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    GLKeys::update(window, key, scancode, action, mods);
+}
+
+Application::Application(bool isOGL, int width, int height, const char *name) : isOGL(isOGL), width(width), height(height), name(name) {
     if (isOGL) {
         std::cout << "Starting OpenGL Application ..." << std::endl;
-        OpenGLApp oglApp = OpenGLApp(width, height, name);
-        app = &oglApp;
     } else {
         std::cout << "Starting Vulkan Application ..." << std::endl;
+        if (!glfwVulkanSupported()) {
+            std::cerr << "Vulkan is not supported on this device." << std::endl;
+            exit(-1);
+        }
     }
-    if (app == nullptr) {
-        std::cerr << "Error while initializing " << (isOGL ? "OpenGL" : "Vulkan") << " application" << std::endl;
+    init();
+}
+
+void Application::init() {
+    glfwInit();
+
+    // Error function to print out errors
+    glfwSetErrorCallback(errorCallback);
+
+    // Specify OGL version
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+    // Core for easier coding; newer devices only
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // Creates Application
+    window = glfwCreateWindow(width, height, name, nullptr, nullptr);
+
+    // exit when Application was not initialized properly
+    if (window == nullptr) {
+        std::cerr << "Error while creating Application context" << std::endl;
+        glfwTerminate();
         exit(-1);
     }
-    std::jthread renderThread = std::jthread([] {
-        app->run();
-        app->terminate();
-    })
-    while (running) {
+    glfwMakeContextCurrent(window);
+
+    // usually 0 but 1 is better for syncing reasons. On fast computers, buffers may be swapped
+    // in the middle of a frame, leading to tearing.
+    glfwSwapInterval(1);
+
+    // Function for inputs
+    glfwSetKeyCallback(window, keyCallback);
+
+    if (isOGL) {
+        gladLoadGL();
+    } else {
 
     }
+}
+
+void Application::start() {
+    if (isOGL) {
+        runGL();
+    } else {
+        runVk();
+    }
+    terminate();
+}
+
+void Application::terminate() {
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    running = false;
+}
+
+void Application::runGL() {
+
+    float vertices[] = {
+        0.0f, 0.5f,
+        0.5f, -0.5f,
+        -0.5f, -0.5f
+    };
+
+    // Vertex Array Object
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    unsigned int vertexBuffer;
+
+    glGenBuffers(1, &vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    GLShader shader("../resources/standard.shader");
+    shader.bind();
+
+    int vertPosAttrib = glGetAttribLocation(shader.getProgram(), "position");
+    glVertexAttribPointer(vertPosAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vertPosAttrib);
+
+    long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    unsigned int refreshRate = 1000000000/60;
+
+    while (!glfwWindowShouldClose(window)) {
+
+        // Time
+        long long now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        if (now - begin >= refreshRate) {
+            begin = now;
+
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+
+            glfwGetFramebufferSize(window, &width, &height);
+            // glfwSetFrameBufferSizeCallback for future use
+            glViewport(0, 0, width, height);
+
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+        }
+    }
+}
+
+void Application::runVk() {
+
 }
