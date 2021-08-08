@@ -98,10 +98,11 @@ void Application::runGL() {
     GLShader shader("../resources/standard.shader");
     shader.bind();
 
-    int vertPosAttrib = glGetAttribLocation(shader.getProgram(), "position");
+    int vertPosAttrib = shader.getAttribLocation();
     glVertexAttribPointer(vertPosAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(vertPosAttrib);
 
+    // TODO: Frame skip, show FPS
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     unsigned int refreshRate = 1000000000/60;
 

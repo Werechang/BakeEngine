@@ -4,6 +4,7 @@
 
 #include "glad/glad.h"
 #include <string>
+#include <unordered_map>
 
 struct GLShaderSource {
     std::string vertexSource;
@@ -12,16 +13,22 @@ struct GLShaderSource {
 class GLShader {
 private:
     unsigned int programPtr;
+    std::unordered_map<std::string, int> uniformLocationCache;
 
-    GLShaderSource parseShader(const std::string& filePath);
-    unsigned int compileShader(unsigned int shaderType, const char* source);
-    unsigned int createProgram(const char *vertSource, const char *fragSource);
+    static GLShaderSource parseShader(const std::string& filePath);
+    static unsigned int compileShader(unsigned int shaderType, const char* source);
+    static unsigned int createProgram(const char *vertSource, const char *fragSource);
+
+    int getUniformLocation(const std::string& name);
 public:
-    GLShader(const std::string& filePath);
+    explicit GLShader(const std::string& filePath);
     ~GLShader();
-    void bind();
-    void unbind();
-    unsigned int getProgram();
+
+    void uniform4f(const std::string& name, float a, float b, float c, float d);
+
+    void bind() const;
+    static void unbind();
+    int getAttribLocation() const;
 };
 
 

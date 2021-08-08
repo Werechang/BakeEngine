@@ -70,7 +70,19 @@ unsigned int GLShader::createProgram(const char* vertSource, const char* fragSou
     return shaderProgram;
 }
 
-void GLShader::bind() {
+int GLShader::getUniformLocation(const std::string& name) {
+    if (uniformLocationCache.find(name) != uniformLocationCache.end()) {
+        return uniformLocationCache[name];
+    }
+    int location = glGetUniformLocation(programPtr, name.c_str());
+    if (location == -1) {
+        std::cerr << "[Warning] Uniform location does not exist!" << std::endl;
+    }
+    uniformLocationCache[name] = location;
+    return location;
+}
+
+void GLShader::bind() const {
     glUseProgram(programPtr);
 }
 
@@ -78,6 +90,10 @@ void GLShader::unbind() {
     glUseProgram(0);
 }
 
-unsigned int GLShader::getProgram() {
-    return programPtr;
+int GLShader::getAttribLocation() const {
+    return glGetAttribLocation(programPtr, "position");
+}
+
+void GLShader::uniform4f(const std::string &name, float a, float b, float c, float d) {
+    glUniform4f(getUniformLocation(name), a, b, c, d);
 }
