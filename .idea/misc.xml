@@ -4,6 +4,7 @@
   <component name="CidrRootsConfiguration">
     <sourceRoots>
       <file path="$PROJECT_DIR$/Application" />
+      <file path="$PROJECT_DIR$/FileParser" />
       <file path="$PROJECT_DIR$/Input" />
       <file path="$PROJECT_DIR$/Render" />
       <file path="$PROJECT_DIR$/Util" />

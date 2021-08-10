@@ -1,6 +1,7 @@
 // Wir haben so vieles geschafft - wir schaffen das!
 #include "Application.h"
 #include "../Render/OpenGL/GLShader.h"
+#include "../Render/OpenGL/GLTexture.h"
 
 void errorCallback(int error, const char *description) {
     std::cerr << "GL Error (" << error << "): " << description << std::endl;
@@ -78,16 +79,30 @@ void Application::terminate() {
 
 void Application::runGL() {
 
+    // 3f - position (x,y,z) | 3f - color (r,g,b) | 2f - texCoords (u,v) | each row a vertex
     float vertices[] = {
-        0.0f, 0.5f,
-        0.5f, -0.5f,
-        -0.5f, -0.5f
+        -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f
+    };
+
+    unsigned int elementArray[] = {
+            0, 1, 2,
+            2, 3, 0
     };
 
     // Vertex Array Object
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
+
+    // Element buffer object
+    unsigned int ebo;
+    glGenBuffers(1, &ebo);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elementArray), elementArray, GL_STATIC_DRAW);
 
     unsigned int vertexBuffer;
 
@@ -98,9 +113,23 @@ void Application::runGL() {
     GLShader shader("../resources/standard.shader");
     shader.bind();
 
-    int vertPosAttrib = shader.getAttribLocation();
-    glVertexAttribPointer(vertPosAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    GLTexture tex(GL_NEAREST, GL_REPEAT, "../resources/texture1.png");
+    tex.bind(0);
+    shader.uniform1i("tex", 0);
+
+    int vertPosAttrib = shader.getAttribLocation("position");
     glEnableVertexAttribArray(vertPosAttrib);
+    glVertexAttribPointer(vertPosAttrib, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), nullptr);
+
+    int colorAttrib = shader.getAttribLocation("color");
+    glEnableVertexAttribArray(colorAttrib);
+    glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
+
+    int texCoordAttrib = shader.getAttribLocation("texCoord");
+    glEnableVertexAttribArray(texCoordAttrib);
+    glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
+
+    Matrix4 transform = Matrix4();
 
     // TODO: Frame skip, show FPS
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -113,10 +142,12 @@ void Application::runGL() {
         if (now - begin >= refreshRate) {
             begin = now;
 
+            shader.uniformMatrix4fv("transform", transform);
+
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glDrawElements(GL_TRIANGLES, sizeof(elementArray)/sizeof(unsigned int), GL_UNSIGNED_INT, nullptr);
 
             glfwGetFramebufferSize(window, &width, &height);
             // glfwSetFrameBufferSizeCallback for future use
@@ -126,6 +157,9 @@ void Application::runGL() {
             glfwPollEvents();
         }
     }
+    glDeleteBuffers(1, &vertexBuffer);
+    glDeleteVertexArrays(1, &vao);
+    glfwSetWindowShouldClose(window, 0);
 }
 
 void Application::runVk() {

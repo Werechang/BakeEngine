@@ -4,7 +4,7 @@
 #include <iostream>
 #include "GLShader.h"
 
-GLShader::GLShader(const std::string& filePath) {
+GLShader::GLShader(const std::string &filePath) {
     GLShaderSource src = parseShader(filePath);
     programPtr = createProgram(src.vertexSource.c_str(), src.fragmentSource.c_str());
 }
@@ -13,7 +13,7 @@ GLShader::~GLShader() {
     glDeleteProgram(programPtr);
 }
 
-GLShaderSource GLShader::parseShader(const std::string& filePath) {
+GLShaderSource GLShader::parseShader(const std::string &filePath) {
     std::ifstream stream(filePath);
 
     std::string l;
@@ -39,15 +39,13 @@ unsigned int GLShader::compileShader(const unsigned int shaderType, const char* 
     // Log errors
     int compileResult;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compileResult);
-    if (!compileResult) {
-        int length;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-        char* message = (char*)(length * sizeof(char));
-        glGetShaderInfoLog(shader, length, &length, message);
+    if (compileResult == GL_FALSE) {
+        char message[512];
+        glGetShaderInfoLog(shader, 512, nullptr, message);
         std::string type;
         switch (shaderType) {
-            case 0x8B30: type = "fragment";break;
-            case 0x8B31: type = "vertex";break;
+            case GL_FRAGMENT_SHADER: type = "fragment";break;
+            case GL_VERTEX_SHADER: type = "vertex";break;
         }
         std::cerr << "Could not compile " << type << " shader:" << std::endl;
         std::cerr << message << std::endl;
@@ -70,7 +68,7 @@ unsigned int GLShader::createProgram(const char* vertSource, const char* fragSou
     return shaderProgram;
 }
 
-int GLShader::getUniformLocation(const std::string& name) {
+int GLShader::getUniformLocation(const std::string &name) {
     if (uniformLocationCache.find(name) != uniformLocationCache.end()) {
         return uniformLocationCache[name];
     }
@@ -90,10 +88,22 @@ void GLShader::unbind() {
     glUseProgram(0);
 }
 
-int GLShader::getAttribLocation() const {
-    return glGetAttribLocation(programPtr, "position");
+int GLShader::getAttribLocation(const char* name) const {
+    return glGetAttribLocation(programPtr, name);
 }
 
 void GLShader::uniform4f(const std::string &name, float a, float b, float c, float d) {
     glUniform4f(getUniformLocation(name), a, b, c, d);
+}
+
+void GLShader::uniform3f(const std::string &name, float a, float b, float c) {
+    glUniform3f(getUniformLocation(name), a, b, c);
+}
+
+void GLShader::uniform1i(const std::string &name, int a) {
+    glUniform1i(getUniformLocation(name), a);
+}
+
+void GLShader::uniformMatrix4fv(const std::string &name, Matrix4 &matrix) {
+    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, matrix.ptr(0, 0));
 }
