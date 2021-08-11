@@ -129,7 +129,12 @@ void Application::runGL() {
     glEnableVertexAttribArray(texCoordAttrib);
     glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
 
-    Matrix4 transform = Matrix4();
+    Matrix4 projection = Matrix4();
+    Matrix4 view = Matrix4();
+    Matrix4 model = Matrix4();
+
+    //model.scale(2, 2, 2);
+    //model.rotateX(10);
 
     // TODO: Frame skip, show FPS
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -142,7 +147,8 @@ void Application::runGL() {
         if (now - begin >= refreshRate) {
             begin = now;
 
-            shader.uniformMatrix4fv("transform", transform);
+            Matrix4 mvp = projection * view * model;
+            shader.uniformMatrix4fv("mvp", mvp);
 
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
