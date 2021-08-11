@@ -129,12 +129,14 @@ void Application::runGL() {
     glEnableVertexAttribArray(texCoordAttrib);
     glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
 
-    Matrix4 projection = Matrix4();
+
     Matrix4 view = Matrix4();
+
+    Matrix4 projection = Matrix4();
+
     Matrix4 model = Matrix4();
 
-    //model.scale(2, 2, 2);
-    //model.rotateX(10);
+    model.translate(1, 10, 2);
 
     // TODO: Frame skip, show FPS
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

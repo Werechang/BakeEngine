@@ -11,6 +11,7 @@ private:
     float x, y, z;
 public:
     Vector3(float x, float y, float z);
+    float* get4();
 };
 
 
