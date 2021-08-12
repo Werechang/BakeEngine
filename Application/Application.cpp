@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "../Render/OpenGL/GLShader.h"
 #include "../Render/OpenGL/GLTexture.h"
+#include "../Util/Math/Angle.h"
 
 void errorCallback(int error, const char *description) {
     std::cerr << "GL Error (" << error << "): " << description << std::endl;
@@ -81,15 +82,35 @@ void Application::runGL() {
 
     // 3f - position (x,y,z) | 3f - color (r,g,b) | 2f - texCoords (u,v) | each row a vertex
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-        0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f
+            -0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f
     };
 
     unsigned int elementArray[] = {
             0, 1, 2,
-            2, 3, 0
+            2, 3, 0,
+
+            0, 1, 5,
+            5, 0, 4,
+
+            4, 5, 6,
+            6, 7, 4,
+
+            4, 0, 3,
+            3, 4, 7,
+
+            7, 3, 2,
+            2, 7, 6,
+
+            6, 5, 2,
+            2, 1, 5
     };
 
     // Vertex Array Object
@@ -130,17 +151,15 @@ void Application::runGL() {
     glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
 
 
-    Matrix4 view = Matrix4();
-
-    Matrix4 projection = Matrix4();
-
-    Matrix4 model = Matrix4();
-
-    model.translate(1, 10, 2);
+    Matrix4 view = Matrix4::identity();
+    view.translate(0, 0, -1.2);
+    Matrix4 model = Matrix4::identity();
 
     // TODO: Frame skip, show FPS
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     unsigned int refreshRate = 1000000000/60;
+
+    int elementCount = sizeof(elementArray)/sizeof(unsigned int);
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -149,13 +168,16 @@ void Application::runGL() {
         if (now - begin >= refreshRate) {
             begin = now;
 
+            glfwGetWindowSize(window, &width, &height);
+            model.rotateZ(Angle::toRadians(1));
+            Matrix4 projection = Matrix4::perspective(90, ((float)width)/((float)height), 0.1f, 1000.0f);
             Matrix4 mvp = projection * view * model;
             shader.uniformMatrix4fv("mvp", mvp);
 
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glDrawElements(GL_TRIANGLES, sizeof(elementArray)/sizeof(unsigned int), GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
 
             glfwGetFramebufferSize(window, &width, &height);
             // glfwSetFrameBufferSizeCallback for future use
