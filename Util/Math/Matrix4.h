@@ -19,10 +19,10 @@ public:
 
     void multiply(float matrix2[4][4]);
 
-    void rotateX(float degrees);
-    void rotateY(float degrees);
-    void rotateZ(float degrees);
-    void rotate(float xDegrees, float yDegrees, float zDegrees);
+    void rotateX(float rad);
+    void rotateY(float rad);
+    void rotateZ(float rad);
+    void rotate(float xRad, float yRad, float zRad);
     void translate(float x, float y, float z);
     void scale(float xScale, float yScale, float zScale);
 

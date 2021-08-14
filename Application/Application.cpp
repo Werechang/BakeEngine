@@ -9,7 +9,7 @@ void errorCallback(int error, const char *description) {
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    GLKeys::update(window, key, scancode, action, mods);
+    Keys::update(window, key, scancode, action, mods);
 }
 
 Application::Application(bool isOGL, int width, int height, const char *name) : isOGL(isOGL), width(width), height(height), name(name) {
@@ -82,35 +82,23 @@ void Application::runGL() {
 
     // 3f - position (x,y,z) | 3f - color (r,g,b) | 2f - texCoords (u,v) | each row a vertex
     float vertices[] = {
-            -0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+            0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
 
-            -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f
+            -0.5f, -0.5f, -0.1f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            -0.5f, 0.5f, -0.1f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.1f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.1f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
     };
 
     unsigned int elementArray[] = {
             0, 1, 2,
             2, 3, 0,
 
-            0, 1, 5,
-            5, 0, 4,
-
             4, 5, 6,
             6, 7, 4,
-
-            4, 0, 3,
-            3, 4, 7,
-
-            7, 3, 2,
-            2, 7, 6,
-
-            6, 5, 2,
-            2, 1, 5
     };
 
     // Vertex Array Object
@@ -150,9 +138,9 @@ void Application::runGL() {
     glEnableVertexAttribArray(texCoordAttrib);
     glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
 
+    glEnable(GL_DEPTH_TEST);
 
     Matrix4 view = Matrix4::identity();
-    view.translate(0, 0, -1.2);
     Matrix4 model = Matrix4::identity();
 
     // TODO: Frame skip, show FPS
@@ -169,13 +157,16 @@ void Application::runGL() {
             begin = now;
 
             glfwGetWindowSize(window, &width, &height);
-            model.rotateZ(Angle::toRadians(1));
-            Matrix4 projection = Matrix4::perspective(90, ((float)width)/((float)height), 0.1f, 1000.0f);
+            //model.rotateZ(Angle::toRadians(1));
+            view.translate(KeyArray[GLFW_KEY_A]/8.0f - KeyArray[GLFW_KEY_D]/8.0f, KeyArray[GLFW_KEY_S]/8.0f - KeyArray[GLFW_KEY_W]/8.0f, KeyArray[GLFW_KEY_SPACE]/8.0f - KeyArray[GLFW_KEY_LEFT_SHIFT]/8.0f);
+            view.rotate(Angle::toRadians(KeyArray[GLFW_KEY_UP]/4.0f) - Angle::toRadians(KeyArray[GLFW_KEY_DOWN]/4.0f), Angle::toRadians(KeyArray[GLFW_KEY_RIGHT]/4.0f) - Angle::toRadians(KeyArray[GLFW_KEY_LEFT]/4.0f), 0);
+
+            Matrix4 projection = Matrix4::perspective(40, ((float)width)/((float)height), 0.1f, 1000.0f);
             Matrix4 mvp = projection * view * model;
             shader.uniformMatrix4fv("mvp", mvp);
 
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
 

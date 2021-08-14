@@ -4,3 +4,7 @@
 void InputManager::update() {
 
 }
+
+void InputManager::addAction(int* keys, Function callFun) {
+    actions.emplace_back(idPtr++, keys, callFun);
+}

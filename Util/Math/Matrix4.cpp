@@ -66,35 +66,37 @@ void Matrix4::multiply(float matrix2[4][4]) {
     }
 }
 
-void Matrix4::rotateX(float degrees) {
-    float mRot[4][4] = {{1, 0, 0, 0}, {0, cos(degrees), sin(degrees), 0}, {0, -sin(degrees), cos(degrees), 0}, {0, 0, 0, 1}};
+void Matrix4::rotateX(float rad) {
+    float mRot[4][4] = {{1, 0, 0, 0}, {0, cos(rad), sin(rad), 0}, {0, -sin(rad), cos(rad), 0}, {0, 0, 0, 1}};
     multiply(mRot);
 }
 
-void Matrix4::rotateY(float degrees) {
-    float mRot[4][4] = {{cos(degrees), 0, -sin(degrees), 0}, {0, 1, 0, 0}, {sin(degrees), 0, cos(degrees), 0}, {0, 0, 0, 1}};
+void Matrix4::rotateY(float rad) {
+    float mRot[4][4] = {{cos(rad), 0, -sin(rad), 0}, {0, 1, 0, 0}, {sin(rad), 0, cos(rad), 0}, {0, 0, 0, 1}};
     multiply(mRot);
 }
 
-void Matrix4::rotateZ(float degrees) {
-    float mRot[4][4] = {{cos(degrees), sin(degrees), 0, 0}, {-sin(degrees), cos(degrees), 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+void Matrix4::rotateZ(float rad) {
+    float mRot[4][4] = {{cos(rad), sin(rad), 0, 0}, {-sin(rad), cos(rad), 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
     multiply(mRot);
 }
 
-void Matrix4::rotate(float xDegrees, float yDegrees, float zDegrees) {
-    rotateX(xDegrees);
-    rotateY(yDegrees);
-    rotateZ(zDegrees);
+void Matrix4::rotate(float xRad, float yRad, float zRad) {
+    rotateX(xRad);
+    rotateY(yRad);
+    rotateZ(zRad);
 }
 
 void Matrix4::translate(float x, float y, float z) {
-    float mTrans[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {x, y, z, 1}};
-    multiply(mTrans);
+    matrix[3][0] += x;
+    matrix[3][1] += y;
+    matrix[3][2] += z;
 }
 
 void Matrix4::scale(float xScale, float yScale, float zScale) {
-    float mScale[4][4] = {{xScale, 0, 0, 0}, {0, yScale, 0, 0}, {0, 0, zScale, 0}, {0, 0, 0, 1}};
-    multiply(mScale);
+    matrix[0][0] *= xScale;
+    matrix[1][1] *= yScale;
+    matrix[2][2] *= zScale;
 }
 
 Matrix4 Matrix4::operator*(Matrix4 &other) {

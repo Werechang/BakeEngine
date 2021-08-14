@@ -2,20 +2,38 @@
 #ifndef BAKEENGINE_INPUTMANAGER_H
 #define BAKEENGINE_INPUTMANAGER_H
 
+#include <functional>
 #include <map>
 #include "GLFW/glfw3.h"
 
-class InputManager {
+typedef void (*Function)();
+
+class Action {
 public:
-    void update();
+    int id;
+    int* keys;
+    Function callFun;
+    Action(int id, int* keys, Function callFun) : id(id), keys(keys), callFun(callFun) {};
 };
-static bool GLKeyArray[349];
-class GLKeys {
+
+class InputManager {
+private:
+    std::list<Action> actions;
+    int idPtr;
+public:
+    static void update();
+
+    void addAction(int *keys, Function callFun);
+};
+
+static bool KeyArray[349];
+
+class Keys {
 public:
     static void update(GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_UNKNOWN) return;
-        if (action == GLFW_PRESS) GLKeyArray[key] = true;
-        if (action == GLFW_RELEASE) GLKeyArray[key] = false;
+        if (action == GLFW_PRESS) KeyArray[key] = true;
+        if (action == GLFW_RELEASE) KeyArray[key] = false;
     }
 };
 
