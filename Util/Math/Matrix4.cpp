@@ -35,16 +35,24 @@ Matrix4 Matrix4::identity() {
  * @return Perspective Matrix4
  */
 Matrix4 Matrix4::perspective(float fovY, float aspect, float zNear, float zFar) {
-    float fovTanHalfAspect = tan(fovY/2) * aspect;
-    // top = fovTanHalf * zNear
+    float fovTanHalf = tan(fovY/2);
     // bottom = -top, right = top * aspect, left = -top * aspect
 
-    float mat[4][4] = {{1/(fovTanHalfAspect), 0, 0, 0},
-                       {0, 1/(fovTanHalfAspect), 0, 0},
-                       {0, 0, -(zFar + zNear)/(zFar - zNear), -1},
-                       {0, 0, -(2*zFar*zNear)/(zFar-zNear), 0}};
+    float mat[4][4] = {{1/(aspect * fovTanHalf), 0, 0, 0},
+                       {0, 1/(fovTanHalf), 0, 0},
+                       {0, 0, -((zFar + zNear)/(zFar - zNear)), -1},
+                       {0, 0, -((2*zFar*zNear)/(zFar - zNear)), 0}};
     return Matrix4(mat);
 }
+
+Matrix4 Matrix4::orthographic(float left, float right, float bottom, float top, float zNear, float zFar) {
+    float mat[4][4] = {{2/(right - left), 0, 0, 0},
+                       {0, 2/(top - bottom), 0, 0},
+                       {0, 0, -2/(zFar - zNear), -1},
+                       {-(right + left)/(right - left), -(top + bottom)/(top - bottom), -((zFar+zNear)/(zFar - zNear)), 1}};
+    return Matrix4(mat);
+}
+
 
 float *Matrix4::ptr(int i, int j) {
     return &matrix[i][j];

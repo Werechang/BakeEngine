@@ -11,9 +11,9 @@ typedef void (*Function)();
 class Action {
 public:
     int id;
-    int* keys;
     Function callFun;
-    Action(int id, int* keys, Function callFun) : id(id), keys(keys), callFun(callFun) {};
+    int numKeys;
+    Action(int id, int keys[], Function callFun, int numKeys) : id(id), callFun(callFun), numKeys(numKeys) {};
 };
 
 class InputManager {
@@ -23,7 +23,7 @@ private:
 public:
     static void update();
 
-    void addAction(int *keys, Function callFun);
+    void addAction(int keys[], Function callFun, int numKeys);
 };
 
 static bool KeyArray[349];

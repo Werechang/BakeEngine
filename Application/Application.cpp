@@ -142,6 +142,8 @@ void Application::runGL() {
 
     Matrix4 view = Matrix4::identity();
     Matrix4 model = Matrix4::identity();
+    //Matrix4 projection = Matrix4::perspective(Angle::toRadians(90), ((float)width)/((float)height), 0.1f, 100.0f);
+    Matrix4 projection = Matrix4::orthographic(-16.0f/9.0f, 16.0f/9.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 
     // TODO: Frame skip, show FPS
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -155,13 +157,18 @@ void Application::runGL() {
         long long now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         if (now - begin >= refreshRate) {
             begin = now;
+            int wNew, hNew;
+            glfwGetWindowSize(window, &wNew, &hNew);
+            if (wNew != width || hNew != height) {
+                width = wNew;
+                height = hNew;
+                projection = Matrix4::perspective(Angle::toRadians(90), ((float)width)/((float)height), 0.1f, 100.0f);
+            }
 
-            glfwGetWindowSize(window, &width, &height);
             //model.rotateZ(Angle::toRadians(1));
             view.translate(KeyArray[GLFW_KEY_A]/8.0f - KeyArray[GLFW_KEY_D]/8.0f, KeyArray[GLFW_KEY_S]/8.0f - KeyArray[GLFW_KEY_W]/8.0f, KeyArray[GLFW_KEY_SPACE]/8.0f - KeyArray[GLFW_KEY_LEFT_SHIFT]/8.0f);
             view.rotate(Angle::toRadians(KeyArray[GLFW_KEY_UP]/4.0f) - Angle::toRadians(KeyArray[GLFW_KEY_DOWN]/4.0f), Angle::toRadians(KeyArray[GLFW_KEY_RIGHT]/4.0f) - Angle::toRadians(KeyArray[GLFW_KEY_LEFT]/4.0f), 0);
 
-            Matrix4 projection = Matrix4::perspective(40, ((float)width)/((float)height), 0.1f, 1000.0f);
             Matrix4 mvp = projection * view * model;
             shader.uniformMatrix4fv("mvp", mvp);
 

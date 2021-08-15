@@ -13,6 +13,7 @@ public:
 
     static Matrix4 identity();
     static Matrix4 perspective(float fovY, float aspect, float zNear, float zFar);
+    static Matrix4 orthographic(float left, float right, float bottom, float top, float zNear, float zFar);
 
     float* ptr(int i, int j);
     void set(int col, int row, float value);
