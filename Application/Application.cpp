@@ -82,23 +82,35 @@ void Application::runGL() {
 
     // 3f - position (x,y,z) | 3f - color (r,g,b) | 2f - texCoords (u,v) | each row a vertex
     float vertices[] = {
-            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-            0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-            0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
 
-            -0.5f, -0.5f, -0.1f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-            -0.5f, 0.5f, -0.1f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-            0.5f, 0.5f, -0.1f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.1f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
+            -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
     };
 
     unsigned int elementArray[] = {
             0, 1, 2,
             2, 3, 0,
 
+            0, 1, 4,
+            4, 5, 1,
+
+            1, 5, 2,
+            2, 5, 6,
+
+            6, 2, 3,
+            3, 6, 7,
+
+            7, 4, 3,
+            3, 0, 4,
+
             4, 5, 6,
-            6, 7, 4,
+            6, 7, 4
     };
 
     // Vertex Array Object
@@ -151,27 +163,22 @@ void Application::runGL() {
     int elementCount = sizeof(elementArray)/sizeof(unsigned int);
 
     while (!glfwWindowShouldClose(window)) {
-        /*
-         *
-         */
 
         // Time
         long long now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        if (now - begin >= 2*refreshRate) {
-            begin += refreshRate;
-        } else if (now - begin >= refreshRate) {
+        if (now - begin >= refreshRate) {
             begin = now;
             int wNew, hNew;
             glfwGetWindowSize(window, &wNew, &hNew);
             if (wNew != width || hNew != height) {
                 width = wNew;
                 height = hNew;
-                projection = Matrix4::perspective(Angle::toRadians(90), ((float)width)/((float)height), -1.0f, 100.0f);
+                projection = Matrix4::perspective(Angle::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
             }
-
-            //model.rotateZ(Angle::toRadians(1));
+            model.rotateZ(Angle::toRadians(3));
+            // This is the most hackiest approach of doing input. Will be changed later
             view.translate(KeyArray[GLFW_KEY_A]/8.0f - KeyArray[GLFW_KEY_D]/8.0f, KeyArray[GLFW_KEY_S]/8.0f - KeyArray[GLFW_KEY_W]/8.0f, KeyArray[GLFW_KEY_SPACE]/8.0f - KeyArray[GLFW_KEY_LEFT_SHIFT]/8.0f);
-            view.rotate(Angle::toRadians(KeyArray[GLFW_KEY_UP]/4.0f) - Angle::toRadians(KeyArray[GLFW_KEY_DOWN]/4.0f), Angle::toRadians(KeyArray[GLFW_KEY_RIGHT]/4.0f) - Angle::toRadians(KeyArray[GLFW_KEY_LEFT]/4.0f), 0);
+            view.rotate(Angle::toRadians(KeyArray[GLFW_KEY_UP]) - Angle::toRadians(KeyArray[GLFW_KEY_DOWN]), Angle::toRadians(KeyArray[GLFW_KEY_RIGHT]) - Angle::toRadians(KeyArray[GLFW_KEY_LEFT]), 0);
 
             Matrix4 mvp = projection * view * model;
             shader.uniformMatrix4fv("mvp", mvp);
@@ -187,6 +194,11 @@ void Application::runGL() {
 
             glfwSwapBuffers(window);
             glfwPollEvents();
+
+            long long frameTime = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - begin;
+            if (refreshRate - frameTime > 0) {
+                std::this_thread::sleep_for(std::chrono::nanoseconds(refreshRate - frameTime));
+            }
         }
     }
     glDeleteBuffers(1, &vertexBuffer);
