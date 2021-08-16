@@ -142,8 +142,7 @@ void Application::runGL() {
 
     Matrix4 view = Matrix4::identity();
     Matrix4 model = Matrix4::identity();
-    //Matrix4 projection = Matrix4::perspective(Angle::toRadians(90), ((float)width)/((float)height), 0.1f, 100.0f);
-    Matrix4 projection = Matrix4::orthographic(-16.0f/9.0f, 16.0f/9.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+    Matrix4 projection = Matrix4::perspective(Angle::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
 
     // TODO: Frame skip, show FPS
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -152,17 +151,22 @@ void Application::runGL() {
     int elementCount = sizeof(elementArray)/sizeof(unsigned int);
 
     while (!glfwWindowShouldClose(window)) {
+        /*
+         *
+         */
 
         // Time
         long long now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        if (now - begin >= refreshRate) {
+        if (now - begin >= 2*refreshRate) {
+            begin += refreshRate;
+        } else if (now - begin >= refreshRate) {
             begin = now;
             int wNew, hNew;
             glfwGetWindowSize(window, &wNew, &hNew);
             if (wNew != width || hNew != height) {
                 width = wNew;
                 height = hNew;
-                projection = Matrix4::perspective(Angle::toRadians(90), ((float)width)/((float)height), 0.1f, 100.0f);
+                projection = Matrix4::perspective(Angle::toRadians(90), ((float)width)/((float)height), -1.0f, 100.0f);
             }
 
             //model.rotateZ(Angle::toRadians(1));

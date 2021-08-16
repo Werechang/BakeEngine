@@ -24,7 +24,8 @@ Matrix4::Matrix4(float matrix2[4][4]) {
  * @return Identity Matrix
  */
 Matrix4 Matrix4::identity() {
-    return {};
+    float mat[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+    return Matrix4(mat);
 }
 /**
  *
@@ -63,13 +64,13 @@ void Matrix4::set(int col, int row, float value) {
 }
 
 void Matrix4::multiply(float matrix2[4][4]) {
-    for (auto & i : matrix) {
-        float bufferA = i[0];
-        float bufferB = i[1];
-        float bufferC = i[2];
-        float bufferD = i[3];
-        for (int j = 0; j < 4; j++) {
-            i[j] = bufferA*matrix2[0][j] + bufferB*matrix2[1][j] + bufferC*matrix2[2][j] + bufferD*matrix2[3][j];
+    for (auto i = 0; i < 4; i++) {
+        float bufferA = matrix[0][i];
+        float bufferB = matrix[1][i];
+        float bufferC = matrix[2][i];
+        float bufferD = matrix[3][i];
+        for (auto j = 0; j < 4; j++) {
+            matrix[j][i] = bufferA*matrix2[j][0] + bufferB*matrix2[j][1] + bufferC*matrix2[j][2] + bufferD*matrix2[j][3];
         }
     }
 }
@@ -108,12 +109,13 @@ void Matrix4::scale(float xScale, float yScale, float zScale) {
 }
 
 Matrix4 Matrix4::operator*(Matrix4 &other) {
-    float mBuf[4][4];
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            mBuf[i][j] = this->matrix[i][0] * other.matrix[0][j] + this->matrix[i][1] * other.matrix[1][j] + this->matrix[i][2] * other.matrix[2][j] + this->matrix[i][3] * other.matrix[3][j];
+    Matrix4 ret;
+    ret.matrix;
+    for (auto i = 0; i < 4; i++) {
+        for (auto j = 0; j < 4; j++) {
+            ret.matrix[j][i] = this->matrix[0][i] * other.matrix[j][0] + this->matrix[1][i] * other.matrix[j][1] + this->matrix[2][i] * other.matrix[j][2] + this->matrix[3][i] * other.matrix[j][3];
         }
     }
 
-    return Matrix4(mBuf);
+    return Matrix4(ret.matrix);
 }

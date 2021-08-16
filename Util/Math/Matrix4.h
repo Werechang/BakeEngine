@@ -6,7 +6,7 @@
 
 class Matrix4 {
 private:
-    float matrix[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+    float matrix[4][4] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
 public:
     explicit Matrix4(float matrix2[4][4]);
     Matrix4() = default;
