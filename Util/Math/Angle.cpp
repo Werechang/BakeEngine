@@ -1,7 +1,4 @@
-//
-// Created by tom on 12.08.2021.
-//
-
+// Das Internet ist für uns alle Neuland.
 #include "Angle.h"
 
 float Angle::toRadians(float angle) {

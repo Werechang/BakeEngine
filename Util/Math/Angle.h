@@ -1,7 +1,4 @@
-//
-// Created by tom on 12.08.2021.
-//
-
+// Das Internet ist für uns alle Neuland.
 #ifndef BAKEENGINE_ANGLE_H
 #define BAKEENGINE_ANGLE_H
 
@@ -13,4 +10,4 @@ public:
 };
 
 
-#endif //BAKEENGINE_ANGLE_H
+#endif

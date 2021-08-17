@@ -1,4 +1,4 @@
-
+// Man bekommt beim Schweigen ganz gut ein Maß für die Zeit.
 #include "Matrix4.h"
 #include <cmath>
 
@@ -100,6 +100,12 @@ void Matrix4::translate(float x, float y, float z) {
     matrix[3][0] += x;
     matrix[3][1] += y;
     matrix[3][2] += z;
+}
+
+void Matrix4::translate(Vector3& vec) {
+    matrix[3][0] += vec.getX();
+    matrix[3][1] += vec.getY();
+    matrix[3][2] += vec.getZ();
 }
 
 void Matrix4::scale(float xScale, float yScale, float zScale) {

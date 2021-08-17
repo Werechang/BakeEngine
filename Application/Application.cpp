@@ -80,17 +80,17 @@ void Application::terminate() {
 
 void Application::runGL() {
 
-    // 3f - position (x,y,z) | 3f - color (r,g,b) | 2f - texCoords (u,v) | each row a vertex
+    // 3f - position (x,y,z) | 3f - color (r,g,b) | 2f - texCoords (u,v) | 3f - normal (x,y,z) | each row a vertex
     float vertices[] = {
-            -0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f, -1.0f, 1.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f,
 
-            -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
+            -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, -1.0f,
+            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f, -1.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, -1.0f, -1.0f,
     };
 
     unsigned int elementArray[] = {
@@ -140,15 +140,22 @@ void Application::runGL() {
 
     int vertPosAttrib = shader.getAttribLocation("position");
     glEnableVertexAttribArray(vertPosAttrib);
-    glVertexAttribPointer(vertPosAttrib, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), nullptr);
+    glVertexAttribPointer(vertPosAttrib, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), nullptr);
 
     int colorAttrib = shader.getAttribLocation("color");
     glEnableVertexAttribArray(colorAttrib);
-    glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void*)(3*sizeof(float)));
 
     int texCoordAttrib = shader.getAttribLocation("texCoord");
     glEnableVertexAttribArray(texCoordAttrib);
-    glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
+    glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void*)(6*sizeof(float)));
+
+    int normalAttrib = shader.getAttribLocation("normal");
+    glEnableVertexAttribArray(normalAttrib);
+    glVertexAttribPointer(normalAttrib, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void*)(8*sizeof(float)));
+
+    shader.uniform3f("lightColor", 1.0f, 1.0f, 1.0f);
+    shader.uniform3f("lightPos", 0.7f, 0.0f, 2.0f);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -158,9 +165,11 @@ void Application::runGL() {
 
     // TODO: Frame skip, show FPS
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    unsigned int refreshRate = 1000000000/60;
+    unsigned int refreshRate = 1000000000/1000;
 
     int elementCount = sizeof(elementArray)/sizeof(unsigned int);
+
+    Vector3 camera(0, 0, 0);
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -175,13 +184,18 @@ void Application::runGL() {
                 height = hNew;
                 projection = Matrix4::perspective(Angle::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
             }
-            model.rotateZ(Angle::toRadians(3));
-            // This is the most hackiest approach of doing input. Will be changed later
-            view.translate(KeyArray[GLFW_KEY_A]/8.0f - KeyArray[GLFW_KEY_D]/8.0f, KeyArray[GLFW_KEY_S]/8.0f - KeyArray[GLFW_KEY_W]/8.0f, KeyArray[GLFW_KEY_SPACE]/8.0f - KeyArray[GLFW_KEY_LEFT_SHIFT]/8.0f);
+            // This is the most hackiest way of doing input. Will be changed later
+            Vector3 cam(KeyArray[GLFW_KEY_A]/8.0f - KeyArray[GLFW_KEY_D]/8.0f, KeyArray[GLFW_KEY_S]/8.0f - KeyArray[GLFW_KEY_W]/8.0f, KeyArray[GLFW_KEY_SPACE]/8.0f - KeyArray[GLFW_KEY_LEFT_SHIFT]/8.0f);
+            view.translate(cam);
             view.rotate(Angle::toRadians(KeyArray[GLFW_KEY_UP]) - Angle::toRadians(KeyArray[GLFW_KEY_DOWN]), Angle::toRadians(KeyArray[GLFW_KEY_RIGHT]) - Angle::toRadians(KeyArray[GLFW_KEY_LEFT]), 0);
 
-            Matrix4 mvp = projection * view * model;
-            shader.uniformMatrix4fv("mvp", mvp);
+            camera = camera + cam;
+
+            shader.uniform3f("cameraPos", camera.getX(), camera.getY(), camera.getZ());
+
+            Matrix4 vp = projection * view;
+            shader.uniformMatrix4fv("vp", vp);
+            shader.uniformMatrix4fv("model", model);
 
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

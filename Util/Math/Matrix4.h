@@ -1,4 +1,4 @@
-
+// Man bekommt beim Schweigen ganz gut ein Maß für die Zeit.
 #ifndef BAKEENGINE_MATRIX4_H
 #define BAKEENGINE_MATRIX4_H
 
@@ -25,6 +25,7 @@ public:
     void rotateZ(float rad);
     void rotate(float xRad, float yRad, float zRad);
     void translate(float x, float y, float z);
+    void translate(Vector3& vec);
     void scale(float xScale, float yScale, float zScale);
 
     Matrix4 operator*(Matrix4 &other);
