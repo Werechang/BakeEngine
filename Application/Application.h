@@ -7,12 +7,15 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "../Input/InputManager.h"
+#include "../Scene/Camera.h"
 
 class Application {
 private:
     int width, height;
     const char* name;
     bool isOGL;
+
+    Camera camera = Camera();
 
     InputManager inputManager = InputManager();
     GLFWwindow *window{};
@@ -28,6 +31,8 @@ public:
     void runGL();
     void runVk();
     void terminate();
+
+    void getInput();
 };
 
 

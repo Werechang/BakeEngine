@@ -5,22 +5,19 @@ Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {
 
 }
 
-float* Vector3::get4() {
-    return new float[]{x, y, z, 1};
+Vector3 Vector3::cross(Vector3 &other) {
+    return {this->y * other.z - this->z * other.y,
+            this->z * other.x - this->x * other.z,
+            this->x * other.y - this->y * other.x};
 }
 
-float Vector3::getX() const {
-    return x;
-}
-
-float Vector3::getY() const {
-    return y;
-}
-
-float Vector3::getZ() const {
-    return z;
-}
 
 Vector3 Vector3::operator+(Vector3 &other) const {
     return {this->x + other.x, this->y + other.y, this->z + other.z};
+}
+
+void Vector3::normalize() {
+    x /= magnitude;
+    y /= magnitude;
+    z /= magnitude;
 }

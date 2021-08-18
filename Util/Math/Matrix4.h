@@ -26,9 +26,14 @@ public:
     void rotate(float xRad, float yRad, float zRad);
     void translate(float x, float y, float z);
     void translate(Vector3& vec);
+    void translateX(float distance);
+    void translateY(float distance);
+    void translateZ(float distance);
     void scale(float xScale, float yScale, float zScale);
 
     Matrix4 operator*(Matrix4 &other);
+
+    void print();
 };
 
 

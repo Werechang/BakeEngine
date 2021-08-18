@@ -9,7 +9,7 @@ set(GLFW_USE_STATIC_LIBS ON)
 set(VULKAN_INCLUDE_DIR external/Libraries/Vulkan/include)
 set(VULKAN_LIB_DIR external/Libraries/Vulkan/lib)
 
-add_executable(BakeEngine main.cpp external/glad.c Application/Application.cpp Application/Application.h Input/InputManager.cpp Input/InputManager.h Render/OpenGL/GLShader.cpp Render/OpenGL/GLShader.h Render/OpenGL/GLTexture.cpp Render/OpenGL/GLTexture.h FileParser/stb_image.cpp FileParser/stb_image.h Util/Math/Matrix4.cpp Util/Math/Matrix4.h Util/Math/Vector3.cpp Util/Math/Vector3.h Util/Math/Angle.cpp Util/Math/Angle.h Render/OpenGL/GLRenderer.cpp Render/OpenGL/GLRenderer.h Render/OpenGL/GLObject.cpp Render/OpenGL/GLObject.h Render/OpenGL/ElementBuffer.cpp Render/OpenGL/ElementBuffer.h Render/OpenGL/VertexArray.cpp Render/OpenGL/VertexArray.h Render/OpenGL/VertexBuffer.cpp Render/OpenGL/VertexBuffer.h)
+add_executable(BakeEngine main.cpp external/glad.c Application/Application.cpp Application/Application.h Input/InputManager.cpp Input/InputManager.h Render/OpenGL/GLShader.cpp Render/OpenGL/GLShader.h Render/OpenGL/GLTexture.cpp Render/OpenGL/GLTexture.h FileParser/stb_image.cpp FileParser/stb_image.h Util/Math/Matrix4.cpp Util/Math/Matrix4.h Util/Math/Vector3.cpp Util/Math/Vector3.h Util/Math/Angle.cpp Util/Math/Angle.h Render/OpenGL/GLRenderer.cpp Render/OpenGL/GLRenderer.h Render/OpenGL/GLObject.cpp Render/OpenGL/GLObject.h Render/OpenGL/ElementBuffer.cpp Render/OpenGL/ElementBuffer.h Render/OpenGL/VertexArray.cpp Render/OpenGL/VertexArray.h Render/OpenGL/VertexBuffer.cpp Render/OpenGL/VertexBuffer.h Scene/Camera.cpp Scene/Camera.h)
 
 include_directories(${GL_INCLUDE_DIR} ${VULKAN_INCLUDE_DIR})
 

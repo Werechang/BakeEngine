@@ -3,6 +3,7 @@
 #include "../Render/OpenGL/GLShader.h"
 #include "../Render/OpenGL/GLTexture.h"
 #include "../Util/Math/Angle.h"
+#include "../Scene/Camera.h"
 
 void errorCallback(int error, const char *description) {
     std::cerr << "GL Error (" << error << "): " << description << std::endl;
@@ -167,6 +168,9 @@ void Application::runGL() {
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     unsigned int refreshRate = 1000000000/1000;
 
+    Camera cam = Camera();
+    cam.getView();
+
     int elementCount = sizeof(elementArray)/sizeof(unsigned int);
 
     Vector3 camera(0, 0, 0);
@@ -191,7 +195,7 @@ void Application::runGL() {
 
             camera = camera + cam;
 
-            shader.uniform3f("cameraPos", camera.getX(), camera.getY(), camera.getZ());
+            shader.uniform3f("cameraPos", camera.x, camera.y, camera.z);
 
             Matrix4 vp = projection * view;
             shader.uniformMatrix4fv("vp", vp);
@@ -222,4 +226,11 @@ void Application::runGL() {
 
 void Application::runVk() {
 
+}
+
+void Application::getInput() {
+    float camSpeed = 1;
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+
+    }
 }

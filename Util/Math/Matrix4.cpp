@@ -1,6 +1,7 @@
 // Man bekommt beim Schweigen ganz gut ein Maß für die Zeit.
 #include "Matrix4.h"
 #include <cmath>
+#include <iostream>
 
 /*
  * matrix = {{1, 0, 0, 5}, {2, 0, 0, 6}, {3, 0, 0, 7}, {4, 0, 0, 8}}
@@ -102,10 +103,23 @@ void Matrix4::translate(float x, float y, float z) {
     matrix[3][2] += z;
 }
 
+void Matrix4::translateX(float distance) {
+    matrix[3][0] = distance;
+}
+
+void Matrix4::translateY(float distance) {
+    matrix[3][1] = distance;
+}
+
+void Matrix4::translateZ(float distance) {
+    matrix[3][2] = distance;
+}
+
+
 void Matrix4::translate(Vector3& vec) {
-    matrix[3][0] += vec.getX();
-    matrix[3][1] += vec.getY();
-    matrix[3][2] += vec.getZ();
+    matrix[3][0] += vec.x;
+    matrix[3][1] += vec.y;
+    matrix[3][2] += vec.z;
 }
 
 void Matrix4::scale(float xScale, float yScale, float zScale) {
@@ -124,4 +138,10 @@ Matrix4 Matrix4::operator*(Matrix4 &other) {
     }
 
     return Matrix4(ret.matrix);
+}
+
+void Matrix4::print() {
+    for (auto i = 0; i<4;i++) {
+        std::cout << "|" << matrix[0][i] << " " << matrix[1][i] << " " << matrix[2][i] << " " << matrix[3][i] << "|" << std::endl;
+    }
 }
