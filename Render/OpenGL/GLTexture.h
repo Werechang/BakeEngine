@@ -1,7 +1,12 @@
 // Jedem Anfang wohnt ein Zauber inne. Der uns beschützt und der uns hilft, zu leben.
 #ifndef BAKEENGINE_GLTEXTURE_H
 #define BAKEENGINE_GLTEXTURE_H
+#define TEXTURE_IMAGE 0
+#define TEXTURE_DIFFUSE 1
+#define TEXTURE_SPECULAR 2
+#define TEXTURE_NORMAL_MAP 3
 
+#include <string>
 #include "glad/glad.h"
 
 class GLTexture {
@@ -9,13 +14,16 @@ private:
     unsigned int texPtr;
     int width, height, bpp;
     unsigned char* texCache;
+    unsigned int type;
 public:
-    explicit GLTexture(const char* path) : GLTexture(GL_LINEAR, GL_REPEAT, path) {}
-    GLTexture(int interpolation, int sampling, const char* path);
+    GLTexture(const char* path, unsigned int type) : GLTexture(GL_LINEAR, GL_REPEAT, path, type) {}
+    GLTexture(int interpolation, int sampling, const char* path, unsigned int type);
     ~GLTexture();
 
     void bind(unsigned int slot) const;
     static void unbind();
+
+    std::string getTypeName() const;
 };
 
 

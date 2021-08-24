@@ -27,12 +27,12 @@ public:
 
     void uniform4f(const std::string& name, float a, float b, float c, float d);
     void uniform3f(const std::string& name, float a, float b, float c);
+    void uniform1f(const std::string& name, float a);
     void uniform1i(const std::string& name, int a);
     void uniformMatrix4fv(const std::string& name, Matrix4& matrix);
 
     void bind() const;
     static void unbind();
-    int getAttribLocation(const char* name) const;
 };
 
 

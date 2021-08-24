@@ -1,48 +1,68 @@
 
 #include "Camera.h"
+#include "../Util/Math/Math.h"
 
-void Camera::translate(float distanceX, float distanceY, float distanceZ) {
-    pos.x += distanceX;
-    pos.y += distanceY;
-    pos.z += distanceZ;
-}
-
-void Camera::translateX(float distance) {
-    pos.x += distance;
-}
-
-void Camera::translateY(float distance) {
-    pos.y += distance;
-}
-
-void Camera::translateZ(float distance) {
-    pos.z += distance;
-}
-
-void Camera::rotate(float angleX, float angleY, float angleZ) {
+Camera::Camera() : pos(0, 0, 0), up(0, 1, 0) {
 
 }
 
-void Camera::rotateX(float angle) {
+Camera::Camera(Vector3 &pos, Vector3 &up) : pos(pos), up(up) {
 
 }
 
-void Camera::rotateY(float angle) {
-
+void Camera::setPos(float x, float y, float z) {
+    pos.x = x;
+    pos.y = y;
+    pos.z = z;
 }
 
-void Camera::rotateZ(float angle) {
+float Camera::posX() const {
+    return pos.x;
+}
 
+float Camera::posY() const {
+    return pos.y;
+}
+
+float Camera::posZ() const {
+    return pos.z;
+}
+
+void Camera::moveFront() {
+    pos += front * speed;
+}
+
+void Camera::moveBack() {
+    pos -= front * speed;
+}
+
+void Camera::moveLeft() {
+    pos += Vector3::normalize(Vector3::cross(front, camUp)) * speed;
+}
+
+void Camera::moveRight() {
+    pos -= Vector3::normalize(Vector3::cross(front, camUp)) * speed;
+}
+
+void Camera::turn(float xOffset, float yOffset) {
+    yaw -= xOffset;
+    pitch += yOffset;
+    Math::clamp(-89.0f, 89.0f, pitch);
+
+    float x = cos(Math::toRadians(yaw)) * cos(Math::toRadians(pitch));
+    float y = sin(Math::toRadians(pitch));
+    float z = sin(Math::toRadians(yaw)) * cos(Math::toRadians(pitch));
+    front = Vector3::normalize(Vector3(x, y, z));
 }
 
 Matrix4 Camera::getView() {
-    float view[4][4] = {{camRight.x, camUp.x, direction.x, 0},
-                        {camRight.y, camUp.y, direction.y, 0},
-                        {camRight.z, camUp.z, direction.z, 0},
-                        {0, 0, 0, 1}};
-    float mat[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {-pos.x, -pos.y, -pos.z, 1}};
-    auto v = Matrix4(view);
-    auto t = Matrix4(mat);
-    Matrix4 m = v * t;
-    return m;
+    Vector3 direction = Vector3::normalize(front);
+    Vector3 camRight(Vector3::normalize(Vector3::cross(up, direction)));
+    camUp = Vector3::cross(direction, camRight);
+
+    float view[4][4] = {{camRight.x, camUp.x, -direction.x, 0},
+                        {camRight.y, camUp.y, -direction.y, 0},
+                        {camRight.z, camUp.z, -direction.z, 0},
+                        {-Vector3::dot(camRight, pos), -Vector3::dot(camUp, pos), Vector3::dot(direction, pos), 1}};
+    return Matrix4(view);
 }

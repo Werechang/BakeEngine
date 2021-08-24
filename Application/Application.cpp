@@ -1,25 +1,28 @@
 // Wir haben so vieles geschafft - wir schaffen das!
 #include "Application.h"
+#include "../Util/Math/Math.h"
 #include "../Render/OpenGL/GLShader.h"
 #include "../Render/OpenGL/GLTexture.h"
-#include "../Util/Math/Angle.h"
-#include "../Scene/Camera.h"
 
 void errorCallback(int error, const char *description) {
-    std::cerr << "GL Error (" << error << "): " << description << std::endl;
+    std::cerr << "[GLFW]/[Error] " << error << ": " << description << std::endl;
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    Keys::update(window, key, scancode, action, mods);
+    InputManager::updateKey(window, key, scancode, action, mods);
+}
+
+void mouseCallback(GLFWwindow *window, double xPos, double yPos) {
+    InputManager::updateMouse(window, xPos, yPos);
 }
 
 Application::Application(bool isOGL, int width, int height, const char *name) : isOGL(isOGL), width(width), height(height), name(name) {
     if (isOGL) {
-        std::cout << "Starting OpenGL Application ..." << std::endl;
+        std::cout << "[BakeEngine]:[Info] Starting OpenGL Application ..." << std::endl;
     } else {
-        std::cout << "Starting Vulkan Application ..." << std::endl;
+        std::cout << "[BakeEngine]:[Info] Starting Vulkan Application ..." << std::endl;
         if (!glfwVulkanSupported()) {
-            std::cerr << "Vulkan is not supported on this device." << std::endl;
+            std::cerr << "[BakeEngine]:[Fatal Error] Vulkan is not supported on this device." << std::endl;
             exit(-1);
         }
     }
@@ -44,7 +47,7 @@ void Application::init() {
 
     // exit when Application was not initialized properly
     if (window == nullptr) {
-        std::cerr << "Error while creating Application context" << std::endl;
+        std::cerr << "[BakeEngine]:[Error] Error while creating Application context" << std::endl;
         glfwTerminate();
         exit(-1);
     }
@@ -56,6 +59,7 @@ void Application::init() {
 
     // Function for inputs
     glfwSetKeyCallback(window, keyCallback);
+    glfwSetCursorPosCallback(window, mouseCallback);
 
     if (isOGL) {
         gladLoadGL();
@@ -113,11 +117,18 @@ void Application::runGL() {
             4, 5, 6,
             6, 7, 4
     };
+    renderer.addModel("../resources/standard.shader", vertices, sizeof(vertices)/sizeof(float), elementArray, sizeof(elementArray)/sizeof(unsigned int));
 
     // Vertex Array Object
     unsigned int vao;
     glGenVertexArrays(1, &vao);
+    unsigned int vertexBuffer;
+    glGenBuffers(1, &vertexBuffer);
+
     glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Element buffer object
     unsigned int ebo;
@@ -126,54 +137,64 @@ void Application::runGL() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elementArray), elementArray, GL_STATIC_DRAW);
 
-    unsigned int vertexBuffer;
-
-    glGenBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
     GLShader shader("../resources/standard.shader");
     shader.bind();
 
-    GLTexture tex(GL_NEAREST, GL_REPEAT, "../resources/texture1.png");
+    GLTexture tex(GL_LINEAR, GL_REPEAT, "../resources/texture1.png", TEXTURE_IMAGE);
     tex.bind(0);
-    shader.uniform1i("tex", 0);
+    shader.uniform1i("textureImage1", 0);
 
-    int vertPosAttrib = shader.getAttribLocation("position");
-    glEnableVertexAttribArray(vertPosAttrib);
-    glVertexAttribPointer(vertPosAttrib, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), nullptr);
+    // vertex position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+    // vertex color
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // texture coordinate
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void*)(6*sizeof(float)));
+    glEnableVertexAttribArray(2);
+    // vertex normals
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void*)(8*sizeof(float)));
+    glEnableVertexAttribArray(3);
 
-    int colorAttrib = shader.getAttribLocation("color");
-    glEnableVertexAttribArray(colorAttrib);
-    glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void*)(3*sizeof(float)));
+    shader.uniform3f("pointLights[0].position", 0.7f, 0.0f, 2.0f);
+    shader.uniform3f("pointLights[0].ambient", 0.1f, 0.1f, 0.1f);
+    shader.uniform3f("pointLights[0].diffuse", 1.0f, 1.0f, 1.0f);
+    shader.uniform3f("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+    shader.uniform1f("pointLights[0].constant", 1.0f);
+    shader.uniform1f("pointLights[0].linear", 0.22f);
+    shader.uniform1f("pointLights[0].quadratic", 0.2f);
 
-    int texCoordAttrib = shader.getAttribLocation("texCoord");
-    glEnableVertexAttribArray(texCoordAttrib);
-    glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void*)(6*sizeof(float)));
+    shader.uniform3f("pointLights[1].position", -2.7f, 1.0f, -1.0f);
+    shader.uniform3f("pointLights[1].ambient", 0.1f, 0.1f, 0.1f);
+    shader.uniform3f("pointLights[1].diffuse", 1.0f, 1.0f, 1.0f);
+    shader.uniform3f("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+    shader.uniform1f("pointLights[1].constant", 1.0f);
+    shader.uniform1f("pointLights[1].linear", 0.7f);
+    shader.uniform1f("pointLights[1].quadratic", 1.8f);
 
-    int normalAttrib = shader.getAttribLocation("normal");
-    glEnableVertexAttribArray(normalAttrib);
-    glVertexAttribPointer(normalAttrib, 3, GL_FLOAT, GL_FALSE, 11*sizeof(float), (void*)(8*sizeof(float)));
-
-    shader.uniform3f("lightColor", 1.0f, 1.0f, 1.0f);
-    shader.uniform3f("lightPos", 0.7f, 0.0f, 2.0f);
-
+    shader.uniform3f("dirLight.direction", -0.2f, -1.0f, -0.3f);
+    shader.uniform3f("dirLight.ambient", 0.1f, 0.1f, 0.1f);
+    shader.uniform3f("dirLight.diffuse", 1.0f, 1.0f, 1.0f);
+    shader.uniform3f("dirLight.specular", 1.0f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
-    Matrix4 view = Matrix4::identity();
     Matrix4 model = Matrix4::identity();
-    Matrix4 projection = Matrix4::perspective(Angle::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
+    Matrix4 view = Matrix4::identity();
+    Matrix4 projection = Matrix4::perspective(Math::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
 
     // TODO: Frame skip, show FPS
     long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    unsigned int refreshRate = 1000000000/1000;
-
-    Camera cam = Camera();
-    cam.getView();
+    unsigned int refreshRate = 1000000000/100;
 
     int elementCount = sizeof(elementArray)/sizeof(unsigned int);
+    shader.uniformMatrix4fv("projection", projection);
+    shader.uniform3f("material.ambient", 1.0f, 1.0f, 1.0f);
+    shader.uniform3f("material.diffuse", 1.0f, 1.0f, 1.0f);
+    shader.uniform3f("material.specular", 0.5f, 0.5f, 0.5f);
+    shader.uniform1f("material.roughness", 32.0f);
 
-    Vector3 camera(0, 0, 0);
+    float deltaTime, lastFrame = 0;
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -181,29 +202,32 @@ void Application::runGL() {
         long long now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         if (now - begin >= refreshRate) {
             begin = now;
+
+            auto currentFrame = (float)glfwGetTime();
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
             int wNew, hNew;
             glfwGetWindowSize(window, &wNew, &hNew);
             if (wNew != width || hNew != height) {
                 width = wNew;
                 height = hNew;
-                projection = Matrix4::perspective(Angle::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
+                projection = Matrix4::perspective(Math::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
+                shader.uniformMatrix4fv("projection", projection);
             }
-            // This is the most hackiest way of doing input. Will be changed later
-            Vector3 cam(KeyArray[GLFW_KEY_A]/8.0f - KeyArray[GLFW_KEY_D]/8.0f, KeyArray[GLFW_KEY_S]/8.0f - KeyArray[GLFW_KEY_W]/8.0f, KeyArray[GLFW_KEY_SPACE]/8.0f - KeyArray[GLFW_KEY_LEFT_SHIFT]/8.0f);
-            view.translate(cam);
-            view.rotate(Angle::toRadians(KeyArray[GLFW_KEY_UP]) - Angle::toRadians(KeyArray[GLFW_KEY_DOWN]), Angle::toRadians(KeyArray[GLFW_KEY_RIGHT]) - Angle::toRadians(KeyArray[GLFW_KEY_LEFT]), 0);
+            getInput(deltaTime);
 
-            camera = camera + cam;
+            view = camera.getView();
+            shader.uniform3f("cameraPos", camera.posX(), camera.posY(), camera.posZ());
 
-            shader.uniform3f("cameraPos", camera.x, camera.y, camera.z);
+            shader.uniformMatrix4fv("view", view);
 
-            Matrix4 vp = projection * view;
-            shader.uniformMatrix4fv("vp", vp);
             shader.uniformMatrix4fv("model", model);
 
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            glEnableVertexAttribArray(vao);
             glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, nullptr);
 
             glfwGetFramebufferSize(window, &width, &height);
@@ -228,9 +252,24 @@ void Application::runVk() {
 
 }
 
-void Application::getInput() {
-    float camSpeed = 1;
-    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-
+void Application::getInput(float deltaTime) {
+    camera.speed = 2.5f * deltaTime;
+    if (KeyArray[GLFW_KEY_W]) {
+        camera.moveFront();
     }
+    if (KeyArray[GLFW_KEY_S]) {
+        camera.moveBack();
+    }
+    if (KeyArray[GLFW_KEY_A]) {
+        camera.moveLeft();
+    }
+    if (KeyArray[GLFW_KEY_D]) {
+        camera.moveRight();
+    }
+
+    float xOffset = (float)(mouseX - lastMouseX) * 0.1f;
+    float yOffset = (float)(lastMouseY - mouseY) * 0.1f;
+    camera.turn(xOffset, yOffset);
+    lastMouseX = mouseX;
+    lastMouseY = mouseY;
 }

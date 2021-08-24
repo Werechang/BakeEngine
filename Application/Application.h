@@ -8,6 +8,7 @@
 #include "GLFW/glfw3.h"
 #include "../Input/InputManager.h"
 #include "../Scene/Camera.h"
+#include "../Render/OpenGL/GLRenderer.h"
 
 class Application {
 private:
@@ -20,7 +21,7 @@ private:
     InputManager inputManager = InputManager();
     GLFWwindow *window{};
 
-    std::jthread renderThread;
+    GLRenderer renderer;
 public:
     bool running = true;
 
@@ -32,7 +33,7 @@ public:
     void runVk();
     void terminate();
 
-    void getInput();
+    void getInput(float deltaTime);
 };
 
 

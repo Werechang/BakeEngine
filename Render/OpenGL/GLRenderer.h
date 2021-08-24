@@ -2,15 +2,14 @@
 #ifndef BAKEENGINE_GLRENDERER_H
 #define BAKEENGINE_GLRENDERER_H
 
-#include "GLObject.h"
+#include "../../Util/Math/Matrix4.h"
+#include "glad/glad.h"
 
 class GLRenderer {
 private:
-    std::vector<GLObject> models;
 public:
     void addModel(const char* shaderPath, const float* vertices, unsigned int vertSize, const unsigned int* elements, unsigned int elementsSize);
     void draw(Matrix4& projView);
 };
-
 
 #endif

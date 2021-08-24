@@ -3,24 +3,34 @@
 #define BAKEENGINE_CAMERA_H
 
 #include "../Util/Math/Matrix4.h"
+#include <cmath>
 
 class Camera {
 private:
-    Vector3 pos = Vector3(1, 1, 1);
-    Vector3 target = Vector3(0, 0, 0);
-    Vector3 direction = Vector3(1, 1, 1);
+    Vector3 pos;
+    Vector3 up = Vector3(0, 1, 0);
+    Vector3 front = Vector3(0, 0, -1);
+    Vector3 camUp = Vector3(0, 1, 0);
 
-    Vector3 camUp = Vector3(1, 1, 1);
-    Vector3 camRight = Vector3(1, 1, 1);
+    float yaw = -90, pitch = 0;
+
 public:
-    void translate(float distanceX, float distanceY, float distanceZ);
-    void translateX(float distance);
-    void translateY(float distance);
-    void translateZ(float distance);
-    void rotate(float angleX, float angleY, float angleZ);
-    void rotateX(float angle);
-    void rotateY(float angle);
-    void rotateZ(float angle);
+    float speed = 0.05;
+
+    Camera();
+    Camera(Vector3& pos, Vector3& up);
+
+    void setPos(float x, float y, float z);
+
+    float posX() const;
+    float posY() const;
+    float posZ() const;
+
+    void moveFront();
+    void moveBack();
+    void moveLeft();
+    void moveRight();
+    void turn(float xOffset, float yOffset);
 
     Matrix4 getView();
 };

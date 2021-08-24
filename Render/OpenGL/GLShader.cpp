@@ -47,7 +47,7 @@ unsigned int GLShader::compileShader(const unsigned int shaderType, const char* 
             case GL_FRAGMENT_SHADER: type = "fragment";break;
             case GL_VERTEX_SHADER: type = "vertex";break;
         }
-        std::cerr << "Could not compile " << type << " shader:" << std::endl;
+        std::cerr << "[BakeEngine]:[Error] Could not compile " << type << " shader:" << std::endl;
         std::cerr << message << std::endl;
         glDeleteShader(shader);
         return 0;
@@ -74,7 +74,8 @@ int GLShader::getUniformLocation(const std::string &name) {
     }
     int location = glGetUniformLocation(programPtr, name.c_str());
     if (location == -1) {
-        std::cerr << "[Warning] Uniform location does not exist!" << std::endl;
+
+        std::cerr << "[BakeEngine]:[Warning] Uniform " << name << " does not exist!" << std::endl;
     }
     uniformLocationCache[name] = location;
     return location;
@@ -88,16 +89,16 @@ void GLShader::unbind() {
     glUseProgram(0);
 }
 
-int GLShader::getAttribLocation(const char* name) const {
-    return glGetAttribLocation(programPtr, name);
-}
-
 void GLShader::uniform4f(const std::string &name, float a, float b, float c, float d) {
     glUniform4f(getUniformLocation(name), a, b, c, d);
 }
 
 void GLShader::uniform3f(const std::string &name, float a, float b, float c) {
     glUniform3f(getUniformLocation(name), a, b, c);
+}
+
+void GLShader::uniform1f(const std::string &name, float a) {
+    glUniform1f(getUniformLocation(name), a);
 }
 
 void GLShader::uniform1i(const std::string &name, int a) {

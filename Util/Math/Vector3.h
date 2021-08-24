@@ -6,13 +6,18 @@
 class Vector3 {
 public:
     float x, y, z;
-    float magnitude = 1;
 
     Vector3(float x, float y, float z);
 
-    Vector3 cross(Vector3& other);
     Vector3 operator+(Vector3& other) const;
-    void normalize();
+    Vector3 operator-(Vector3& other) const;
+    Vector3 operator*(Vector3& other) const;
+    Vector3 operator*(float other) const;
+    Vector3 operator+=(Vector3 other);
+    Vector3 operator-=(Vector3 other);
+    static Vector3 normalize(const Vector3& vec);
+    static float dot(Vector3 &vec1, Vector3 &vec2);
+    static Vector3 cross(Vector3& vec1, Vector3& vec2);
 };
 
 
