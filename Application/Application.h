@@ -3,12 +3,12 @@
 #define BAKEENGINE_APPLICATION_H
 
 #include <thread>
-#include <iostream>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "../Input/InputManager.h"
 #include "../Scene/Camera.h"
 #include "../Render/OpenGL/GLRenderer.h"
+#include "../Util/LogHelperBE.h"
 
 class Application {
 private:
@@ -26,6 +26,9 @@ public:
     bool running = true;
 
     explicit Application(bool isOGL, int width, int height, const char *name);
+    ~Application() {
+        LogHelperBE::popName();
+    }
 
     void init();
     void start();

@@ -10,24 +10,6 @@ Camera::Camera(Vector3 &pos, Vector3 &up) : pos(pos), up(up) {
 
 }
 
-void Camera::setPos(float x, float y, float z) {
-    pos.x = x;
-    pos.y = y;
-    pos.z = z;
-}
-
-float Camera::posX() const {
-    return pos.x;
-}
-
-float Camera::posY() const {
-    return pos.y;
-}
-
-float Camera::posZ() const {
-    return pos.z;
-}
-
 void Camera::moveFront() {
     pos += front * speed;
 }

@@ -7,24 +7,20 @@
 
 class Camera {
 private:
+
+    float yaw = -90, pitch = 0;
+
+public:
     Vector3 pos;
     Vector3 up = Vector3(0, 1, 0);
     Vector3 front = Vector3(0, 0, -1);
     Vector3 camUp = Vector3(0, 1, 0);
 
-    float yaw = -90, pitch = 0;
-
-public:
     float speed = 0.05;
+    float globalSpeed = 2.5f;
 
     Camera();
     Camera(Vector3& pos, Vector3& up);
-
-    void setPos(float x, float y, float z);
-
-    float posX() const;
-    float posY() const;
-    float posZ() const;
 
     void moveFront();
     void moveBack();

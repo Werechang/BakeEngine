@@ -31,8 +31,7 @@ struct VertexAttribute {
 class VertexAttributes {
 private:
     std::vector<VertexAttribute> attribs;
-    // vertexSize = stride
-    unsigned int vertexSize = 0;
+    unsigned int size = 0;
 public:
     template<typename T>
     void addAttribute(unsigned int count) {
@@ -41,7 +40,7 @@ public:
     template<>
     void addAttribute<float>(unsigned int count) {
         attribs.push_back({GL_FLOAT, count, GL_FALSE});
-        vertexSize += count * sizeof(float);
+        size += 1;
     };
 
     std::vector<VertexAttribute> getAttributes() const {
@@ -49,7 +48,7 @@ public:
     };
 
     unsigned int getVertexSize() const {
-        return vertexSize;
+        return size;
     };
 };
 

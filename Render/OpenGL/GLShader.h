@@ -3,22 +3,23 @@
 #define BAKEENGINE_GLSHADER_H
 
 #include "glad/glad.h"
-#include <string>
 #include <unordered_map>
 #include "../../Util/Math/Matrix4.h"
+#include "../../Util/LogHelperBE.h"
 
 struct GLShaderSource {
     std::string vertexSource;
     std::string fragmentSource;
+    std::string geometrySource;
 };
 class GLShader {
 private:
     unsigned int programPtr;
     std::unordered_map<std::string, int> uniformLocationCache;
 
-    static GLShaderSource parseShader(const std::string& filePath);
-    static unsigned int compileShader(unsigned int shaderType, const char* source);
-    static unsigned int createProgram(const char *vertSource, const char *fragSource);
+    GLShaderSource parseShader(const std::string& filePath);
+    unsigned int compileShader(unsigned int shaderType, const char* source);
+    unsigned int createProgram(const char *vertSource, const char *fragSource, const char* geometrySource = nullptr);
 
     int getUniformLocation(const std::string& name);
 public:
@@ -27,6 +28,7 @@ public:
 
     void uniform4f(const std::string& name, float a, float b, float c, float d);
     void uniform3f(const std::string& name, float a, float b, float c);
+    void uniformVec3(const std::string& name, Vector3& vec);
     void uniform1f(const std::string& name, float a);
     void uniform1i(const std::string& name, int a);
     void uniformMatrix4fv(const std::string& name, Matrix4& matrix);

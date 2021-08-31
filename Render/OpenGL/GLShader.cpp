@@ -1,15 +1,16 @@
 // Wir schaffen das, und dort, wo uns etwas im Wege steht, muss es überwunden werden.
 #include <sstream>
 #include <fstream>
-#include <iostream>
 #include "GLShader.h"
 
 GLShader::GLShader(const std::string &filePath) {
+    LogHelperBE::pushName("Shader");
     GLShaderSource src = parseShader(filePath);
-    programPtr = createProgram(src.vertexSource.c_str(), src.fragmentSource.c_str());
+    programPtr = createProgram(src.vertexSource.c_str(), src.fragmentSource.c_str(), src.geometrySource.empty() ? nullptr : src.geometrySource.c_str());
 }
 
 GLShader::~GLShader() {
+    LogHelperBE::popName();
     glDeleteProgram(programPtr);
 }
 
@@ -17,18 +18,20 @@ GLShaderSource GLShader::parseShader(const std::string &filePath) {
     std::ifstream stream(filePath);
 
     std::string l;
-    std::stringstream shaderSource[2];
+    std::stringstream shaderSource[3];
     int shaderType = -1;
     while (std::getline(stream, l)) {
         if (l.find("#vertex") != std::string::npos) {
             shaderType = 0;
         } else if (l.find("#fragment") != std::string::npos) {
             shaderType = 1;
+        } else if (l.find("#geometry") != std::string::npos) {
+            shaderType = 2;
         } else {
             shaderSource[shaderType] << l << "\n";
         }
     }
-    return {shaderSource[0].str(), shaderSource[1].str()};
+    return {shaderSource[0].str(), shaderSource[1].str(), shaderSource[2].str()};
 }
 
 unsigned int GLShader::compileShader(const unsigned int shaderType, const char* source) {
@@ -46,24 +49,31 @@ unsigned int GLShader::compileShader(const unsigned int shaderType, const char* 
         switch (shaderType) {
             case GL_FRAGMENT_SHADER: type = "fragment";break;
             case GL_VERTEX_SHADER: type = "vertex";break;
+            case GL_GEOMETRY_SHADER: type = "geometry";break;
         }
-        std::cerr << "[BakeEngine]:[Error] Could not compile " << type << " shader:" << std::endl;
-        std::cerr << message << std::endl;
+        LogHelperBE::error(("Could not compile " + std::string(type) + " shader\n" + message).c_str());
         glDeleteShader(shader);
+        LogHelperBE::popName();
         return 0;
     }
     return shader;
 }
 
-unsigned int GLShader::createProgram(const char* vertSource, const char* fragSource) {
+unsigned int GLShader::createProgram(const char* vertSource, const char* fragSource, const char* geometrySource) {
     unsigned int shaderProgram = glCreateProgram();
     unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertSource);
     unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragSource);
+    if (geometrySource != nullptr) {
+        unsigned int geometryShader = compileShader(GL_GEOMETRY_SHADER, geometrySource);
+        glAttachShader(shaderProgram, geometryShader);
+    }
 
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
     glValidateProgram(shaderProgram);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
 
     return shaderProgram;
 }
@@ -74,8 +84,7 @@ int GLShader::getUniformLocation(const std::string &name) {
     }
     int location = glGetUniformLocation(programPtr, name.c_str());
     if (location == -1) {
-
-        std::cerr << "[BakeEngine]:[Warning] Uniform " << name << " does not exist!" << std::endl;
+        LogHelperBE::warning(("Uniform " + std::string(name) + " does not exist!").c_str());
     }
     uniformLocationCache[name] = location;
     return location;
@@ -95,6 +104,10 @@ void GLShader::uniform4f(const std::string &name, float a, float b, float c, flo
 
 void GLShader::uniform3f(const std::string &name, float a, float b, float c) {
     glUniform3f(getUniformLocation(name), a, b, c);
+}
+
+void GLShader::uniformVec3(const std::string &name, Vector3 &vec) {
+    glUniform3f(getUniformLocation(name), vec.x, vec.y, vec.z);
 }
 
 void GLShader::uniform1f(const std::string &name, float a) {
