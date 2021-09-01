@@ -126,3 +126,7 @@ DataView DataView::getBufferSlice(unsigned int offset, unsigned int length) {
     }
     return {buffer, this->endian};
 }
+
+std::vector<unsigned char> DataView::getData() {
+    return this->bytes;
+}

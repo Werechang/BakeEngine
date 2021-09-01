@@ -13,6 +13,20 @@ struct ResourceDict {
     unsigned int offset;
 };
 
+struct Fvtx_Attrib {
+    std::string name;
+    unsigned int format;
+    unsigned short offset;
+    unsigned char bufferIndex;
+};
+
+struct Fvtx_Buffer {
+    unsigned int size;
+    std::vector<unsigned char> data;
+    unsigned int stride;
+    unsigned int divisor;
+};
+
 struct FsklBone {
     std::string name;
     float posX, posY, posZ;
@@ -26,11 +40,12 @@ struct Fskl {
 };
 
 struct Fvtx {
-
+    std::vector<Fvtx_Attrib> attribs;
+    std::vector<Fvtx_Buffer> vertexBuffer;
 };
 
 struct Fshp {
-
+    std::string name;
 };
 
 struct Fmat {
@@ -60,6 +75,8 @@ public:
     ResourceDict parseResourceDicIndex(unsigned int index);
     Fmdl parseFMDL(unsigned int offset, DataView& memoryPoolBuffer);
     Fskl parseFSKL(unsigned int offset);
+    Fvtx parseFVTX(unsigned int offset, DataView& memoryPoolBuffer);
+    Fshp parseFSHP(unsigned int offset, DataView& memoryPoolBuffer);
 };
 
 #endif

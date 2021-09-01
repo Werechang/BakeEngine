@@ -97,13 +97,29 @@ Fmdl Fres::parseFMDL(unsigned int offset, DataView& memoryPoolBuffer) {
     unsigned int usrDataDicOffset = file.readUInt(offset + 0x58);
 
     unsigned int usrDataPtr = file.readUInt(offset + 0x60);
-    unsigned int vtxCount = file.readUInt(offset + 0x68);
-    unsigned int shpCount = file.readUInt(offset + 0x6a);
-    unsigned int matCount = file.readUInt(offset + 0x6c);
-    unsigned int usrDataCount = file.readUInt(offset + 0x6e);
+    unsigned int vtxCount = file.readShort(offset + 0x68);
+    unsigned int shpCount = file.readShort(offset + 0x6a);
+    unsigned int matCount = file.readShort(offset + 0x6c);
+    unsigned int usrDataCount = file.readShort(offset + 0x6e);
     unsigned int totalProcessVtx = file.readUInt(offset + 0x70);
 
     model.skeleton = parseFSKL(sklOffset);
+
+    unsigned int vertexArrayIndex = vtxArrayOffset;
+    for (auto i = 0; i < vtxCount; i++) {
+        if (file.readString(vertexArrayIndex, 0x04, false) != "FVTX")
+            LogHelperBE::error("FVTX offset is corrupted");
+        model.vertices.emplace_back(parseFVTX(vertexArrayIndex, memoryPoolBuffer));
+        vertexArrayIndex += 0x60;
+    }
+
+    unsigned int shpArrayIndex = shpArrayOffset;
+    for (auto i = 0; i < shpCount; i++) {
+        if (file.readString(shpArrayIndex, 0x04, false) != "FSHP")
+            LogHelperBE::error("FSHP offset is corrupted");
+        model.shapes.emplace_back(parseFSHP(shpArrayIndex, memoryPoolBuffer));
+        shpArrayIndex += 0x70;
+    }
 
     p(model.name);
 
@@ -155,4 +171,52 @@ Fskl Fres::parseFSKL(unsigned int offset) {
         boneArrayIdx += 0x60;
     }
     return skeleton;
+}
+
+Fvtx Fres::parseFVTX(unsigned int offset, DataView& memoryPoolBuffer) {
+    Fvtx vertex{};
+
+    unsigned int vtxAttribArrayOffset = file.readUInt(offset+0x10);
+    unsigned int vtxBufferInfoArrayOffset = file.readUInt(offset+0x38);
+    unsigned int vtxBufferStateInfoArrayOffset = file.readUInt(offset+0x40);
+    unsigned int memoryPoolOffset = file.readUInt(offset+0x50);
+    unsigned int vtxAttribCount = file.readByte(offset+0x54);
+    unsigned int vtxBufferCount = file.readByte(offset+0x55);
+
+    unsigned int vtxAttribArrayIndex = vtxAttribArrayOffset;
+    for (auto i = 0; i < vtxAttribCount; i++) {
+        Fvtx_Attrib attrib{};
+        attrib.name = readBinaryString(file.readUInt(vtxAttribArrayIndex));
+        attrib.format = file.readUInt(vtxAttribArrayIndex+0x08);
+        attrib.offset = file.readShort(vtxAttribArrayIndex+0x0c);
+        attrib.bufferIndex = file.readByte(vtxAttribArrayIndex+0x0e);
+        vertex.attribs.emplace_back(attrib);
+        vtxAttribArrayIndex += 0x10;
+    }
+
+    unsigned int vtxBufferInfoArrayIndex = vtxBufferInfoArrayOffset;
+    unsigned int vtxBufferStateInfoArrayIndex = vtxBufferStateInfoArrayOffset;
+    unsigned int memoryPoolRunningOffset = memoryPoolOffset;
+    for (auto i = 0; i < vtxBufferCount; i++) {
+        Fvtx_Buffer buffer{};
+        buffer.size = file.readUInt(vtxBufferInfoArrayIndex);
+        buffer.stride = file.readUInt(vtxBufferStateInfoArrayIndex);
+        buffer.divisor = file.readUInt(vtxBufferStateInfoArrayIndex + 0x04);
+        buffer.data = memoryPoolBuffer.getBufferSlice(memoryPoolRunningOffset, buffer.size).getData();
+
+        vertex.vertexBuffer.emplace_back(buffer);
+        // TODO align memoryPoolRunningOffset
+        memoryPoolRunningOffset += buffer.size;
+        vtxBufferInfoArrayIndex += 0x10;
+        vtxBufferStateInfoArrayIndex += 0x10;
+    }
+
+    return vertex;
+}
+
+Fshp Fres::parseFSHP(unsigned int offset, DataView& memoryPoolBuffer) {
+    Fshp shape{};
+    shape.name = readBinaryString(file.readUInt(offset+0x10));
+    unsigned int meshArrayOffset = file.readUInt(offset+0x20);
+    return shape;
 }

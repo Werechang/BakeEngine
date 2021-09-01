@@ -34,6 +34,7 @@ public:
     void seek(int offset);
     void setEndian(bool isBigEndian);
     DataView getBufferSlice(unsigned int offset, unsigned int length);
+    std::vector<unsigned char> getData();
 
     int readShort(unsigned int offset);
 };
