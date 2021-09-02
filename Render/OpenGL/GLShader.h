@@ -34,7 +34,7 @@ public:
     void uniformMatrix4fv(const std::string& name, Matrix4& matrix);
 
     void bind() const;
-    static void unbind();
+    void unbind() const;
 };
 
 

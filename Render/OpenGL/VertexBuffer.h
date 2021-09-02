@@ -40,7 +40,7 @@ public:
     template<>
     void addAttribute<float>(unsigned int count) {
         attribs.push_back({GL_FLOAT, count, GL_FALSE});
-        size += 1;
+        size += count * 4;
     };
 
     std::vector<VertexAttribute> getAttributes() const {

@@ -10,6 +10,7 @@ private:
     unsigned int texture;
     unsigned int renderBuffer;
     int width, height;
+    unsigned short samples;
 public:
     Framebuffer(int width, int height, unsigned short samples = 1, bool hasRenderBuffer = true);
     ~Framebuffer();

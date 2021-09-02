@@ -218,5 +218,13 @@ Fshp Fres::parseFSHP(unsigned int offset, DataView& memoryPoolBuffer) {
     Fshp shape{};
     shape.name = readBinaryString(file.readUInt(offset+0x10));
     unsigned int meshArrayOffset = file.readUInt(offset+0x20);
+    unsigned int boundingBoxArrayOffset = file.readUInt(offset+0x40);
+
+    unsigned int matIndex = file.readShort(offset+0x5e);
+    unsigned int boneIndex = file.readShort(offset+0x60);
+    unsigned int vtxIndex = file.readShort(offset+0x62);
+
+    unsigned int meshCount = file.readByte(offset+0x67);
+
     return shape;
 }

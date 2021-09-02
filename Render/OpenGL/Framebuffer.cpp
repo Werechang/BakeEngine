@@ -2,7 +2,7 @@
 #include "Framebuffer.h"
 #include "../../Util/LogHelperBE.h"
 
-Framebuffer::Framebuffer(int width, int height, unsigned short samples, bool hasRenderBuffer) : width(width), height(height) {
+Framebuffer::Framebuffer(int width, int height, unsigned short samples, bool hasRenderBuffer) : width(width), height(height), samples(samples) {
     LogHelperBE::pushName("Framebuffer");
     glGenFramebuffers(1, &frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
@@ -31,7 +31,6 @@ Framebuffer::Framebuffer(int width, int height, unsigned short samples, bool has
         } else {
             glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
         }
-
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBuffer);
     }
 
@@ -43,6 +42,8 @@ Framebuffer::Framebuffer(int width, int height, unsigned short samples, bool has
 
 Framebuffer::~Framebuffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteTextures(1, &texture);
+    glDeleteRenderbuffers(1, &renderBuffer);
     glDeleteFramebuffers(1, &frameBuffer);
 }
 

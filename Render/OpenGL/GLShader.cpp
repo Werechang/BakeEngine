@@ -94,7 +94,7 @@ void GLShader::bind() const {
     glUseProgram(programPtr);
 }
 
-void GLShader::unbind() {
+void GLShader::unbind() const {
     glUseProgram(0);
 }
 

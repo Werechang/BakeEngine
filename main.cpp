@@ -9,7 +9,7 @@ int main(int argc, char* args[]) {
     Model m("../resources/output.bfres");
     m.load();
 
-    //Application(true, 1600, 900, "BakeEngine").start();
+    Application(true, 1600, 900, "BakeEngine").start();
 
 
     LogHelperBE::popName();
