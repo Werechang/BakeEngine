@@ -19,6 +19,7 @@ public:
     void unbind() const;
     void bindTexture() const;
     void drawTo(Framebuffer* fb) const;
+    void resize(int nWidth, int nHeight);
 };
 
 

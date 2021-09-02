@@ -200,7 +200,7 @@ void Application::runGL() {
 
     Framebuffer fb(width, height, 4);
 
-    Framebuffer postProcessingBuffer(width, height, 1, false);
+    Framebuffer ppb(width, height, 1, false);
 
     GLShader shader("../resources/standard.shader");
     shader.bind();
@@ -276,9 +276,9 @@ void Application::runGL() {
             if (isResized) {
                 width = wNew;
                 height = hNew;
-                fb = Framebuffer(width, height, 4, true);
-                postProcessingBuffer = Framebuffer(width, height, 1, false);
                 glViewport(0, 0, width, height);
+                ppb.resize(width, height);
+                fb.resize(width, height);
                 projection = Matrix4::perspective(Math::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
                 shader.bind();
                 shader.uniformMatrix4fv("projection", projection);
@@ -306,12 +306,12 @@ void Application::runGL() {
             glDrawArrays(GL_TRIANGLES, 0, vertCount);
             vao.unbind();
 
-            fb.drawTo(&postProcessingBuffer);
+            fb.drawTo(&ppb);
             fb.unbind();
             screenShader.bind();
             quadArray.bind();
             glActiveTexture(GL_TEXTURE0);
-            postProcessingBuffer.bindTexture();
+            ppb.bindTexture();
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
             glfwSwapBuffers(window);

@@ -64,3 +64,22 @@ void Framebuffer::drawTo(Framebuffer* fb) const {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb->frameBuffer);
     glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
+
+void Framebuffer::resize(int nWidth, int nHeight) {
+    this->width = nWidth;
+    this->height = nHeight;
+    this->bind();
+    if (samples != 1) {
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    }
+    glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
+    if (samples != 1) {
+        glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, width, height);
+    } else {
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    }
+}
