@@ -13,11 +13,15 @@
 class Model {
 private:
     std::vector<Mesh> meshes;
-    const char* path;
+    std::string path;
     int fileType;
     Fres* fres;
 public:
     explicit Model(const char* filePath);
+    ~Model() {
+        delete fres;
+        fres = nullptr;
+    }
     void load();
     void render(GLShader& shader);
 };

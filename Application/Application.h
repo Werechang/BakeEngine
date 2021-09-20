@@ -10,6 +10,8 @@
 #include "../Render/OpenGL/GLRenderer.h"
 #include "../Util/LogHelperBE.h"
 
+static bool running = true;
+
 class Application {
 private:
     int width, height;
@@ -21,10 +23,7 @@ private:
     InputManager inputManager = InputManager();
     GLFWwindow *window{};
 
-    GLRenderer renderer;
 public:
-    bool running = true;
-
     explicit Application(bool isOGL, int width, int height, const char *name);
     ~Application() {
         LogHelperBE::popName();
@@ -38,6 +37,5 @@ public:
 
     void getInput(float deltaTime);
 };
-
 
 #endif

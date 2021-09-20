@@ -7,7 +7,7 @@ void Model::render(GLShader &shader) {
     }
 }
 
-Model::Model(const char *filePath) : path(filePath){
+Model::Model(const char* filePath) : path(std::string(filePath)){
     LogHelperBE::pushName("Model");
     fileType = -1;
     try {

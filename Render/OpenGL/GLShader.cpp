@@ -83,8 +83,9 @@ int GLShader::getUniformLocation(const std::string &name) {
         return uniformLocationCache[name];
     }
     int location = glGetUniformLocation(programPtr, name.c_str());
+
     if (location == -1) {
-        LogHelperBE::warning(("Uniform " + std::string(name) + " does not exist!").c_str());
+        LogHelperBE::error(("Uniform " + std::string(name) + " does not exist!").c_str());
     }
     uniformLocationCache[name] = location;
     return location;

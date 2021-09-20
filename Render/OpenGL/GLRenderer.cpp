@@ -1,12 +1,28 @@
 // Ich denke an dichte Fenster! Kein anderes Land kann so dichte und schöne Fenster bauen.
 #include "GLRenderer.h"
 
-void GLRenderer::draw(Matrix4& projView) {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+/* Right handed coordinate system
+ *           +y -z
+ *            | /
+ *            |/
+ * -x --------+--------- +x
+ *           /|
+ *          / |
+ *        +z  -y
+ */
+void GLRenderer::draw() {
+    guiShader.bind();
+    for (auto & guiElement : GuiElement::guiElements) {
+        guiElement->renderElement(guiShader);
+    }
 }
 
-void
-GLRenderer::addModel(const char *shaderPath, const float *vertices, unsigned int vertSize, const unsigned int *elements,
-                     unsigned int elementsSize) {
+void GLRenderer::onResize(int newWidth, int newHeight) {
+    guiShader.bind();
+    guiProj = Matrix4::orthographic(0, (float)newWidth, (float)newHeight, 0, -1, 1);
+    for (auto & guiElement : GuiElement::guiElements) {
+        guiElement->onResize(newWidth, newHeight);
+    }
+    width = newWidth;
+    height = newHeight;
 }

@@ -4,6 +4,7 @@
 #include <iostream>
 
 /*
+ * OpenGL uses column first by default
  * matrix = {{1, 0, 0, 5}, {2, 0, 0, 6}, {3, 0, 0, 7}, {4, 0, 0, 8}}
  * matrix (real formatting):
  * 1 | 2 | 3 | 4
@@ -21,7 +22,7 @@ Matrix4::Matrix4(float matrix2[4][4]) {
 }
 
 /**
- * Generates a normal identity matrix
+ * Generates an identity matrix. If multiplied with Matrix M1 results in M1 (M1 * identity = M1)
  * @return Identity Matrix
  */
 Matrix4 Matrix4::identity() {
@@ -29,12 +30,12 @@ Matrix4 Matrix4::identity() {
     return Matrix4(mat);
 }
 /**
- *
- * @param fovY Field of view on the y-axis
+ * Generates a perspective projection matrix
+ * @param fovY Field of view on the y-axis, in radians
  * @param aspect aspect ratio (width/height)
- * @param zNear nearest clip
- * @param zFar farthest clip
- * @return Perspective Matrix4
+ * @param zNear near clipping plane
+ * @param zFar far clipping plane
+ * @return A projection (clip space) matrix
  */
 Matrix4 Matrix4::perspective(float fovY, float aspect, float zNear, float zFar) {
     float fovTanHalf = tan(fovY/2);
@@ -42,20 +43,34 @@ Matrix4 Matrix4::perspective(float fovY, float aspect, float zNear, float zFar) 
 
     float mat[4][4] = {{1/(aspect * fovTanHalf), 0, 0, 0},
                        {0, 1/(fovTanHalf), 0, 0},
-                       {0, 0, -((zFar + zNear)/(zFar - zNear)), -1},
-                       {0, 0, -((2*zFar*zNear)/(zFar - zNear)), 0}};
+                       {0, 0, -(zFar + zNear)/(zFar - zNear), -1},
+                       {0, 0, -(2*zFar*zNear)/(zFar - zNear), 0}};
     return Matrix4(mat);
 }
-
+/**
+ * Generates an orthographic projection matrix
+ * @param left left side of the screen, usually 0
+ * @param right right side of the screen, usually width
+ * @param bottom bottom of the screen, usually 0
+ * @param top top of the screen, usually height
+ * @param zNear near clipping plane
+ * @param zFar far clipping plane
+ * @return A projection (clip space) matrix
+ */
 Matrix4 Matrix4::orthographic(float left, float right, float bottom, float top, float zNear, float zFar) {
     float mat[4][4] = {{2/(right - left), 0, 0, 0},
                        {0, 2/(top - bottom), 0, 0},
-                       {0, 0, -2/(zFar - zNear), -1},
-                       {-(right + left)/(right - left), -(top + bottom)/(top - bottom), -((zFar+zNear)/(zFar - zNear)), 1}};
+                       {0, 0, -2/(zFar - zNear), 0},
+                       {-(right + left)/(right - left), -(top + bottom)/(top - bottom), -(zFar+zNear)/(zFar - zNear), 1}};
     return Matrix4(mat);
 }
 
-
+/**
+ *
+ * @param i column 0-3
+ * @param j row 0-3
+ * @return A pointer to the (i,j) element of the matrix array
+ */
 float *Matrix4::ptr(int i, int j) {
     return &matrix[i][j];
 }
@@ -130,7 +145,6 @@ void Matrix4::scale(float xScale, float yScale, float zScale) {
 
 Matrix4 Matrix4::operator*(Matrix4 &other) {
     Matrix4 ret;
-    ret.matrix;
     for (auto i = 0; i < 4; i++) {
         for (auto j = 0; j < 4; j++) {
             ret.matrix[j][i] = this->matrix[0][i] * other.matrix[j][0] + this->matrix[1][i] * other.matrix[j][1] + this->matrix[2][i] * other.matrix[j][2] + this->matrix[3][i] * other.matrix[j][3];

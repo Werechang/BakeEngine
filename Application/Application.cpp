@@ -1,11 +1,31 @@
 // Wir haben so vieles geschafft - wir schaffen das!
 #include "Application.h"
 #include "../Util/Math/Math.h"
-#include "../Render/OpenGL/GLShader.h"
-#include "../Render/OpenGL/GLTexture.h"
-#include "../Render/OpenGL/VertexArray.h"
-#include "../Render/OpenGL/ElementBuffer.h"
 #include "../Render/OpenGL/Framebuffer.h"
+
+#define glCheckError() glCheckError_(__FILE__, __LINE__)
+
+GLRenderer* GLRenderer::renderer = nullptr;
+
+GLenum glCheckError_(const char *file, int line) {
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR) {
+        std::string error;
+        switch (errorCode) {
+            case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+            case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+            case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+            case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+            case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+            case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+        }
+        LogHelperBE::pushName("OpenGL");
+        LogHelperBE::error((error + " | " + file + " (" + std::to_string(line) + ")").c_str());
+        LogHelperBE::popName();
+    }
+    return errorCode;
+}
 
 void errorCallback(int error, const char *description) {
     LogHelperBE::pushName("GLFW");
@@ -22,7 +42,11 @@ void mouseCallback(GLFWwindow *window, double xPos, double yPos) {
 }
 
 void closeCallback(GLFWwindow* window) {
+    running = false;
+}
 
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    InputManager::updateMouseButton(window, button, action, mods);
 }
 
 Application::Application(bool isOGL, int width, int height, const char *name) : isOGL(isOGL), width(width), height(height), name(name) {
@@ -73,12 +97,14 @@ void Application::init() {
     glfwSetKeyCallback(window, keyCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetWindowCloseCallback(window, closeCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
     if (isOGL) {
         gladLoadGL();
     } else {
 
     }
+    glfwSetWindowShouldClose(window, 0);
 }
 
 void Application::start() {
@@ -98,6 +124,7 @@ void Application::terminate() {
 
 void Application::runGL() {
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -159,8 +186,9 @@ void Application::runGL() {
             1.0f, -1.0f,  1.0f, 0.0f,
             1.0f,  1.0f,  1.0f, 1.0f
     };
-
-    //renderer.addModel("../resources/standard.shader", vertices, sizeof(vertices)/sizeof(float), elementArray, sizeof(elementArray)/sizeof(unsigned int));
+    GLRenderer glRenderer = GLRenderer("../resources/gui.shader", width, height);
+    GuiElement gui(100, 100, 150, 150, false, GUI_NONE);
+    GuiElement gui2(50, 400, 200, 200, true, GUI_NONE);
 
     // Vertex Array Object
     VertexArray vao;
@@ -193,63 +221,60 @@ void Application::runGL() {
     quadAttribs.addAttribute<float>(2);
     quadAttribs.addAttribute<float>(2);
     quadArray.addVertexBuffer(quadBuffer, quadAttribs);
+    quadArray.unbind();
+    quadBuffer.unbind();
 
     GLShader screenShader("../resources/framebuffer.shader");
     screenShader.bind();
     screenShader.uniform1i("screen", 0);
 
+    GLShader screenDBShader("../resources/fbDepth.shader");
+    screenDBShader.bind();
+    screenDBShader.uniform1i("screen", 0);
+
     Framebuffer fb(width, height, 4);
 
-    Framebuffer ppb(width, height, 1, false);
+    Framebuffer viewport(width, height, 1, false);
 
     GLShader shader("../resources/standard.shader");
     shader.bind();
 
-    GLTexture tex(GL_LINEAR, GL_REPEAT, "../resources/container2.png", TEXTURE_IMAGE);
-    GLTexture texSpec(GL_LINEAR, GL_REPEAT, "../resources/container2_specular.png", TEXTURE_SPECULAR);
+    GLTexture tex(GL_LINEAR, GL_REPEAT, "../resources/container2.png", TEXTURE_IMAGE, false);
+    GLTexture texSpec(GL_LINEAR, GL_REPEAT, "../resources/container2_specular.png", TEXTURE_SPECULAR, false);
     shader.uniform1i("textureImage1", 0);
     shader.uniform1i("material.diffuse", 0);
     shader.uniform1i("material.specular", 1);
 
     shader.uniform3f("pointLights[0].position", 0.7f, 0.0f, 2.0f);
-    shader.uniform3f("pointLights[0].ambient", 0.1f, 0.1f, 0.1f);
-    shader.uniform3f("pointLights[0].diffuse", 1.0f, 1.0f, 1.0f);
-    shader.uniform3f("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-    shader.uniform1f("pointLights[0].constant", 1.0f);
-    shader.uniform1f("pointLights[0].linear", 0.22f);
-    shader.uniform1f("pointLights[0].quadratic", 0.2f);
+    shader.uniform3f("pointLights[0].ambient", 0.0f, 0.0f, 0.0f);
+    shader.uniform3f("pointLights[0].diffuse", 1.f, 1.0f, 1.0f);
+    shader.uniform3f("pointLights[0].specular", 0.5f, 0.5f, 0.5f);
 
     shader.uniform3f("pointLights[1].position", -2.7f, 1.0f, -1.0f);
-    shader.uniform3f("pointLights[1].ambient", 0.1f, 0.1f, 0.1f);
-    shader.uniform3f("pointLights[1].diffuse", 1.0f, 1.0f, 1.0f);
-    shader.uniform3f("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
-    shader.uniform1f("pointLights[1].constant", 1.0f);
-    shader.uniform1f("pointLights[1].linear", 0.7f);
-    shader.uniform1f("pointLights[1].quadratic", 1.8f);
+    shader.uniform3f("pointLights[1].ambient", 0.0f, 0.0f, 0.0f);
+    shader.uniform3f("pointLights[1].diffuse", 0.5f, 0.5f, 0.5f);
+    shader.uniform3f("pointLights[1].specular", 0.5f, 0.5f, 0.5f);
 
     shader.uniform3f("spotLights[0].position", 5.0f, 1.0f, 0.0f);
     shader.uniform3f("spotLights[0].direction", 1.0f, 0.0f, 0.0f);
-    shader.uniform3f("spotLights[0].ambient", 0.01f, 0.01f, 0.01f);
-    shader.uniform3f("spotLights[0].diffuse", 1.0f, 0.0f, 0.5f);
-    shader.uniform3f("spotLights[0].specular", 1.0f, 0.0f, 0.5f);
+    shader.uniform3f("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
+    shader.uniform3f("spotLights[0].diffuse", 0.5f, 0.0f, 0.25f);
+    shader.uniform3f("spotLights[0].specular", 0.5f, 0.0f, 0.25f);
     shader.uniform1f("spotLights[0].cutOff", Math::toRadians(12.5f));
     shader.uniform1f("spotLights[0].outerCutoff", Math::toRadians(15.0f));
-    shader.uniform1f("spotLights[0].constant", 1.0f);
-    shader.uniform1f("spotLights[0].linear", 0.14f);
-    shader.uniform1f("spotLights[0].quadratic", 0.07f);
 
 
     shader.uniform3f("dirLight.direction", -0.2f, -1.0f, -0.3f);
-    shader.uniform3f("dirLight.ambient", 0.5f, 0.5f, 0.5f);
-    shader.uniform3f("dirLight.diffuse", 1.0f, 1.0f, 1.0f);
-    shader.uniform3f("dirLight.specular", 1.0f, 1.0f, 1.0f);
+    shader.uniform3f("dirLight.ambient", 0.2f, 0.2f, 0.2f);
+    shader.uniform3f("dirLight.diffuse", 2.0f, 2.0f, 2.0f);
+    shader.uniform3f("dirLight.specular", 0.8f, 0.8f, 0.8f);
 
     Matrix4 model = Matrix4::identity();
     Matrix4 view = Matrix4::identity();
     Matrix4 projection = Matrix4::perspective(Math::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
 
     shader.uniformMatrix4fv("projection", projection);
-    shader.uniform1f("material.roughness", 32.0f);
+    shader.uniform1f("material.roughness", 256.0f);
     shader.unbind();
 
     // TODO: Frame skip, show FPS
@@ -258,8 +283,8 @@ void Application::runGL() {
 
     float deltaTime, lastFrame = 0;
 
-
-    while (!glfwWindowShouldClose(window)) {
+    glCheckError();
+    while (!glfwWindowShouldClose(window) && running) {
 
         // Time
         long long now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -277,20 +302,22 @@ void Application::runGL() {
                 width = wNew;
                 height = hNew;
                 glViewport(0, 0, width, height);
-                ppb.resize(width, height);
+                viewport.resize(width, height);
                 fb.resize(width, height);
                 projection = Matrix4::perspective(Math::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
                 shader.bind();
                 shader.uniformMatrix4fv("projection", projection);
                 shader.unbind();
+                glRenderer.onResize(width, height);
             }
+            glfwPollEvents();
             getInput(deltaTime);
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
             fb.bind();
             glEnable(GL_DEPTH_TEST);
-            glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
             view = camera.getView();
@@ -306,16 +333,18 @@ void Application::runGL() {
             glDrawArrays(GL_TRIANGLES, 0, vertCount);
             vao.unbind();
 
-            fb.drawTo(&ppb);
+            fb.drawTo(&viewport);
             fb.unbind();
+            glDisable(GL_DEPTH_TEST);
             screenShader.bind();
             quadArray.bind();
             glActiveTexture(GL_TEXTURE0);
-            ppb.bindTexture();
+            viewport.bindTexture();
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
+            glRenderer.draw();
+
             glfwSwapBuffers(window);
-            glfwPollEvents();
 
             long long frameTime = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - begin;
             if (refreshRate - frameTime > 0) {
@@ -323,7 +352,6 @@ void Application::runGL() {
             }
         }
     }
-    glfwSetWindowShouldClose(window, 0);
 }
 
 void Application::runVk() {
@@ -332,22 +360,33 @@ void Application::runVk() {
 
 void Application::getInput(float deltaTime) {
     camera.speed = camera.globalSpeed * deltaTime;
-    if (KeyArray[GLFW_KEY_W]) {
+    // TODO Lower camera speed if two keys are pressed (i.e. WA)
+    if (KeyboardKeys[GLFW_KEY_W]) {
         camera.moveFront();
     }
-    if (KeyArray[GLFW_KEY_S]) {
+    if (KeyboardKeys[GLFW_KEY_S]) {
         camera.moveBack();
     }
-    if (KeyArray[GLFW_KEY_A]) {
+    if (KeyboardKeys[GLFW_KEY_A]) {
         camera.moveLeft();
     }
-    if (KeyArray[GLFW_KEY_D]) {
+    if (KeyboardKeys[GLFW_KEY_D]) {
         camera.moveRight();
     }
+    if (MouseButtons[GLFW_MOUSE_BUTTON_LEFT]) {
+        if (MouseButtonWasJustPressed[GLFW_MOUSE_BUTTON_LEFT]) {
+            firstMouse = true;
+        } else if (!firstMouse) {
+            float xOffset = (float)(mouseX - lastMouseX) * 0.1f;
+            float yOffset = (float)(lastMouseY - mouseY) * 0.1f;
+            camera.turn(xOffset, yOffset);
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        }
+    }
 
-    float xOffset = (float)(mouseX - lastMouseX) * 0.1f;
-    float yOffset = (float)(lastMouseY - mouseY) * 0.1f;
-    camera.turn(xOffset, yOffset);
-    lastMouseX = mouseX;
-    lastMouseY = mouseY;
+    for (auto i = 0; i < 8; i++) {
+        if (MouseButtons[i] && MouseButtonWasJustPressed[i])
+            MouseButtonWasJustPressed[i] = false;
+    }
 }

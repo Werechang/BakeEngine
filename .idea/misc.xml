@@ -8,6 +8,7 @@
       <file path="$PROJECT_DIR$/Input" />
       <file path="$PROJECT_DIR$/Render" />
       <file path="$PROJECT_DIR$/Scene" />
+      <file path="$PROJECT_DIR$/UI" />
       <file path="$PROJECT_DIR$/Util" />
     </sourceRoots>
     <libraryRoots>

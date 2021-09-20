@@ -1,9 +1,9 @@
 // Jedem Anfang wohnt ein Zauber inne. Der uns beschützt und der uns hilft, zu leben.
-#include <iostream>
 #include "GLTexture.h"
 #include "../../FileParser/stb_image.h"
+#include "../../Util/LogHelperBE.h"
 
-GLTexture::GLTexture(int interpolation, int sampling, const char* path, unsigned int type) : type(type) {
+GLTexture::GLTexture(int interpolation, int sampling, const char* path, unsigned int type, bool sRGB) : type(type) {
     stbi_set_flip_vertically_on_load(1);
     texCache = stbi_load(path, &width, &height, &bpp, 4);
 
@@ -17,18 +17,18 @@ GLTexture::GLTexture(int interpolation, int sampling, const char* path, unsigned
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolation);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texCache);
+    glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texCache);
 
     // Load image first!
     glGenerateMipmap(GL_TEXTURE_2D);
     if(texCache) {
         stbi_image_free(texCache);
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
+    unbind();
 }
 
 GLTexture::~GLTexture() {
+    unbind();
     glDeleteTextures(1, &texPtr);
 }
 
@@ -47,7 +47,11 @@ std::string GLTexture::getTypeName() const {
         case TEXTURE_DIFFUSE: return "textureDiffuse";
         case TEXTURE_SPECULAR: return "textureSpecular";
         case TEXTURE_NORMAL_MAP: return "textureNormal";
-        default: std::cerr << "[BakeEngine]:[Warning] Texture type " << type << " is not defined" << std::endl;
+        default: {
+            LogHelperBE::pushName("GLTexture");
+            LogHelperBE::error(("Texture type " + std::to_string(type) + " is not defined").c_str());
+            LogHelperBE::popName();
             return "";
+        }
     }
 }

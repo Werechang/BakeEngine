@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <map>
+#include <iostream>
 #include "GLFW/glfw3.h"
 
 typedef void (*Function)();
@@ -16,10 +17,12 @@ public:
     Action(int id, int keys[], Function callFun, int numKeys) : id(id), callFun(callFun), numKeys(numKeys) {};
 };
 
-static bool KeyArray[349];
+static bool KeyboardKeys[349];
 static double mouseX, mouseY;
 static double lastMouseX = 800, lastMouseY = 450;
 static bool firstMouse = true;
+static bool MouseButtons[8];
+static bool MouseButtonWasJustPressed[8];
 
 class InputManager {
 private:
@@ -30,8 +33,8 @@ public:
 
     static void updateKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_UNKNOWN) return;
-        if (action == GLFW_PRESS) KeyArray[key] = true;
-        if (action == GLFW_RELEASE) KeyArray[key] = false;
+        if (action == GLFW_PRESS) KeyboardKeys[key] = true;
+        if (action == GLFW_RELEASE) KeyboardKeys[key] = false;
     }
 
     static void updateMouse(GLFWwindow *window, double xPos, double yPos) {
@@ -43,6 +46,18 @@ public:
         mouseX = xPos;
         mouseY = yPos;
     }
+
+    static void updateMouseButton(GLFWwindow* window, int button, int action, int mods) {
+        if (action == GLFW_PRESS) {
+            if (!MouseButtons[button])
+                MouseButtonWasJustPressed[button] = true;
+            MouseButtons[button] = true;
+        }
+        if (action == GLFW_RELEASE) {
+            MouseButtons[button] = false;
+            MouseButtonWasJustPressed[button] = false;
+        }
+    };
 
     void addAction(int keys[], Function callFun, int numKeys);
 };

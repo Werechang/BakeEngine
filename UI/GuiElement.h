@@ -1,0 +1,46 @@
+
+#ifndef BAKEENGINE_GUIELEMENT_H
+#define BAKEENGINE_GUIELEMENT_H
+#define GUI_NONE 0
+#define GUI_TOP_CENTER 1
+#define GUI_TOP_RIGHT 2
+#define GUI_RIGHT_CENTER 3
+#define GUI_BOTTOM_RIGHT 4
+#define GUI_BOTTOM_CENTER 5
+#define GUI_BOTTOM_LEFT 6
+#define GUI_LEFT_CENTER 7
+#define GUI_TOP_LEFT 8
+#define GUI_CENTER 9
+
+#include <vector>
+#include "../Render/OpenGL/VertexArray.h"
+#include "../Render/OpenGL/GLShader.h"
+#include "../Render/OpenGL/GLTexture.h"
+#include "../Render/OpenGL/GLRenderer.h"
+#include "../Util/Math/Math.h"
+
+class GuiElement {
+private:
+    GuiElement* parent = nullptr;
+    std::vector<GuiElement*> children;
+    VertexArray vao;
+    float xPos, yPos, xSize, ySize;
+    bool resizeWithScreen;
+    int bindTo;
+    Matrix4 model = Matrix4::identity();
+    Matrix4 modelProj = Matrix4::identity();
+    GLTexture texture = GLTexture(GL_NEAREST, GL_REPEAT, "../resources/gui_placeholder.png", TEXTURE_IMAGE, false);
+public:
+    static std::vector<GuiElement*> guiElements;
+    GuiElement() : GuiElement(0, 0, 0, 0, false, GUI_NONE) {};
+    GuiElement(float xPos, float yPos) : GuiElement(xPos, yPos, 0, 0, false, GUI_NONE) {};
+    GuiElement(float xPos, float yPos, float xSize, float ySize) : GuiElement(xPos, yPos, xSize, ySize, false, GUI_NONE) {};
+    GuiElement(float xPos, float yPos, float xSize, float ySize, bool resizeWithScreen, int bindTo);
+    void renderElement(GLShader& shader);
+    void onResize(int width, int height);
+    void addChild(GuiElement* child);
+    bool hasParent() const;
+    GuiElement* getParent() const;
+};
+
+#endif
