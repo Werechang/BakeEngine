@@ -12,6 +12,11 @@
 #define GUI_TOP_LEFT 8
 #define GUI_CENTER 9
 
+#define GUI_NO_SCALING 0
+#define GUI_SCALE_NO_AXIS 1
+#define GUI_AXIS_X 2
+#define GUI_AXIS_Y 3
+
 #include <vector>
 #include "../Render/OpenGL/VertexArray.h"
 #include "../Render/OpenGL/GLShader.h"
@@ -25,17 +30,29 @@ private:
     std::vector<GuiElement*> children;
     VertexArray vao;
     float xPos, yPos, xSize, ySize;
-    bool resizeWithScreen;
-    int bindTo;
+    int scalingAxis;
+    int alignWith;
     Matrix4 model = Matrix4::identity();
     Matrix4 modelProj = Matrix4::identity();
     GLTexture texture = GLTexture(GL_NEAREST, GL_REPEAT, "../resources/gui_placeholder.png", TEXTURE_IMAGE, false);
 public:
     static std::vector<GuiElement*> guiElements;
     GuiElement() : GuiElement(0, 0, 0, 0, false, GUI_NONE) {};
-    GuiElement(float xPos, float yPos) : GuiElement(xPos, yPos, 0, 0, false, GUI_NONE) {};
-    GuiElement(float xPos, float yPos, float xSize, float ySize) : GuiElement(xPos, yPos, xSize, ySize, false, GUI_NONE) {};
-    GuiElement(float xPos, float yPos, float xSize, float ySize, bool resizeWithScreen, int bindTo);
+    /**
+    *
+    * @param xPos x Position in pixel coordinates, from left
+    * @param yPos y Position in pixel coordinates, from top
+    */
+    GuiElement(float xPos, float yPos) : GuiElement(xPos, yPos, 0, 0, GUI_NO_SCALING, GUI_NONE) {};
+    /**
+    *
+    * @param xPos x Position in pixel coordinates, from left
+    * @param yPos y Position in pixel coordinates, from top
+    * @param xSize x size going from left to right
+    * @param ySize y size going from top to bottom
+    */
+    GuiElement(float xPos, float yPos, float xSize, float ySize) : GuiElement(xPos, yPos, xSize, ySize, GUI_NO_SCALING, GUI_NONE) {};
+    GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith);
     void renderElement(GLShader& shader);
     void onResize(int width, int height);
     void addChild(GuiElement* child);

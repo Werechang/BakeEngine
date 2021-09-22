@@ -2,7 +2,6 @@
 #include <fstream>
 #include "File.h"
 
-// TODO: better exception handling
 /**
  * Creates a vector (array) to buffer the file data. Helper methods to parse the data easier.
  * @param path File path (includes the file itself + the extension)

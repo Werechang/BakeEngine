@@ -187,8 +187,14 @@ void Application::runGL() {
             1.0f,  1.0f,  1.0f, 1.0f
     };
     GLRenderer glRenderer = GLRenderer("../resources/gui.shader", width, height);
-    GuiElement gui(100, 100, 150, 150, false, GUI_NONE);
-    GuiElement gui2(50, 400, 200, 200, true, GUI_NONE);
+    GuiElement gui(725, 700, 150, 150, GUI_AXIS_X, GUI_BOTTOM_CENTER);
+    GuiElement gui2(1400, 700, 150, 150, GUI_AXIS_X, GUI_BOTTOM_RIGHT);
+    GuiElement gui3(1400, 375, 150, 150, GUI_AXIS_X, GUI_RIGHT_CENTER);
+    GuiElement gui4(1400, 50, 150, 150, GUI_AXIS_X, GUI_TOP_RIGHT);
+    GuiElement gui5(725, 50, 150, 150, GUI_AXIS_X, GUI_TOP_CENTER);
+    GuiElement gui6(50, 50, 150, 150, GUI_AXIS_X, GUI_TOP_LEFT);
+    GuiElement gui7(50, 375, 150, 150, GUI_AXIS_X, GUI_LEFT_CENTER);
+    GuiElement gui8(50, 700, 150, 150, GUI_AXIS_X, GUI_BOTTOM_LEFT);
 
     // Vertex Array Object
     VertexArray vao;

@@ -5,15 +5,16 @@ Matrix4 GLRenderer::guiProj;
 
 /**
  *
- * @param xPos x Position in pixel coordinates (0-1600), from left
- * @param yPos y Position in pixel coordinates (0-900), from top
+ * @param xPos x Position in pixel coordinates, from left
+ * @param yPos y Position in pixel coordinates, from top
  * @param xSize x size going from left to right
  * @param ySize y size going from top to bottom
- * @param resizeWithScreen resize the element itself on screen resize. WARNING! This would also change the aspect ratio of the element itself, meaning that it can squish/stretch
- * @param bindTo if the element should stick do a specific edge on resize. 0 if none, look into the definitions in GuiElement.h
+ * @param scalingAxis option for how the scaling of this element behaves. GUI_NO_AXIS scales with the aspect ratio,
+ * meaning that the element can squish/stretch
+ * GUI_AXIS_X and GUI_AXIS_Y scales by changing the width/height of the window
+ * @param alignWith if the element should stick do a specific edge on resize. 0 if none, look into the definitions in GuiElement.h
  */
-GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, bool resizeWithScreen, int bindTo) : xPos(xPos), yPos(yPos), xSize(xSize), ySize(ySize), resizeWithScreen(resizeWithScreen), bindTo(bindTo) {
-    // TODO Change the way coordinates work
+GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith) : xPos(xPos), yPos(yPos), xSize(xSize), ySize(ySize), scalingAxis(scalingAxis), alignWith(alignWith) {
     /*
      * screen in normalized device coordinates
      * (-1,+1)|-----------------|(+1,+1)
@@ -22,13 +23,13 @@ GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, bool re
      * (-1,-1)|-----------------|(+1,-1)
      */
     float vertices[] = {
-            xPos,       yPos,          0.0f, 1.0f, // Top left
-            xPos,       yPos+ySize,    0.0f, 0.0f, // Bottom left
-            xPos+xSize, yPos+ySize,    1.0f, 0.0f, // Bottom right
+            0,       0,          0.0f, 1.0f, // Top left
+            0,       ySize,    0.0f, 0.0f, // Bottom left
+            xSize, ySize,    1.0f, 0.0f, // Bottom right
 
-            xPos,       yPos,          0.0f, 1.0f, // Top left
-            xPos+xSize, yPos+ySize,    1.0f, 0.0f, // Bottom right
-            xPos+xSize, yPos,          1.0f, 1.0f  // Top right
+            0,       0,          0.0f, 1.0f, // Top left
+            xSize, ySize,    1.0f, 0.0f, // Bottom right
+            xSize, 0,          1.0f, 1.0f  // Top right
     };
     vao.bind();
     VertexBuffer vertexBuffer(vertices, sizeof(vertices));
@@ -40,6 +41,7 @@ GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, bool re
     vao.unbind();
     vertexBuffer.unbind();
     guiElements.emplace_back(this);
+    model.translate(xPos, yPos, 0);
     onResize(GLRenderer::renderer->width, GLRenderer::renderer->height);
 }
 
@@ -51,12 +53,72 @@ void GuiElement::renderElement(GLShader &shader) {
 }
 
 void GuiElement::onResize(int width, int height) {
-    // TODO Operations with model
     auto oldWidth = (float)GLRenderer::renderer->width;
     auto oldHeight = (float)GLRenderer::renderer->height;
-    if (resizeWithScreen)
-        model.scale((float)width/oldWidth, (float)height/oldHeight, 0);
-    // scaling does change the position currently (meaning that it would not align with an edge/corner)
+
+    float xScale = 1, yScale = 1;
+    if (scalingAxis > 0) {
+        switch (scalingAxis) {
+            case GUI_SCALE_NO_AXIS:
+                xScale = (float)width/oldWidth;
+                yScale = (float)height/oldHeight;
+                break;
+            case GUI_AXIS_X:
+                xScale = (float)width/oldWidth;
+                yScale = (float)width/oldWidth;
+                break;
+            case GUI_AXIS_Y:
+                xScale = (float)height/oldHeight;
+                yScale = (float)height/oldHeight;
+                break;
+        }
+        model.scale(xScale, yScale, 1);
+    }
+    float newXSize = xScale*xSize;
+    float newYSize = yScale*ySize;
+
+    float newX = xPos, newY = yPos;
+    switch (alignWith) {
+        //                                      |--Distance-to-edge---|  \/ to get the top left
+        // This is one of the algorithms: width-(oldWidth-(xPos+xSize))-xSize;
+        // TODO fix center element translation with scaling
+        case GUI_NONE: break;
+        case GUI_TOP_CENTER:
+            newX = (float)width/oldWidth*(xPos+newXSize/2)-newXSize/2;
+            break;
+        case GUI_TOP_RIGHT:
+            newX = (float)width-oldWidth+xPos+xSize-newXSize;
+            break;
+        case GUI_RIGHT_CENTER:
+            newX = (float)width-oldWidth+xPos+xSize-newXSize;
+            newY = (float)height/oldHeight*(yPos+newYSize/2)-newYSize/2;
+            break;
+        case GUI_BOTTOM_RIGHT:
+            newX = (float)width-oldWidth+xPos+xSize-newXSize;
+            newY = (float)height-oldHeight+yPos+ySize-newYSize;
+            break;
+        case GUI_BOTTOM_CENTER:
+            newX = (float)width/oldWidth*(xPos+newXSize/2)-newXSize/2;
+            newY = (float)height-oldHeight+yPos+ySize-newYSize;
+            break;
+        case GUI_BOTTOM_LEFT:
+            newY = (float)height-oldHeight+yPos+ySize-newYSize;
+            break;
+        case GUI_LEFT_CENTER:
+            newY = (float)height/oldHeight*(yPos+newYSize/2)-newYSize/2;
+            break;
+        case GUI_TOP_LEFT: break;
+        case GUI_CENTER:
+            newX = (float)width/oldWidth*(xPos+newXSize/2)-newXSize/2;
+            newY = (float)height/oldHeight*(yPos+newYSize/2)-newYSize/2;
+            break;
+    }
+
+    model.translate(newX-xPos, newY-yPos, 0);
+    xPos = newX;
+    yPos = newY;
+    xSize = newXSize;
+    ySize = newYSize;
     modelProj = GLRenderer::guiProj * model;
 }
 
