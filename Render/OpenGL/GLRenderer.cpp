@@ -18,6 +18,8 @@ void GLRenderer::draw() {
 }
 
 void GLRenderer::onResize(int newWidth, int newHeight) {
+    if ((newWidth == 0) || (newHeight == 0))
+        return;
     guiShader.bind();
     guiProj = Matrix4::orthographic(0, (float)newWidth, (float)newHeight, 0, -1, 1);
     for (auto & guiElement : GuiElement::guiElements) {

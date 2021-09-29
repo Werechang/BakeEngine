@@ -92,17 +92,17 @@ void Matrix4::multiply(float matrix2[4][4]) {
 }
 
 void Matrix4::rotateX(float rad) {
-    float mRot[4][4] = {{1, 0, 0, 0}, {0, cos(rad), sin(rad), 0}, {0, -sin(rad), cos(rad), 0}, {0, 0, 0, 1}};
+    float mRot[4][4] = {{1, 0, 0, 0}, {0, (float)cos(rad), (float)sin(rad), 0}, {0, (float)-sin(rad), (float)cos(rad), 0}, {0, 0, 0, 1}};
     multiply(mRot);
 }
 
 void Matrix4::rotateY(float rad) {
-    float mRot[4][4] = {{cos(rad), 0, -sin(rad), 0}, {0, 1, 0, 0}, {sin(rad), 0, cos(rad), 0}, {0, 0, 0, 1}};
+    float mRot[4][4] = {{(float)cos(rad), 0, (float)-sin(rad), 0}, {0, 1, 0, 0}, {(float)sin(rad), 0, (float)cos(rad), 0}, {0, 0, 0, 1}};
     multiply(mRot);
 }
 
 void Matrix4::rotateZ(float rad) {
-    float mRot[4][4] = {{cos(rad), sin(rad), 0, 0}, {-sin(rad), cos(rad), 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+    float mRot[4][4] = {{(float)cos(rad), (float)sin(rad), 0, 0}, {(float)-sin(rad), (float)cos(rad), 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
     multiply(mRot);
 }
 

@@ -1,7 +1,7 @@
 // Wir haben so vieles geschafft - wir schaffen das!
 #include "Application.h"
-#include "../Util/Math/Math.h"
 #include "../Render/OpenGL/Framebuffer.h"
+#include "../FileParser/stb_image.h"
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
@@ -88,9 +88,10 @@ void Application::init() {
         exit(-1);
     }
     glfwMakeContextCurrent(window);
+    glfwSetWindowTitle(window, "BakeEngine");
 
     // usually 0 but 1 is better for syncing reasons. On fast computers, buffers may be swapped
-    // in the middle of a frame, leading to tearing.
+    // in the middle of a frame, leading to tearing. It also caps the refresh rate
     glfwSwapInterval(1);
 
     // Function for inputs
@@ -186,15 +187,9 @@ void Application::runGL() {
             1.0f, -1.0f,  1.0f, 0.0f,
             1.0f,  1.0f,  1.0f, 1.0f
     };
-    GLRenderer glRenderer = GLRenderer("../resources/gui.shader", width, height);
-    GuiElement gui(725, 700, 150, 150, GUI_AXIS_X, GUI_BOTTOM_CENTER);
-    GuiElement gui2(1400, 700, 150, 150, GUI_AXIS_X, GUI_BOTTOM_RIGHT);
-    GuiElement gui3(1400, 375, 150, 150, GUI_AXIS_X, GUI_RIGHT_CENTER);
-    GuiElement gui4(1400, 50, 150, 150, GUI_AXIS_X, GUI_TOP_RIGHT);
-    GuiElement gui5(725, 50, 150, 150, GUI_AXIS_X, GUI_TOP_CENTER);
-    GuiElement gui6(50, 50, 150, 150, GUI_AXIS_X, GUI_TOP_LEFT);
-    GuiElement gui7(50, 375, 150, 150, GUI_AXIS_X, GUI_LEFT_CENTER);
-    GuiElement gui8(50, 700, 150, 150, GUI_AXIS_X, GUI_BOTTOM_LEFT);
+    GLRenderer glRenderer = GLRenderer("../resources/shaders/gui.shader", width, height);
+    GuiElement gui4(1400, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_RIGHT);
+    GuiElement gui6(50, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_LEFT);
 
     // Vertex Array Object
     VertexArray vao;
@@ -230,11 +225,11 @@ void Application::runGL() {
     quadArray.unbind();
     quadBuffer.unbind();
 
-    GLShader screenShader("../resources/framebuffer.shader");
+    GLShader screenShader("../resources/shaders/framebuffer.shader");
     screenShader.bind();
     screenShader.uniform1i("screen", 0);
 
-    GLShader screenDBShader("../resources/fbDepth.shader");
+    GLShader screenDBShader("../resources/shaders/fbDepth.shader");
     screenDBShader.bind();
     screenDBShader.uniform1i("screen", 0);
 
@@ -242,11 +237,11 @@ void Application::runGL() {
 
     Framebuffer viewport(width, height, 1, false);
 
-    GLShader shader("../resources/standard.shader");
+    GLShader shader("../resources/shaders/standard.shader");
     shader.bind();
 
-    GLTexture tex(GL_LINEAR, GL_REPEAT, "../resources/container2.png", TEXTURE_IMAGE, false);
-    GLTexture texSpec(GL_LINEAR, GL_REPEAT, "../resources/container2_specular.png", TEXTURE_SPECULAR, false);
+    GLTexture tex(GL_LINEAR, GL_REPEAT, "../resources/textures/container2.png", TEXTURE_IMAGE, false);
+    GLTexture texSpec(GL_LINEAR, GL_REPEAT, "../resources/textures/container2_specular.png", TEXTURE_SPECULAR, false);
     shader.uniform1i("textureImage1", 0);
     shader.uniform1i("material.diffuse", 0);
     shader.uniform1i("material.specular", 1);
@@ -269,7 +264,6 @@ void Application::runGL() {
     shader.uniform1f("spotLights[0].cutOff", Math::toRadians(12.5f));
     shader.uniform1f("spotLights[0].outerCutoff", Math::toRadians(15.0f));
 
-
     shader.uniform3f("dirLight.direction", -0.2f, -1.0f, -0.3f);
     shader.uniform3f("dirLight.ambient", 0.2f, 0.2f, 0.2f);
     shader.uniform3f("dirLight.diffuse", 2.0f, 2.0f, 2.0f);
@@ -283,80 +277,69 @@ void Application::runGL() {
     shader.uniform1f("material.roughness", 256.0f);
     shader.unbind();
 
-    // TODO: Frame skip, show FPS
-    long long begin = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    unsigned int refreshRate = 1000000000/100;
+    // TODO Frame skip
+    double last = glfwGetTime();
 
-    float deltaTime, lastFrame = 0;
+    double deltaTime;
 
     glCheckError();
     while (!glfwWindowShouldClose(window) && running) {
 
         // Time
-        long long now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        if (now - begin >= refreshRate) {
-            begin = now;
+        double thisFrame = glfwGetTime();
+        deltaTime = thisFrame - last;
+        last = thisFrame;
 
-            auto currentFrame = (float)glfwGetTime();
-            deltaTime = currentFrame - lastFrame;
-            lastFrame = currentFrame;
-
-            int wNew, hNew;
-            glfwGetWindowSize(window, &wNew, &hNew);
-            bool isResized = wNew != width || hNew != height;
-            if (isResized) {
-                width = wNew;
-                height = hNew;
-                glViewport(0, 0, width, height);
-                viewport.resize(width, height);
-                fb.resize(width, height);
-                projection = Matrix4::perspective(Math::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
-                shader.bind();
-                shader.uniformMatrix4fv("projection", projection);
-                shader.unbind();
-                glRenderer.onResize(width, height);
-            }
-            glfwPollEvents();
-            getInput(deltaTime);
-            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-            fb.bind();
-            glEnable(GL_DEPTH_TEST);
-            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-            view = camera.getView();
+        int wNew, hNew;
+        glfwGetWindowSize(window, &wNew, &hNew);
+        bool isResized = wNew != width || hNew != height;
+        if (isResized) {
+            width = wNew;
+            height = hNew;
+            glViewport(0, 0, width, height);
+            viewport.resize(width, height);
+            fb.resize(width, height);
+            projection = Matrix4::perspective(Math::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
             shader.bind();
-
-            shader.uniform3f("cameraPos", camera.pos.x, camera.pos.y, camera.pos.z);
-            shader.uniformMatrix4fv("view", view);
-            shader.uniformMatrix4fv("model", model);
-
-            vao.bind();
-            tex.bind(0);
-            texSpec.bind(1);
-            glDrawArrays(GL_TRIANGLES, 0, vertCount);
-            vao.unbind();
-
-            fb.drawTo(&viewport);
-            fb.unbind();
-            glDisable(GL_DEPTH_TEST);
-            screenShader.bind();
-            quadArray.bind();
-            glActiveTexture(GL_TEXTURE0);
-            viewport.bindTexture();
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-
-            glRenderer.draw();
-
-            glfwSwapBuffers(window);
-
-            long long frameTime = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - begin;
-            if (refreshRate - frameTime > 0) {
-                std::this_thread::sleep_for(std::chrono::nanoseconds(refreshRate - frameTime));
-            }
+            shader.uniformMatrix4fv("projection", projection);
+            shader.unbind();
+            glRenderer.onResize(width, height);
         }
+        glfwPollEvents();
+        getInput((float)deltaTime);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        fb.bind();
+        glEnable(GL_DEPTH_TEST);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        view = camera.getView();
+        shader.bind();
+
+        shader.uniform3f("cameraPos", camera.pos.x, camera.pos.y, camera.pos.z);
+        shader.uniformMatrix4fv("view", view);
+        shader.uniformMatrix4fv("model", model);
+
+        vao.bind();
+        tex.bind(0);
+        texSpec.bind(1);
+        glDrawArrays(GL_TRIANGLES, 0, vertCount);
+        vao.unbind();
+
+        fb.drawTo(&viewport);
+        fb.unbind();
+        glDisable(GL_DEPTH_TEST);
+        screenShader.bind();
+        quadArray.bind();
+        glActiveTexture(GL_TEXTURE0);
+        viewport.bindTexture();
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glRenderer.draw();
+
+        glfwSwapBuffers(window);
     }
 }
 

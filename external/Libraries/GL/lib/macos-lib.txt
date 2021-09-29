@@ -1,0 +1,1 @@
+the dylib in this folder is the macos-universal one.

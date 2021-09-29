@@ -23,8 +23,9 @@
 #include "../Render/OpenGL/GLTexture.h"
 #include "../Render/OpenGL/GLRenderer.h"
 #include "../Util/Math/Math.h"
+#include "../Input/InputCallable.h"
 
-class GuiElement {
+class GuiElement: public InputCallable {
 private:
     GuiElement* parent = nullptr;
     std::vector<GuiElement*> children;
@@ -34,7 +35,7 @@ private:
     int alignWith;
     Matrix4 model = Matrix4::identity();
     Matrix4 modelProj = Matrix4::identity();
-    GLTexture texture = GLTexture(GL_NEAREST, GL_REPEAT, "../resources/gui_placeholder.png", TEXTURE_IMAGE, false);
+    GLTexture texture = GLTexture(GL_NEAREST, GL_REPEAT, "../resources/textures/gui_placeholder.png", TEXTURE_IMAGE, false);
 public:
     static std::vector<GuiElement*> guiElements;
     GuiElement() : GuiElement(0, 0, 0, 0, false, GUI_NONE) {};
@@ -55,7 +56,8 @@ public:
     GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith);
     void renderElement(GLShader& shader);
     void onResize(int width, int height);
-    void addChild(GuiElement* child);
+    void addChild(GuiElement* element);
+    void setPos(float x, float y);
     bool hasParent() const;
     GuiElement* getParent() const;
 };

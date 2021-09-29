@@ -25,7 +25,6 @@ void Fres::parse() {
 
     unsigned int fileNameOffset = file.readShort(0x20);
     name = readBinaryString(fileNameOffset);
-    p(name);
 
     unsigned int memoryPoolInfoOffset = file.readUInt(0x90);
     unsigned int memoryPoolSize = memoryPoolInfoOffset != 0 ? file.readInt(memoryPoolInfoOffset+0x04) : 0;
@@ -51,10 +50,6 @@ void Fres::parse() {
 
 std::string Fres::readBinaryString(unsigned int offset) {
     return file.readString(offset+0x02, 0xff, true);
-}
-
-void Fres::p(const char *str) {
-    LogHelperBE::info(str);
 }
 
 void Fres::p(std::string &str) {
@@ -121,7 +116,13 @@ Fmdl Fres::parseFMDL(unsigned int offset, DataView& memoryPoolBuffer) {
         shpArrayIndex += 0x70;
     }
 
-    p(model.name);
+    unsigned int matArrayIndex = matArrayOffset;
+    for (auto i = 0; i < matCount; i++) {
+        if (file.readString(matArrayIndex, 0x04, false) != "FMAT")
+            LogHelperBE::error("FMAT offset is corrupted");
+        model.materials.emplace_back(parseFMAT(matArrayIndex));
+        matArrayIndex += 0xb8;
+    }
 
     return model;
 }
@@ -215,6 +216,7 @@ Fvtx Fres::parseFVTX(unsigned int offset, DataView& memoryPoolBuffer) {
 }
 
 Fshp Fres::parseFSHP(unsigned int offset, DataView& memoryPoolBuffer) {
+    // TODO Some work?
     Fshp shape{};
     shape.name = readBinaryString(file.readUInt(offset+0x10));
     unsigned int meshArrayOffset = file.readUInt(offset+0x20);
@@ -227,4 +229,32 @@ Fshp Fres::parseFSHP(unsigned int offset, DataView& memoryPoolBuffer) {
     unsigned int meshCount = file.readByte(offset+0x67);
 
     return shape;
+}
+
+Fmat Fres::parseFMAT(unsigned int offset) {
+    Fmat mat{};
+    mat.name = readBinaryString(file.readUInt(offset+0x10));
+    unsigned int renderInfoArrayOffset = file.readUInt(offset + 0x18);
+    unsigned int shaderAssignOffset = file.readUInt(offset+0x28);
+    unsigned int textureArrayOffset = file.readUInt(offset+0x30);
+    unsigned int textureNameOffset = file.readUInt(offset+0x38);
+    unsigned int samplerInfoArrayOffset = file.readUInt(offset+0x48);
+    unsigned int samplerInfoDictOffset = file.readUInt(offset+0x50);
+    unsigned int shaderParamArrayOffset = file.readUInt(offset+0x58);
+    unsigned int srcParamOffset = file.readUInt(offset+0x68);
+    unsigned int userDataArrayOffset = file.readUInt(offset+0x70);
+    unsigned int flag = file.readUInt(offset+0xa0);
+    unsigned int index = file.readShort(offset+0xa4);
+    unsigned int renderInfoCount = file.readShort(offset+0xa6);
+    unsigned int samplerCount = file.readByte(offset+0xa8);
+    unsigned int textureCount = file.readByte(offset+0xa9);
+    unsigned int shaderParamCount = file.readShort(offset+0xaa);
+    unsigned int shaderParamVolatileCount = file.readShort(offset+0xac);
+    unsigned int srcParamCount = file.readShort(offset+0xae);
+    unsigned int rawParamCount = file.readShort(offset+0xb0);
+    unsigned int userDataCount = file.readShort(offset+0xb2);
+
+    unsigned int renderInfoArrayIndex = renderInfoArrayOffset;
+
+    return mat;
 }

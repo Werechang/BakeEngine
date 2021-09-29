@@ -49,7 +49,7 @@ struct Fshp {
 };
 
 struct Fmat {
-
+    std::string name;
 };
 
 struct Fmdl {
@@ -70,13 +70,13 @@ public:
 
     void parse();
     std::string readBinaryString(unsigned int offset);
-    static void p(const char* str);
     static void p(std::string& str);
     ResourceDict parseResourceDicIndex(unsigned int index);
     Fmdl parseFMDL(unsigned int offset, DataView& memoryPoolBuffer);
     Fskl parseFSKL(unsigned int offset);
     Fvtx parseFVTX(unsigned int offset, DataView& memoryPoolBuffer);
     Fshp parseFSHP(unsigned int offset, DataView& memoryPoolBuffer);
+    Fmat parseFMAT(unsigned int offset);
 };
 
 #endif

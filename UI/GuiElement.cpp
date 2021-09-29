@@ -2,7 +2,7 @@
 
 std::vector<GuiElement*> GuiElement::guiElements;
 Matrix4 GLRenderer::guiProj;
-
+// TODO Input
 /**
  *
  * @param xPos x Position in pixel coordinates, from left
@@ -81,36 +81,35 @@ void GuiElement::onResize(int width, int height) {
     switch (alignWith) {
         //                                      |--Distance-to-edge---|  \/ to get the top left
         // This is one of the algorithms: width-(oldWidth-(xPos+xSize))-xSize;
-        // TODO fix center element translation with scaling
         case GUI_NONE: break;
         case GUI_TOP_CENTER:
-            newX = (float)width/oldWidth*(xPos+newXSize/2)-newXSize/2;
+            newX = (float)width/oldWidth*(xPos+xSize/2)-newXSize/2;
             break;
         case GUI_TOP_RIGHT:
             newX = (float)width-oldWidth+xPos+xSize-newXSize;
             break;
         case GUI_RIGHT_CENTER:
             newX = (float)width-oldWidth+xPos+xSize-newXSize;
-            newY = (float)height/oldHeight*(yPos+newYSize/2)-newYSize/2;
+            newY = (float)height/oldHeight*(yPos+ySize/2)-newYSize/2;
             break;
         case GUI_BOTTOM_RIGHT:
             newX = (float)width-oldWidth+xPos+xSize-newXSize;
             newY = (float)height-oldHeight+yPos+ySize-newYSize;
             break;
         case GUI_BOTTOM_CENTER:
-            newX = (float)width/oldWidth*(xPos+newXSize/2)-newXSize/2;
+            newX = (float)width/oldWidth*(xPos+xSize/2)-newXSize/2;
             newY = (float)height-oldHeight+yPos+ySize-newYSize;
             break;
         case GUI_BOTTOM_LEFT:
             newY = (float)height-oldHeight+yPos+ySize-newYSize;
             break;
         case GUI_LEFT_CENTER:
-            newY = (float)height/oldHeight*(yPos+newYSize/2)-newYSize/2;
+            newY = (float)height/oldHeight*(yPos+ySize/2)-newYSize/2;
             break;
         case GUI_TOP_LEFT: break;
         case GUI_CENTER:
-            newX = (float)width/oldWidth*(xPos+newXSize/2)-newXSize/2;
-            newY = (float)height/oldHeight*(yPos+newYSize/2)-newYSize/2;
+            newX = (float)width/oldWidth*(xPos+xSize/2)-newXSize/2;
+            newY = (float)height/oldHeight*(yPos+ySize/2)-newYSize/2;
             break;
     }
 
@@ -122,9 +121,23 @@ void GuiElement::onResize(int width, int height) {
     modelProj = GLRenderer::guiProj * model;
 }
 
-void GuiElement::addChild(GuiElement* child) {
-    children.emplace_back(child);
-    child->parent = this;
+void GuiElement::addChild(GuiElement* element) {
+    // TODO children (with updatePos)
+    if (element && !element->parent && (this->parent != element)) {
+        children.emplace_back(element);
+        element->parent = this;
+    } else {
+        LogHelperBE::pushName("GuiElement");
+        LogHelperBE::error("Node does already have a parent!");
+        LogHelperBE::popName();
+    }
+}
+
+void GuiElement::setPos(float x, float y) {
+    model.translate(x-xPos, y-yPos, 0);
+    modelProj = GLRenderer::guiProj * model;
+    xPos = x;
+    yPos = y;
 }
 
 bool GuiElement::hasParent() const {
