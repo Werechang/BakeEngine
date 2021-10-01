@@ -12,16 +12,16 @@ static bool firstMouse = true;
 
 class InputManager {
 private:
-    std::map<std::unique_ptr<InputNode>, unsigned int> inputNodes;
+    std::vector<InputNode> inputNodes;
+    std::vector<InputNode*> inputNodesLayer0;
+
+    bool isAnyKeyInTree(std::vector<int>& keys) const;
 public:
-    void update();
-    void resortNodeTree();
+    void update() const;
     void addAction(std::function<void()>& function, int key1);
     void addAction(std::function<void()>& function, int key1, int key2);
     void addAction(std::function<void()>& function, int key1, int key2, int key3);
     void addAction(std::function<void()>& function, int key1, int key2, int key3, int key4);
-
-    InputNode* findKeyLayer0(int key);
 
     static void updateKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_UNKNOWN) return;

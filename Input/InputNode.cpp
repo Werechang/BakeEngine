@@ -6,32 +6,39 @@ InputNode::InputNode(int key) : key(key) {
 
 }
 
-void InputNode::checkActive() const {
+bool InputNode::checkActive() const {
     if (KeyboardKeys[key]) {
-        for (auto & function : staticFunctions) {
-            function->operator()();
-        }
-        for (auto & pair : nonStaticFunctions) {
-            pair.first->operator()(*pair.second);
-        }
         for (auto && child : children) {
-            child->checkActive();
+            if (child->checkActive()) {
+                return true;
+            }
+        }
+        if (auto ptr = nodeFunction.lock()) {
+            ptr->execute();
+            return true;
         }
     }
+    return false;
 }
 
-void InputNode::addStaticFunction(std::function<void()> *function) {
-    staticFunctions.emplace_back(function);
-}
-
-void InputNode::addNonStaticFunction(std::function<void(InputCallable&)> *function, InputCallable *obj) {
-    if (!obj) {
+void InputNode::setFunction(std::function<void()> *function) {
+    if (!function) {
         LogHelperBE::pushName("InputNode");
-        LogHelperBE::error("Object is nullptr!");
+        LogHelperBE::error("Function is nullptr!");
         LogHelperBE::popName();
-        return;
+    } else {
+        nodeFunction = std::shared_ptr<AbstractNodeFunction>(new NodeFunctionStaticNoArgs(function));
     }
-    nonStaticFunctions.insert(std::make_pair(function, obj));
+}
+
+void InputNode::setFunction(std::function<void(InputCallable &)> *function, InputCallable *obj) {
+    if (!obj || !function) {
+        LogHelperBE::pushName("InputNode");
+        LogHelperBE::error("InputCallable object or function is nullptr!");
+        LogHelperBE::popName();
+    } else {
+        nodeFunction = std::shared_ptr<AbstractNodeFunction>(new NodeFunctionObjectNoArgs(function, obj));
+    }
 }
 
 void InputNode::addChild(InputNode* node) {
@@ -47,4 +54,25 @@ void InputNode::addChild(InputNode* node) {
 
 int InputNode::getKey() const {
     return key;
+}
+
+InputNode *InputNode::getParent() const {
+    return parent;
+}
+
+bool InputNode::hasFunction() const {
+    return !nodeFunction.expired();
+}
+
+bool InputNode::singleChild(std::vector<int> &keys) const {
+    if (children.empty())
+        return true;
+    if (children.size() > 1)
+        return false;
+    int childKey = children.back()->getKey();
+    for (auto k : keys) {
+        if (childKey == k)
+            return true;
+    }
+    return false;
 }

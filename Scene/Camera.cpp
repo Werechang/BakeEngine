@@ -29,11 +29,11 @@ void Camera::moveRight() {
 void Camera::turn(float xOffset, float yOffset) {
     yaw -= xOffset;
     pitch += yOffset;
-    Math::clamp(-89.0f, 89.0f, pitch);
+    clamp(-89.0f, 89.0f, pitch);
 
-    float x = cos(Math::toRadians(yaw)) * cos(Math::toRadians(pitch));
-    float y = sin(Math::toRadians(pitch));
-    float z = sin(Math::toRadians(yaw)) * cos(Math::toRadians(pitch));
+    float x = cos(toRadians(yaw)) * cos(toRadians(pitch));
+    float y = sin(toRadians(pitch));
+    float z = sin(toRadians(yaw)) * cos(toRadians(pitch));
     front = Vector3::normalize(Vector3(x, y, z));
 }
 

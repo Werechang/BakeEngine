@@ -261,8 +261,8 @@ void Application::runGL() {
     shader.uniform3f("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
     shader.uniform3f("spotLights[0].diffuse", 0.5f, 0.0f, 0.25f);
     shader.uniform3f("spotLights[0].specular", 0.5f, 0.0f, 0.25f);
-    shader.uniform1f("spotLights[0].cutOff", Math::toRadians(12.5f));
-    shader.uniform1f("spotLights[0].outerCutoff", Math::toRadians(15.0f));
+    shader.uniform1f("spotLights[0].cutOff", toRadians(12.5f));
+    shader.uniform1f("spotLights[0].outerCutoff", toRadians(15.0f));
 
     shader.uniform3f("dirLight.direction", -0.2f, -1.0f, -0.3f);
     shader.uniform3f("dirLight.ambient", 0.2f, 0.2f, 0.2f);
@@ -271,7 +271,7 @@ void Application::runGL() {
 
     Matrix4 model = Matrix4::identity();
     Matrix4 view = Matrix4::identity();
-    Matrix4 projection = Matrix4::perspective(Math::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
+    Matrix4 projection = Matrix4::perspective(toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
 
     shader.uniformMatrix4fv("projection", projection);
     shader.uniform1f("material.roughness", 256.0f);
@@ -299,7 +299,7 @@ void Application::runGL() {
             glViewport(0, 0, width, height);
             viewport.resize(width, height);
             fb.resize(width, height);
-            projection = Matrix4::perspective(Math::toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
+            projection = Matrix4::perspective(toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
             shader.bind();
             shader.uniformMatrix4fv("projection", projection);
             shader.unbind();

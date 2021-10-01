@@ -2,14 +2,17 @@
 #ifndef BAKEENGINE_MATH_H
 #define BAKEENGINE_MATH_H
 
+constexpr static const float PI = 3.14159265;
 
-class Math {
-public:
-    constexpr static const float PI = 3.14159265;
+float clamp(float min, float max, float value);
 
-    static float clamp(float min, float max, float value);
-    static float toRadians(float angle);
-};
+float toRadians(float angle);
+
+template<size_t size>
+void generatePerlinNoise(float (&noise)[size][size], int seed);
+
+template<size_t size>
+void generateWorleyNoise(float (&noise)[size][size], int seed);
 
 
 #endif
