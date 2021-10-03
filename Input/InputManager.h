@@ -3,6 +3,7 @@
 #define BAKEENGINE_INPUTMANAGER_H
 
 #include <map>
+#include <vector>
 #include "GLFW/glfw3.h"
 #include "InputNode.h"
 

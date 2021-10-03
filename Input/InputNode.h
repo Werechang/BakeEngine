@@ -5,6 +5,7 @@
 #define ARRAY_MOUSE_BUTTON 349
 
 #include <map>
+#include <vector>
 #include <functional>
 #include "InputCallable.h"
 

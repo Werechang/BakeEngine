@@ -2,3 +2,12 @@
 /cmake-build-debug/
 /out/
 /.vs/
+/BakeEngine.build/
+/BakeEngine.xcodeproj
+/_deps/
+/build/
+/Debug/
+/CMakeFiles/
+/CMakeScripts/
+/CMakeCache.txt
+/cmake_install.cmake

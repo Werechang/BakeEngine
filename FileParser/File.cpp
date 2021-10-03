@@ -13,7 +13,7 @@ File::File(std::string& path, bool endian) : DataView(endian), path(path) {
     std::ifstream input(path, std::ios::binary);
     if (!input) {
         LogHelperBE::error("File does not exist!");
-        throw std::exception("File does not exist!");
+        throw std::runtime_error("File does not exist!");
     } else {
         bytes = std::vector<unsigned char>(std::istreambuf_iterator<char>(input), {});
     }

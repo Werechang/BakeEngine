@@ -75,6 +75,7 @@ void Application::init() {
     // Specify OGL version
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
 
     // Core for easier coding; newer devices only
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -301,7 +302,7 @@ void Application::runGL() {
         last = thisFrame;
 
         int wNew, hNew;
-        glfwGetWindowSize(window, &wNew, &hNew);
+        glfwGetFramebufferSize(window, &wNew, &hNew);
         bool isResized = wNew != width || hNew != height;
         if (isResized) {
             width = wNew;

@@ -11,7 +11,7 @@ void Fres::parse() {
         file.setEndian(BIG_ENDIAN);
     } else {
         LogHelperBE::error("Could not read endian");
-        throw std::exception("File endian is corrupted");
+        throw std::runtime_error("File endian is corrupted");
     }
 /*    unsigned int version = file.readUInt(0x08);
     unsigned int supportedVersions[] = {

@@ -2,6 +2,8 @@
 #ifndef BAKEENGINE_MATH_H
 #define BAKEENGINE_MATH_H
 
+#include <cstddef>
+
 constexpr static const float PI = 3.14159265;
 
 float clamp(float min, float max, float value);
