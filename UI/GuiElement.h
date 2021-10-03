@@ -35,7 +35,7 @@ private:
     int alignWith;
     Matrix4 model = Matrix4::identity();
     Matrix4 modelProj = Matrix4::identity();
-    GLTexture texture = GLTexture(GL_NEAREST, GL_REPEAT, "../resources/textures/gui_placeholder.png", TEXTURE_IMAGE, false);
+    GLTexture texture = GLTexture(GL_NEAREST, GL_REPEAT, "../resources/textures/gui_placeholder.png", TEXTURE_IMAGE, false, 1.0f, false);
 public:
     static std::vector<GuiElement*> guiElements;
     GuiElement() : GuiElement(0, 0, 0, 0, false, GUI_NONE) {};

@@ -17,6 +17,10 @@ public:
     static void error(const char* message);
     static void warning(const char* message);
     static void info(const char* message);
+    static void fatal(std::string& message);
+    static void error(std::string& message);
+    static void warning(std::string& message);
+    static void info(std::string& message);
     static void pushName(const char* name);
     static void popName();
 };

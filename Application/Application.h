@@ -3,6 +3,7 @@
 #define BAKEENGINE_APPLICATION_H
 
 #include <thread>
+#include <filesystem>
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 #include "../Input/InputManager.h"
@@ -24,6 +25,7 @@ private:
     GLFWwindow *window{};
 
 public:
+    static std::string absolutePath;
     explicit Application(bool isOGL, int width, int height, const char *name);
     ~Application() {
         LogHelperBE::popName();

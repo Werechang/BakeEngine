@@ -2,10 +2,11 @@
 #include <sstream>
 #include <fstream>
 #include "GLShader.h"
+#include "../../Application/Application.h"
 
 GLShader::GLShader(const std::string &filePath) {
     LogHelperBE::pushName("Shader");
-    GLShaderSource src = parseShader(filePath);
+    GLShaderSource src = parseShader(Application::absolutePath + filePath);
     programPtr = createProgram(src.vertexSource.c_str(), src.fragmentSource.c_str(), src.geometrySource.empty() ? nullptr : src.geometrySource.c_str());
 }
 

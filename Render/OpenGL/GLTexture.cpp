@@ -2,10 +2,16 @@
 #include "GLTexture.h"
 #include "../../FileParser/stb_image.h"
 #include "../../Util/LogHelperBE.h"
+#include "../../Application/Application.h"
 
-GLTexture::GLTexture(int interpolation, int sampling, const char* path, unsigned int type, bool sRGB) : type(type) {
+GLTexture::GLTexture(int interpolation, int sampling, const char* path, unsigned int type, bool sRGB, float anisotropicLevel, bool mipMaps) : type(type) {
     stbi_set_flip_vertically_on_load(1);
-    texCache = stbi_load(path, &width, &height, &bpp, 4);
+    texCache = stbi_load((Application::absolutePath + path).c_str(), &width, &height, &bpp, 4);
+
+    if (anisotropicLevel < 1.0f) {
+        LogHelperBE::error("Anisotropic level is too low. Minimum is 1.0f");
+        anisotropicLevel = 1.0f;
+    }
 
     glGenTextures(1, &texPtr);
     glBindTexture(GL_TEXTURE_2D, texPtr);
@@ -13,14 +19,21 @@ GLTexture::GLTexture(int interpolation, int sampling, const char* path, unsigned
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampling);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampling);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpolation);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolation);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpolation);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texCache);
 
-    // Load image first!
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (mipMaps) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        if (anisotropicLevel > 1.0f) {
+            float maxAnisotropic;
+            glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropic);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, maxAnisotropic > anisotropicLevel ? anisotropicLevel : maxAnisotropic);
+        }
+    }
+
     if(texCache) {
         stbi_image_free(texCache);
     }

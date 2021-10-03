@@ -16,8 +16,8 @@ private:
     unsigned char* texCache;
     unsigned int type;
 public:
-    GLTexture(const char* path, unsigned int type, bool sRGB) : GLTexture(GL_LINEAR, GL_REPEAT, path, type, sRGB) {}
-    GLTexture(int interpolation, int sampling, const char* path, unsigned int type, bool sRGB);
+    GLTexture(const char* path, unsigned int type, bool sRGB) : GLTexture(GL_LINEAR, GL_REPEAT, path, type, sRGB, 1, true) {}
+    GLTexture(int interpolation, int sampling, const char* path, unsigned int type, bool sRGB, float anisotropicLevel, bool mipMaps);
     ~GLTexture();
 
     void bind(unsigned int slot) const;

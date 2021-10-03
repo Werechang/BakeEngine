@@ -113,6 +113,8 @@ void Application::init() {
             exit(-1);
         }
         LogHelperBE::info("Loaded OpenGL successfully");
+        if (!GLAD_GL_ARB_texture_filter_anisotropic)
+            LogHelperBE::error("Anisotropic filtering is not supported!");
     } else {
         // Load vulkan
     }
@@ -187,7 +189,7 @@ void Application::runGL() {
             -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
             -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
     };
-    int vertCount = sizeof(vertices)/4;
+    int vertCount = sizeof(vertices)/11;
     // Position (2f), Texture coordinates (2f)
     float quadVerts[] = {
             -1.0f,  1.0f,  0.0f, 1.0f,
@@ -198,7 +200,7 @@ void Application::runGL() {
             1.0f, -1.0f,  1.0f, 0.0f,
             1.0f,  1.0f,  1.0f, 1.0f
     };
-    GLRenderer glRenderer = GLRenderer("../resources/shaders/gui.shader", width, height);
+    GLRenderer glRenderer = GLRenderer("shaders/gui.shader", width, height);
     GuiElement gui4(1400, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_RIGHT);
     GuiElement gui6(50, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_LEFT);
 
@@ -236,11 +238,11 @@ void Application::runGL() {
     quadArray.unbind();
     quadBuffer.unbind();
 
-    GLShader screenShader("../resources/shaders/framebuffer.shader");
+    GLShader screenShader("shaders/framebuffer.shader");
     screenShader.bind();
     screenShader.uniform1i("screen", 0);
 
-    GLShader screenDBShader("../resources/shaders/fbDepth.shader");
+    GLShader screenDBShader("shaders/fbDepth.shader");
     screenDBShader.bind();
     screenDBShader.uniform1i("screen", 0);
 
@@ -248,11 +250,11 @@ void Application::runGL() {
 
     Framebuffer viewport(width, height, 1, false);
 
-    GLShader shader("../resources/shaders/standard.shader");
+    GLShader shader("shaders/standard.shader");
     shader.bind();
 
-    GLTexture tex(GL_LINEAR, GL_REPEAT, "../resources/textures/container2.png", TEXTURE_IMAGE, false);
-    GLTexture texSpec(GL_LINEAR, GL_REPEAT, "../resources/textures/container2_specular.png", TEXTURE_SPECULAR, false);
+    GLTexture tex(GL_LINEAR, GL_REPEAT, "textures/container2.png", TEXTURE_IMAGE, false, 8.0f, true);
+    GLTexture texSpec(GL_LINEAR, GL_REPEAT, "textures/container2_specular.png", TEXTURE_SPECULAR, false, 8.0f, true);
     shader.uniform1i("textureImage1", 0);
     shader.uniform1i("material.diffuse", 0);
     shader.uniform1i("material.specular", 1);
