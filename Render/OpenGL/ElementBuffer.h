@@ -12,8 +12,8 @@ public:
     explicit ElementBuffer(const unsigned int* elements, unsigned int size);
     ~ElementBuffer();
     void bind() const;
-    void unbind();
-    unsigned int getSize();
+    void unbind() const;
+    unsigned int getSize() const;
 };
 
 

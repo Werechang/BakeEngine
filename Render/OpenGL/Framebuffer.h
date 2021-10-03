@@ -18,7 +18,7 @@ public:
     void bind() const;
     void unbind() const;
     void bindTexture() const;
-    void drawTo(Framebuffer* fb) const;
+    void drawTo(Framebuffer& fb) const;
     void resize(int nWidth, int nHeight);
 };
 

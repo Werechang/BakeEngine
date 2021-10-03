@@ -50,7 +50,7 @@ void GLTexture::bind(unsigned int slot) const {
     glBindTexture(GL_TEXTURE_2D, texPtr);
 }
 
-void GLTexture::unbind() {
+void GLTexture::unbind() const{
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

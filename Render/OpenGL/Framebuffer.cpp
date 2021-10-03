@@ -59,9 +59,9 @@ void Framebuffer::bindTexture() const {
     glBindTexture(GL_TEXTURE_2D, texture);
 }
 
-void Framebuffer::drawTo(Framebuffer* fb) const {
+void Framebuffer::drawTo(Framebuffer& fb) const {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb->frameBuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb.frameBuffer);
     glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 

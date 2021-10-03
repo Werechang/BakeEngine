@@ -17,9 +17,9 @@ private:
     unsigned int programPtr;
     std::unordered_map<std::string, int> uniformLocationCache;
 
-    GLShaderSource parseShader(const std::string& filePath);
-    unsigned int compileShader(unsigned int shaderType, const char* source);
-    unsigned int createProgram(const char *vertSource, const char *fragSource, const char* geometrySource = nullptr);
+    GLShaderSource parseShader(const std::string& filePath) const;
+    unsigned int compileShader(unsigned int shaderType, const char* source) const;
+    unsigned int createProgram(const char *vertSource, const char *fragSource, const char* geometrySource = nullptr) const;
 
     int getUniformLocation(const std::string& name);
 public:

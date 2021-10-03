@@ -33,7 +33,7 @@ public:
 
     Matrix4 operator*(Matrix4 &other);
 
-    void print();
+    void print() const;
 };
 
 

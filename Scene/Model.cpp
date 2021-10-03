@@ -1,9 +1,9 @@
 
 #include "Model.h"
 
-void Model::render(GLShader &shader) {
-    for (Mesh m : meshes) {
-        m.render(shader);
+void Model::render(GLShader &shader) const {
+    for (auto & mesh : meshes) {
+        mesh.render(shader);
     }
 }
 
@@ -29,7 +29,7 @@ Model::Model(const char* filePath) : path(filePath){
     LogHelperBE::popName();
 }
 
-void Model::load() {
+void Model::load() const {
     switch (fileType) {
         case 1:
             fres->parse();

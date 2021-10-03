@@ -22,8 +22,8 @@ public:
         delete fres;
         fres = nullptr;
     }
-    void load();
-    void render(GLShader& shader);
+    void load() const;
+    void render(GLShader& shader) const;
 };
 
 

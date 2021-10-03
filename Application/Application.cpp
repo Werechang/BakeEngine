@@ -341,7 +341,7 @@ void Application::runGL() {
         glDrawArrays(GL_TRIANGLES, 0, vertCount);
         vao.unbind();
 
-        fb.drawTo(&viewport);
+        fb.drawTo(viewport);
         fb.unbind();
         glDisable(GL_DEPTH_TEST);
         screenShader.bind();

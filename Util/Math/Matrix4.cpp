@@ -154,7 +154,7 @@ Matrix4 Matrix4::operator*(Matrix4 &other) {
     return Matrix4(ret.matrix);
 }
 
-void Matrix4::print() {
+void Matrix4::print() const {
     for (auto i = 0; i<4;i++) {
         std::cout << "|" << matrix[0][i] << " " << matrix[1][i] << " " << matrix[2][i] << " " << matrix[3][i] << "|" << std::endl;
     }

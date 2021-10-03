@@ -31,7 +31,7 @@ private:
 public:
     Mesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& elements, std::vector<GLTexture>& textures);
 
-    void render(GLShader& shader);
+    void render(GLShader& shader) const;
 };
 
 

@@ -15,7 +15,7 @@ GLShader::~GLShader() {
     glDeleteProgram(programPtr);
 }
 
-GLShaderSource GLShader::parseShader(const std::string &filePath) {
+GLShaderSource GLShader::parseShader(const std::string &filePath) const{
     std::ifstream stream(filePath);
 
     std::string l;
@@ -35,7 +35,7 @@ GLShaderSource GLShader::parseShader(const std::string &filePath) {
     return {shaderSource[0].str(), shaderSource[1].str(), shaderSource[2].str()};
 }
 
-unsigned int GLShader::compileShader(const unsigned int shaderType, const char* source) {
+unsigned int GLShader::compileShader(const unsigned int shaderType, const char* source) const{
     unsigned int shader = glCreateShader(shaderType);
     glShaderSource(shader, 1, &source, nullptr);
     glCompileShader(shader);
@@ -60,7 +60,7 @@ unsigned int GLShader::compileShader(const unsigned int shaderType, const char* 
     return shader;
 }
 
-unsigned int GLShader::createProgram(const char* vertSource, const char* fragSource, const char* geometrySource) {
+unsigned int GLShader::createProgram(const char* vertSource, const char* fragSource, const char* geometrySource) const{
     unsigned int shaderProgram = glCreateProgram();
     unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertSource);
     unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragSource);

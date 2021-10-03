@@ -12,7 +12,7 @@ public:
     explicit VertexBuffer(const float* vertices, unsigned int size);
     ~VertexBuffer();
     void bind() const;
-    void unbind();
+    void unbind() const;
 };
 
 struct VertexAttribute {

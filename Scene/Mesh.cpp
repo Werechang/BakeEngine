@@ -21,7 +21,7 @@ void Mesh::prepareMesh() {
     vao.unbind();
 }
 
-void Mesh::render(GLShader& shader) {
+void Mesh::render(GLShader& shader) const {
     for (unsigned int i = 0; i < textures.size(); i++) {
         GLTexture t = textures[i];
         t.bind(i);

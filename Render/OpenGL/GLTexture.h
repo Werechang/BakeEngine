@@ -21,7 +21,7 @@ public:
     ~GLTexture();
 
     void bind(unsigned int slot) const;
-    static void unbind();
+    void unbind() const;
 
     std::string getTypeName() const;
 };

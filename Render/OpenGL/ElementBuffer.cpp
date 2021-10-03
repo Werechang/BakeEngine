@@ -17,10 +17,10 @@ void ElementBuffer::bind() const {
     glBindBuffer(GL_ARRAY_BUFFER, elementBufferObject);
 }
 
-void ElementBuffer::unbind() {
+void ElementBuffer::unbind() const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-unsigned int ElementBuffer::getSize() {
+unsigned int ElementBuffer::getSize() const{
     return size;
 }
