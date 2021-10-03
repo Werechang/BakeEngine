@@ -128,7 +128,7 @@ void GuiElement::addChild(GuiElement* element) {
         element->parent = this;
     } else {
         LogHelperBE::pushName("GuiElement");
-        LogHelperBE::error("Node does already have a parent!");
+        LogHelperBE::error("Element does already have a parent or is nullptr!");
         LogHelperBE::popName();
     }
 }

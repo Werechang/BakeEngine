@@ -3,7 +3,7 @@
 #define BAKEENGINE_APPLICATION_H
 
 #include <thread>
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include "GLFW/glfw3.h"
 #include "../Input/InputManager.h"
 #include "../Scene/Camera.h"

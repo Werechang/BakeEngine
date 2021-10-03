@@ -2,13 +2,14 @@
 #ifndef BAKEENGINE_INPUTNODE_H
 #define BAKEENGINE_INPUTNODE_H
 
+#define ARRAY_MOUSE_BUTTON 349
+
 #include <map>
 #include <functional>
 #include "InputCallable.h"
 
-static bool KeyboardKeys[349];
-static bool MouseButtons[8];
-static bool MouseButtonWasJustPressed[8];
+static bool KeysAndButtons[357];
+static bool KeysAndButtonsPressed[357];
 
 class AbstractNodeFunction {
 public:
@@ -23,7 +24,8 @@ public:
 
     void execute() const override {
         function->operator()();
-    };};
+    };
+};
 
 class NodeFunctionObjectNoArgs : public AbstractNodeFunction {
 public:

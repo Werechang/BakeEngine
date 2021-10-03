@@ -3,7 +3,7 @@
 #define BAKEENGINE_VERTEXBUFFER_H
 
 #include <vector>
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 class VertexBuffer {
 private:

@@ -15,8 +15,6 @@ GLenum glCheckError_(const char *file, int line) {
             case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
             case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
             case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
-            case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
-            case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
             case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
             case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
         }
@@ -49,6 +47,12 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     InputManager::updateMouseButton(window, button, action, mods);
 }
 
+void focusCallback(GLFWwindow* window, int focused) {
+    if (!focused) {
+        glfwRequestWindowAttention(window);
+    }
+}
+
 Application::Application(bool isOGL, int width, int height, const char *name) : isOGL(isOGL), width(width), height(height), name(name) {
     LogHelperBE::pushName("Application");
     if (isOGL) {
@@ -67,7 +71,6 @@ void Application::init() {
     glfwInit();
 
     // Error function to print out errors
-    glfwSetErrorCallback(errorCallback);
 
     // Specify OGL version
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -94,16 +97,23 @@ void Application::init() {
     // in the middle of a frame, leading to tearing. It also caps the refresh rate
     glfwSwapInterval(1);
 
-    // Function for inputs
+    // Function for callbacks
+    glfwSetErrorCallback(errorCallback);
     glfwSetKeyCallback(window, keyCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetWindowCloseCallback(window, closeCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetWindowFocusCallback(window, focusCallback);
 
     if (isOGL) {
-        gladLoadGL();
+        int version = gladLoadGL(glfwGetProcAddress);
+        if (version == 0) {
+            LogHelperBE::fatal("Failed to load OpenGL");
+            exit(-1);
+        }
+        LogHelperBE::info("Loaded OpenGL successfully");
     } else {
-
+        // Load vulkan
     }
     glfwSetWindowShouldClose(window, 0);
 }
@@ -350,20 +360,20 @@ void Application::runVk() {
 void Application::getInput(float deltaTime) {
     camera.speed = camera.globalSpeed * deltaTime;
     // TODO Lower camera speed if two keys are pressed (i.e. WA)
-    if (KeyboardKeys[GLFW_KEY_W]) {
+    if (KeysAndButtons[GLFW_KEY_W]) {
         camera.moveFront();
     }
-    if (KeyboardKeys[GLFW_KEY_S]) {
+    if (KeysAndButtons[GLFW_KEY_S]) {
         camera.moveBack();
     }
-    if (KeyboardKeys[GLFW_KEY_A]) {
+    if (KeysAndButtons[GLFW_KEY_A]) {
         camera.moveLeft();
     }
-    if (KeyboardKeys[GLFW_KEY_D]) {
+    if (KeysAndButtons[GLFW_KEY_D]) {
         camera.moveRight();
     }
-    if (MouseButtons[GLFW_MOUSE_BUTTON_LEFT]) {
-        if (MouseButtonWasJustPressed[GLFW_MOUSE_BUTTON_LEFT]) {
+    if (KeysAndButtons[ARRAY_MOUSE_BUTTON + GLFW_MOUSE_BUTTON_LEFT]) {
+        if (KeysAndButtonsPressed[ARRAY_MOUSE_BUTTON + GLFW_MOUSE_BUTTON_LEFT]) {
             firstMouse = true;
         } else if (!firstMouse) {
             float xOffset = (float)(mouseX - lastMouseX) * 0.1f;
@@ -375,7 +385,7 @@ void Application::getInput(float deltaTime) {
     }
 
     for (auto i = 0; i < 8; i++) {
-        if (MouseButtons[i] && MouseButtonWasJustPressed[i])
-            MouseButtonWasJustPressed[i] = false;
+        if (KeysAndButtons[ARRAY_MOUSE_BUTTON + i] && KeysAndButtonsPressed[ARRAY_MOUSE_BUTTON + i])
+            KeysAndButtonsPressed[ARRAY_MOUSE_BUTTON + i] = false;
     }
 }

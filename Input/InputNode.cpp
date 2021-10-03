@@ -7,11 +7,10 @@ InputNode::InputNode(int key) : key(key) {
 }
 
 bool InputNode::checkActive() const {
-    if (KeyboardKeys[key]) {
+    if (KeysAndButtonsPressed[key]) {
         for (auto && child : children) {
-            if (child->checkActive()) {
+            if (child->checkActive())
                 return true;
-            }
         }
         if (auto ptr = nodeFunction.lock()) {
             ptr->execute();

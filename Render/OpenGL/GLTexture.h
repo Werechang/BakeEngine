@@ -7,7 +7,7 @@
 #define TEXTURE_NORMAL_MAP 3
 
 #include <string>
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 class GLTexture {
 private:

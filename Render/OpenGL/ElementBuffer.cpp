@@ -1,6 +1,6 @@
 
 #include "ElementBuffer.h"
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 ElementBuffer::ElementBuffer(const unsigned int* elements, unsigned int size) : size(size){
     glGenBuffers(1, &elementBufferObject);

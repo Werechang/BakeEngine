@@ -2,7 +2,7 @@
 #ifndef BAKEENGINE_FRAMEBUFFER_H
 #define BAKEENGINE_FRAMEBUFFER_H
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 class Framebuffer {
 private:

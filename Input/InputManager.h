@@ -25,8 +25,15 @@ public:
 
     static void updateKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_UNKNOWN) return;
-        if (action == GLFW_PRESS) KeyboardKeys[key] = true;
-        if (action == GLFW_RELEASE) KeyboardKeys[key] = false;
+        else if (action == GLFW_PRESS) {
+            KeysAndButtons[key] = true;
+            KeysAndButtonsPressed[key] = true;
+        } else if (action == GLFW_RELEASE) {
+            KeysAndButtons[key] = false;
+            KeysAndButtonsPressed[key] = false;
+        } else if (action == GLFW_REPEAT) {
+            KeysAndButtonsPressed[key] = false;
+        }
     }
 
     static void updateMouse(GLFWwindow *window, double xPos, double yPos) {
@@ -41,13 +48,12 @@ public:
 
     static void updateMouseButton(GLFWwindow* window, int button, int action, int mods) {
         if (action == GLFW_PRESS) {
-            if (!MouseButtons[button])
-                MouseButtonWasJustPressed[button] = true;
-            MouseButtons[button] = true;
+            KeysAndButtonsPressed[349 + button] = true;
+            KeysAndButtons[349 + button] = true;
         }
-        if (action == GLFW_RELEASE) {
-            MouseButtons[button] = false;
-            MouseButtonWasJustPressed[button] = false;
+        else if (action == GLFW_RELEASE) {
+            KeysAndButtons[349 + button] = false;
+            KeysAndButtonsPressed[349 + button] = false;
         }
     };
 };

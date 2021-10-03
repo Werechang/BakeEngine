@@ -58,6 +58,10 @@ public:
     void onResize(int width, int height);
     void addChild(GuiElement* element);
     void setPos(float x, float y);
+    virtual void onFocus() {};
+    virtual void onKeyAction(int key, int action) {};
+    virtual void onMouseButtonAction(int button, int action) {};
+    virtual void onMouseHover() {};
     bool hasParent() const;
     GuiElement* getParent() const;
 };
