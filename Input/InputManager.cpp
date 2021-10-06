@@ -24,7 +24,6 @@ bool InputManager::isAnyKeyInTree(std::vector<int>& keys) const {
 void InputManager::addAction(std::function<void()> &function, int key1) {
     // TODO clean up the mess, this is just temporary to get an overview
     // maybe cache action keys + order in layers
-    // TODO Change logic completely?
     std::vector<int> keys = {key1};
     if (!isAnyKeyInTree(keys)) {
         inputNodes.emplace_back(InputNode(key1));
@@ -52,7 +51,7 @@ void InputManager::addAction(std::function<void()> &function, int key1) {
                         index = index->getParent();
                     }
                     // !!!IMPORTANT!!!
-                    // case parents can change position. note that the node we want to place at layer0 may have
+                    // parents can change position. note that the node we want to place at layer0 may have
                     // functions which should be added to the parent which will be placed in the lowest layer.
                 }
             }

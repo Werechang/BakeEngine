@@ -4,6 +4,8 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#ifdef __APPLE__
+#endif
 
 std::string Application::absolutePath;
 
@@ -12,7 +14,8 @@ int main(int argc, char* args[]) {
     #ifdef _WIN32
     ShowWindow(GetConsoleWindow(), SW_HIDE);
     #endif
-
+    #ifdef __APPLE__
+    #endif
     LogHelperBE::pushName("Main");
 
     // Get the working directory

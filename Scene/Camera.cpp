@@ -19,11 +19,13 @@ void Camera::moveBack() {
 }
 
 void Camera::moveLeft() {
-    pos += Vector3::normalize(Vector3::cross(front, camUp)) * speed;
+    auto left = Vector3::cross(front, camUp);
+    pos += Vector3::normalize(left) * speed;
 }
 
 void Camera::moveRight() {
-    pos -= Vector3::normalize(Vector3::cross(front, camUp)) * speed;
+    auto left = Vector3::cross(front, camUp);
+    pos -= Vector3::normalize(left) * speed;
 }
 
 void Camera::turn(float xOffset, float yOffset) {
@@ -34,12 +36,14 @@ void Camera::turn(float xOffset, float yOffset) {
     float x = cos(toRadians(yaw)) * cos(toRadians(pitch));
     float y = sin(toRadians(pitch));
     float z = sin(toRadians(yaw)) * cos(toRadians(pitch));
-    front = Vector3::normalize(Vector3(x, y, z));
+    auto vec = Vector3(x, y, z);
+    front = Vector3::normalize(vec);
 }
 
 Matrix4 Camera::getView() {
     Vector3 direction = Vector3::normalize(front);
-    Vector3 camRight(Vector3::normalize(Vector3::cross(up, direction)));
+    auto vec = Vector3::cross(up, direction);
+    Vector3 camRight(Vector3::normalize(vec));
     camUp = Vector3::cross(direction, camRight);
 
     float view[4][4] = {{camRight.x, camUp.x, -direction.x, 0},

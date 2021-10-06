@@ -2,10 +2,10 @@
 #ifndef BAKEENGINE_GLSHADER_H
 #define BAKEENGINE_GLSHADER_H
 
-#include "glad/gl.h"
 #include <unordered_map>
 #include "../../Util/Math/Matrix4.h"
 #include "../../Util/LogHelperBE.h"
+#include "glad/gl.h"
 
 struct GLShaderSource {
     std::string vertexSource;

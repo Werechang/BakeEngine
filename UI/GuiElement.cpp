@@ -140,6 +140,18 @@ void GuiElement::setPos(float x, float y) {
     yPos = y;
 }
 
+bool GuiElement::isMouseHover(int mouseX, int mouseY) const {
+    int guiPosX = (int)std::round(xPos);
+    int guiPosY = (int)std::round(yPos);
+    int guiSizeX = (int)std::round(xSize);
+    int guiSizeY = (int)std::round(ySize);
+
+    if ((mouseX > guiPosX) && (mouseY > guiPosY) && (mouseX < (guiPosX+guiSizeX)) && (mouseY < (guiPosY+guiSizeY))) {
+        return true;
+    }
+    return false;
+}
+
 bool GuiElement::hasParent() const {
     return parent != nullptr;
 }

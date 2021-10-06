@@ -2,13 +2,13 @@
 #ifndef BAKEENGINE_APPLICATION_H
 #define BAKEENGINE_APPLICATION_H
 
+#define GLFW_INCLUDE_NONE
+
 #include <thread>
 #include <filesystem>
-#include "glad/gl.h"
-#include "GLFW/glfw3.h"
+#include "../Render/OpenGL/GLRenderer.h"
 #include "../Input/InputManager.h"
 #include "../Scene/Camera.h"
-#include "../Render/OpenGL/GLRenderer.h"
 #include "../Util/LogHelperBE.h"
 
 static bool running = true;
@@ -26,6 +26,7 @@ private:
 
 public:
     static std::string absolutePath;
+
     explicit Application(bool isOGL, int width, int height, const char *name);
     ~Application() {
         LogHelperBE::popName();

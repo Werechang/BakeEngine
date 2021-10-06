@@ -41,6 +41,7 @@ void InputNode::setFunction(std::function<void(InputCallable &)> *function, Inpu
 }
 
 void InputNode::addChild(InputNode* node) {
+    // I don't know why it says that \/ is always true
     if (node && !node->parent && (this->parent != node)) {
         children.emplace_back(node);
         node->parent = this;

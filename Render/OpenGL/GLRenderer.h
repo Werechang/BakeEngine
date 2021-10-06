@@ -2,9 +2,6 @@
 #ifndef BAKEENGINE_GLRENDERER_H
 #define BAKEENGINE_GLRENDERER_H
 
-#include "../../Util/Math/Matrix4.h"
-#include "glad/gl.h"
-#include "VertexBuffer.h"
 #include "../../UI/GuiElement.h"
 
 static bool isMat4Init = false;

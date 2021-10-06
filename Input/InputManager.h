@@ -4,8 +4,10 @@
 
 #include <map>
 #include <vector>
+#define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
 #include "InputNode.h"
+#include "../UI/GuiElement.h"
 
 static double mouseX, mouseY;
 static double lastMouseX = 800, lastMouseY = 450;
@@ -45,6 +47,11 @@ public:
         }
         mouseX = xPos;
         mouseY = yPos;
+        int screenX = (int)std::round(mouseX);
+        int screenY = (int)std::round(mouseY);
+        for (auto & guiElement : GuiElement::guiElements) {
+            guiElement->isMouseHover(screenX, screenY);
+        }
     }
 
     static void updateMouseButton(GLFWwindow* window, int button, int action, int mods) {
