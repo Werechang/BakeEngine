@@ -62,7 +62,7 @@ public:
     virtual void onKeyAction(int key, int action) {};
     virtual void onMouseButtonAction(int button, int action) {};
     virtual void onMouseHover() {};
-    bool isMouseHover(int mouseX, int mouseY) const;
+    bool isMouseHover(int mouseX, int mouseY);
     bool hasParent() const;
     GuiElement* getParent() const;
 };

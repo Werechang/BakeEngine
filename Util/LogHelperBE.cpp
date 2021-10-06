@@ -3,6 +3,7 @@
 
 void LogHelperBE::fatal(const char *message) {
     std::cerr << "[BakeEngine]:[" << messageName.back() << "]:[Fatal Error] " << message << std::endl;
+    exit(-1);
 }
 
 void LogHelperBE::error(const char *message) {

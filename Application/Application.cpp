@@ -61,7 +61,6 @@ Application::Application(bool isOGL, int width, int height, const char *name) : 
         LogHelperBE::info("Starting with Vulkan...");
         if (!glfwVulkanSupported()) {
             LogHelperBE::fatal("Vulkan is not supported on this device.");
-            exit(-1);
         }
     }
     init();
@@ -110,7 +109,6 @@ void Application::init() {
         int version = gladLoadGL(glfwGetProcAddress);
         if (version == 0) {
             LogHelperBE::fatal("Failed to load OpenGL");
-            exit(-1);
         }
         LogHelperBE::info("Loaded OpenGL successfully");
         if (!GLAD_GL_ARB_texture_filter_anisotropic)
