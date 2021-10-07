@@ -21,6 +21,7 @@ int main(int argc, char* args[]) {
     // Hide console
     ShowWindow(GetConsoleWindow(), SW_HIDE);
     // Copy exe path to buffer
+    // TODO Error check
     GetModuleFileNameA(nullptr, buffer, PATH_MAX_LEN);
     #elif __APPLE__
     // Copy exe path to buffer
@@ -40,7 +41,6 @@ int main(int argc, char* args[]) {
     pathBuffer.erase(pathBuffer.find_last_of('/'), pathBuffer.back());
     // search for the resources folder
     pathBuffer += "/resources/";
-    LogHelperBE::info(pathBuffer);
     // Get the working directory
     Application::absolutePath = pathBuffer;
 

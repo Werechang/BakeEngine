@@ -50,7 +50,9 @@ public:
         int screenX = (int)std::round(mouseX);
         int screenY = (int)std::round(mouseY);
         for (auto & guiElement : GuiElement::guiElements) {
-            guiElement->isMouseHover(screenX, screenY);
+            if (guiElement->isMouseHover(screenX, screenY)) {
+                break;
+            }
         }
     }
 
