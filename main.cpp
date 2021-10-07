@@ -25,13 +25,15 @@ int main(int argc, char* args[]) {
     GetModuleFileNameA(nullptr, buffer, PATH_MAX_LEN);
     #elif __APPLE__
     // Copy exe path to buffer
-    if (!_NSGetExecutablePath(buffer, PATH_MAX_LEN))
+    char cpyBuf[PATH_MAX_LEN];
+    uint32_t bufSize = sizeof(cpyBuf);
+    if (_NSGetExecutablePath(cpyBuf, &bufSize) != 0)
         LogHelperBE::fatal("Path buffer is too small! Please move the executable and resources into a different location");
-    if (!realpath(buffer, buffer))
+    if (!realpath(cpyBuf, buffer))
         LogHelperBE::fatal("A pathname caused a problem. Please change the path(name) of the executable and resources");
     #elif __LINUX__
     // Copy exe path to buffer
-    if (readlink("proc/self/exe", buffer, PATH_MAX_LEN) == -1)
+    if (readlink("/proc/self/exe", buffer, PATH_MAX_LEN) == -1)
         LogHelperBE::fatal("Something went wrong while reading the path.");
     #endif
     std::string pathBuffer(buffer);
