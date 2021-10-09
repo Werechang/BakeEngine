@@ -29,8 +29,8 @@ GLTexture::GLTexture(int interpolation, int sampling, const char* path, unsigned
         glGenerateMipmap(GL_TEXTURE_2D);
         if (anisotropicLevel > 1.0f) {
             float maxAnisotropic;
-            glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropic);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, maxAnisotropic > anisotropicLevel ? anisotropicLevel : maxAnisotropic);
+            glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropic);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropic > anisotropicLevel ? anisotropicLevel : maxAnisotropic);
         }
     }
 

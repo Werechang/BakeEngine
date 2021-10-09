@@ -48,9 +48,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 }
 
 void focusCallback(GLFWwindow* window, int focused) {
-    if (!focused) {
-        glfwRequestWindowAttention(window);
-    }
+
 }
 
 Application::Application(bool isOGL, int width, int height, const char *name) : isOGL(isOGL), width(width), height(height), name(name) {
@@ -111,7 +109,7 @@ void Application::init() {
             LogHelperBE::fatal("Failed to load OpenGL");
         }
         LogHelperBE::info("Loaded OpenGL successfully");
-        if (!GLAD_GL_ARB_texture_filter_anisotropic)
+        if (!GLAD_GL_EXT_texture_filter_anisotropic)
             LogHelperBE::error("Anisotropic filtering is not supported!");
     } else {
         // Load vulkan
@@ -199,9 +197,12 @@ void Application::runGL() {
             1.0f,  1.0f,  1.0f, 1.0f
     };
     GLRenderer glRenderer = GLRenderer("shaders/gui.shader", width, height);
-    GuiElement gui4(1400, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_RIGHT);
-    GuiElement gui6(50, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_LEFT);
+    GuiElement gui4(1400, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_RIGHT, "textures/gui_placeholder.png");
+    GuiElement gui6(50, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_LEFT, "textures/gui_placeholder.png");
 
+    InputCallable inputCallableTest;
+    InputManager::addAction(InputCallable::testInput, GLFW_KEY_I, GLFW_MOD_CONTROL | GLFW_MOD_SHIFT);
+    InputManager::addAction(&InputCallable::testInputObj, &inputCallableTest, GLFW_KEY_I, GLFW_MOD_CONTROL);
     // Vertex Array Object
     VertexArray vao;
     vao.bind();
@@ -386,7 +387,11 @@ void Application::getInput(float deltaTime) {
     }
 
     for (auto i = 0; i < 8; i++) {
-        if (KeysAndButtons[ARRAY_MOUSE_BUTTON + i] && KeysAndButtonsPressed[ARRAY_MOUSE_BUTTON + i])
+        if (KeysAndButtons[ARRAY_MOUSE_BUTTON + i] && KeysAndButtonsPressed[ARRAY_MOUSE_BUTTON + i]) {
             KeysAndButtonsPressed[ARRAY_MOUSE_BUTTON + i] = false;
+        }
+        if (!KeysAndButtons[ARRAY_MOUSE_BUTTON + i] && KeysAndButtonsReleased[ARRAY_MOUSE_BUTTON + i]) {
+            KeysAndButtonsReleased[ARRAY_MOUSE_BUTTON + i] = false;
+        }
     }
 }

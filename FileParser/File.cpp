@@ -8,7 +8,7 @@
  * @param path File path (includes the file itself + the extension)
  * @param endian LITTLE_ENDIAN (0) or BIG_ENDIAN (1)
  */
-File::File(std::string& path, bool endian) : DataView(endian), path(Application::absolutePath + path) {
+File::File(const std::string& path, bool endian) : DataView(endian), path(Application::absolutePath + path) {
     LogHelperBE::pushName("File");
 
     std::ifstream input(this->path, std::ios::binary);
@@ -19,8 +19,4 @@ File::File(std::string& path, bool endian) : DataView(endian), path(Application:
         bytes = std::vector<unsigned char>(std::istreambuf_iterator<char>(input), {});
     }
     LogHelperBE::popName();
-}
-
-std::string& File::getPath() {
-    return path;
 }

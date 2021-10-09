@@ -24,6 +24,8 @@
 #include "../Render/OpenGL/GLRenderer.h"
 #include "../Util/Math/Math.h"
 #include "../Input/InputCallable.h"
+#include "../Input/KeyBind.h"
+#include "GLFW/glfw3.h"
 
 class GuiElement: public InputCallable {
 private:
@@ -35,16 +37,16 @@ private:
     int alignWith;
     Matrix4 model = Matrix4::identity();
     Matrix4 modelProj = Matrix4::identity();
-    GLTexture texture = GLTexture(GL_NEAREST, GL_REPEAT, "../resources/textures/gui_placeholder.png", TEXTURE_IMAGE, false, 1.0f, false);
+    GLTexture texture;
 public:
     static std::vector<GuiElement*> guiElements;
-    GuiElement() : GuiElement(0, 0, 0, 0, false, GUI_NONE) {};
+    GuiElement() : GuiElement(0, 0, 0, 0) {};
     /**
     *
     * @param xPos x Position in pixel coordinates, from left
     * @param yPos y Position in pixel coordinates, from top
     */
-    GuiElement(float xPos, float yPos) : GuiElement(xPos, yPos, 0, 0, GUI_NO_SCALING, GUI_NONE) {};
+    GuiElement(float xPos, float yPos) : GuiElement(xPos, yPos, 0, 0) {};
     /**
     *
     * @param xPos x Position in pixel coordinates, from left
@@ -52,13 +54,12 @@ public:
     * @param xSize x size going from left to right
     * @param ySize y size going from top to bottom
     */
-    GuiElement(float xPos, float yPos, float xSize, float ySize) : GuiElement(xPos, yPos, xSize, ySize, GUI_NO_SCALING, GUI_NONE) {};
-    GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith);
+    GuiElement(float xPos, float yPos, float xSize, float ySize) : GuiElement(xPos, yPos, xSize, ySize, GUI_NO_SCALING, GUI_NONE, "textures/gui_placeholder.png") {};
+    GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith, const char* texturePath);
     void renderElement(GLShader& shader);
     void onResize(int width, int height);
     void addChild(GuiElement* element);
     void setPos(float x, float y);
-    virtual void onFocus() {};
     virtual void onKeyAction(int key, int action) {};
     virtual void onMouseButtonAction(int button, int action) {};
     virtual void onMouseHover() {};

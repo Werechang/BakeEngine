@@ -1,5 +1,6 @@
 #include "Application/Application.h"
 #include "Scene/Model.h"
+#include "FileParser/TrueType.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -49,6 +50,7 @@ int main(int argc, char* args[]) {
     // For testing purposes. Will be removed later
     Model m("models/output.bfres");
     m.load();
+    TrueType ttf("fonts/consola.ttf");
 
     // Launching the application
     Application(true, 1600, 900, "BakeEngine").start();

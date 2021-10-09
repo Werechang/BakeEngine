@@ -17,7 +17,7 @@ private:
     int fileType;
     Fres* fres;
 public:
-    explicit Model(const char* filePath);
+    explicit Model(std::string filePath);
     ~Model() {
         delete fres;
         fres = nullptr;

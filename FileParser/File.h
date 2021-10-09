@@ -7,15 +7,14 @@
 
 class File : public DataView {
 private:
-    std::string path;
+    const std::string path;
 public:
     /**
      *
      * @param path file path
      * @param endian false = little, true = big
      */
-    File(std::string& path, bool endian);
-    std::string& getPath();
+    File(const std::string& path, bool endian);
 };
 
 

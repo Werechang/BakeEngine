@@ -14,7 +14,7 @@ Matrix4 GLRenderer::guiProj;
  * GUI_AXIS_X and GUI_AXIS_Y scales by changing the width/height of the window
  * @param alignWith if the element should stick do a specific edge on resize. 0 if none, look into the definitions in GuiElement.h
  */
-GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith) : xPos(xPos), yPos(yPos), xSize(xSize), ySize(ySize), scalingAxis(scalingAxis), alignWith(alignWith) {
+GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith, const char* texturePath) : xPos(xPos), yPos(yPos), xSize(xSize), ySize(ySize), scalingAxis(scalingAxis), alignWith(alignWith), texture(GL_NEAREST, GL_REPEAT, texturePath, TEXTURE_IMAGE, false, 1.0f, false) {
     /*
      * screen in normalized device coordinates
      * (-1,+1)|-----------------|(+1,+1)

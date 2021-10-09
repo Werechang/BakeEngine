@@ -1,5 +1,4 @@
 
-#include <iostream>
 #include "DataView.h"
 
 DataView::DataView(std::vector<unsigned char> &data, bool endian) : bytes(data), endian(endian){

@@ -1,13 +1,15 @@
 
 #include "Model.h"
 
+#include <utility>
+
 void Model::render(GLShader &shader) const {
     for (auto & mesh : meshes) {
         mesh.render(shader);
     }
 }
 
-Model::Model(const char* filePath) : path(filePath){
+Model::Model(std::string filePath) : path(std::move(filePath)){
     LogHelperBE::pushName("Model");
     fileType = -1;
     try {
