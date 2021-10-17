@@ -1,20 +1,11 @@
 
-#ifndef BAKEENGINE_CAMERA_H
-#define BAKEENGINE_CAMERA_H
+#pragma once
 
 #include "../Util/Math/Matrix4.h"
 #include <cmath>
 
 class Camera {
-private:
-
-    float yaw = -90, pitch = 0;
-
 public:
-    Vector3 pos;
-    Vector3 up = Vector3(0, 1, 0);
-    Vector3 front = Vector3(0, 0, -1);
-    Vector3 camUp = Vector3(0, 1, 0);
 
     float speed = 0.05;
     float globalSpeed = 2.5f;
@@ -26,10 +17,16 @@ public:
     void moveBack();
     void moveLeft();
     void moveRight();
+    void moveUp();
+    void moveDown();
     void turn(float xOffset, float yOffset);
 
     Matrix4 getView();
+    const Vector3& getPos() const;
+private:
+    float yaw = -90, pitch = 0;
+    Vector3 pos;
+    Vector3 up = Vector3(0, 1, 0);
+    Vector3 front = Vector3(0, 0, -1);
+    Vector3 camUp = Vector3(0, 1, 0);
 };
-
-
-#endif

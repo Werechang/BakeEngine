@@ -23,6 +23,7 @@ extern "C" {
 int GLAD_VK_VERSION_1_0 = 0;
 int GLAD_VK_VERSION_1_1 = 0;
 int GLAD_VK_VERSION_1_2 = 0;
+int GLAD_VK_NV_ray_tracing = 0;
 
 
 
@@ -30,6 +31,7 @@ PFN_vkAllocateCommandBuffers glad_vkAllocateCommandBuffers = NULL;
 PFN_vkAllocateDescriptorSets glad_vkAllocateDescriptorSets = NULL;
 PFN_vkAllocateMemory glad_vkAllocateMemory = NULL;
 PFN_vkBeginCommandBuffer glad_vkBeginCommandBuffer = NULL;
+PFN_vkBindAccelerationStructureMemoryNV glad_vkBindAccelerationStructureMemoryNV = NULL;
 PFN_vkBindBufferMemory glad_vkBindBufferMemory = NULL;
 PFN_vkBindBufferMemory2 glad_vkBindBufferMemory2 = NULL;
 PFN_vkBindImageMemory glad_vkBindImageMemory = NULL;
@@ -42,9 +44,11 @@ PFN_vkCmdBindIndexBuffer glad_vkCmdBindIndexBuffer = NULL;
 PFN_vkCmdBindPipeline glad_vkCmdBindPipeline = NULL;
 PFN_vkCmdBindVertexBuffers glad_vkCmdBindVertexBuffers = NULL;
 PFN_vkCmdBlitImage glad_vkCmdBlitImage = NULL;
+PFN_vkCmdBuildAccelerationStructureNV glad_vkCmdBuildAccelerationStructureNV = NULL;
 PFN_vkCmdClearAttachments glad_vkCmdClearAttachments = NULL;
 PFN_vkCmdClearColorImage glad_vkCmdClearColorImage = NULL;
 PFN_vkCmdClearDepthStencilImage glad_vkCmdClearDepthStencilImage = NULL;
+PFN_vkCmdCopyAccelerationStructureNV glad_vkCmdCopyAccelerationStructureNV = NULL;
 PFN_vkCmdCopyBuffer glad_vkCmdCopyBuffer = NULL;
 PFN_vkCmdCopyBufferToImage glad_vkCmdCopyBufferToImage = NULL;
 PFN_vkCmdCopyImage glad_vkCmdCopyImage = NULL;
@@ -82,9 +86,13 @@ PFN_vkCmdSetStencilCompareMask glad_vkCmdSetStencilCompareMask = NULL;
 PFN_vkCmdSetStencilReference glad_vkCmdSetStencilReference = NULL;
 PFN_vkCmdSetStencilWriteMask glad_vkCmdSetStencilWriteMask = NULL;
 PFN_vkCmdSetViewport glad_vkCmdSetViewport = NULL;
+PFN_vkCmdTraceRaysNV glad_vkCmdTraceRaysNV = NULL;
 PFN_vkCmdUpdateBuffer glad_vkCmdUpdateBuffer = NULL;
 PFN_vkCmdWaitEvents glad_vkCmdWaitEvents = NULL;
+PFN_vkCmdWriteAccelerationStructuresPropertiesNV glad_vkCmdWriteAccelerationStructuresPropertiesNV = NULL;
 PFN_vkCmdWriteTimestamp glad_vkCmdWriteTimestamp = NULL;
+PFN_vkCompileDeferredNV glad_vkCompileDeferredNV = NULL;
+PFN_vkCreateAccelerationStructureNV glad_vkCreateAccelerationStructureNV = NULL;
 PFN_vkCreateBuffer glad_vkCreateBuffer = NULL;
 PFN_vkCreateBufferView glad_vkCreateBufferView = NULL;
 PFN_vkCreateCommandPool glad_vkCreateCommandPool = NULL;
@@ -103,12 +111,14 @@ PFN_vkCreateInstance glad_vkCreateInstance = NULL;
 PFN_vkCreatePipelineCache glad_vkCreatePipelineCache = NULL;
 PFN_vkCreatePipelineLayout glad_vkCreatePipelineLayout = NULL;
 PFN_vkCreateQueryPool glad_vkCreateQueryPool = NULL;
+PFN_vkCreateRayTracingPipelinesNV glad_vkCreateRayTracingPipelinesNV = NULL;
 PFN_vkCreateRenderPass glad_vkCreateRenderPass = NULL;
 PFN_vkCreateRenderPass2 glad_vkCreateRenderPass2 = NULL;
 PFN_vkCreateSampler glad_vkCreateSampler = NULL;
 PFN_vkCreateSamplerYcbcrConversion glad_vkCreateSamplerYcbcrConversion = NULL;
 PFN_vkCreateSemaphore glad_vkCreateSemaphore = NULL;
 PFN_vkCreateShaderModule glad_vkCreateShaderModule = NULL;
+PFN_vkDestroyAccelerationStructureNV glad_vkDestroyAccelerationStructureNV = NULL;
 PFN_vkDestroyBuffer glad_vkDestroyBuffer = NULL;
 PFN_vkDestroyBufferView glad_vkDestroyBufferView = NULL;
 PFN_vkDestroyCommandPool glad_vkDestroyCommandPool = NULL;
@@ -144,6 +154,8 @@ PFN_vkFlushMappedMemoryRanges glad_vkFlushMappedMemoryRanges = NULL;
 PFN_vkFreeCommandBuffers glad_vkFreeCommandBuffers = NULL;
 PFN_vkFreeDescriptorSets glad_vkFreeDescriptorSets = NULL;
 PFN_vkFreeMemory glad_vkFreeMemory = NULL;
+PFN_vkGetAccelerationStructureHandleNV glad_vkGetAccelerationStructureHandleNV = NULL;
+PFN_vkGetAccelerationStructureMemoryRequirementsNV glad_vkGetAccelerationStructureMemoryRequirementsNV = NULL;
 PFN_vkGetBufferDeviceAddress glad_vkGetBufferDeviceAddress = NULL;
 PFN_vkGetBufferMemoryRequirements glad_vkGetBufferMemoryRequirements = NULL;
 PFN_vkGetBufferMemoryRequirements2 glad_vkGetBufferMemoryRequirements2 = NULL;
@@ -182,6 +194,7 @@ PFN_vkGetPhysicalDeviceSparseImageFormatProperties glad_vkGetPhysicalDeviceSpars
 PFN_vkGetPhysicalDeviceSparseImageFormatProperties2 glad_vkGetPhysicalDeviceSparseImageFormatProperties2 = NULL;
 PFN_vkGetPipelineCacheData glad_vkGetPipelineCacheData = NULL;
 PFN_vkGetQueryPoolResults glad_vkGetQueryPoolResults = NULL;
+PFN_vkGetRayTracingShaderGroupHandlesNV glad_vkGetRayTracingShaderGroupHandlesNV = NULL;
 PFN_vkGetRenderAreaGranularity glad_vkGetRenderAreaGranularity = NULL;
 PFN_vkGetSemaphoreCounterValue glad_vkGetSemaphoreCounterValue = NULL;
 PFN_vkInvalidateMappedMemoryRanges glad_vkInvalidateMappedMemoryRanges = NULL;
@@ -393,6 +406,21 @@ static void glad_vk_load_VK_VERSION_1_2( GLADuserptrloadfunc load, void* userptr
     glad_vkSignalSemaphore = (PFN_vkSignalSemaphore) load(userptr, "vkSignalSemaphore");
     glad_vkWaitSemaphores = (PFN_vkWaitSemaphores) load(userptr, "vkWaitSemaphores");
 }
+static void glad_vk_load_VK_NV_ray_tracing( GLADuserptrloadfunc load, void* userptr) {
+    if(!GLAD_VK_NV_ray_tracing) return;
+    glad_vkBindAccelerationStructureMemoryNV = (PFN_vkBindAccelerationStructureMemoryNV) load(userptr, "vkBindAccelerationStructureMemoryNV");
+    glad_vkCmdBuildAccelerationStructureNV = (PFN_vkCmdBuildAccelerationStructureNV) load(userptr, "vkCmdBuildAccelerationStructureNV");
+    glad_vkCmdCopyAccelerationStructureNV = (PFN_vkCmdCopyAccelerationStructureNV) load(userptr, "vkCmdCopyAccelerationStructureNV");
+    glad_vkCmdTraceRaysNV = (PFN_vkCmdTraceRaysNV) load(userptr, "vkCmdTraceRaysNV");
+    glad_vkCmdWriteAccelerationStructuresPropertiesNV = (PFN_vkCmdWriteAccelerationStructuresPropertiesNV) load(userptr, "vkCmdWriteAccelerationStructuresPropertiesNV");
+    glad_vkCompileDeferredNV = (PFN_vkCompileDeferredNV) load(userptr, "vkCompileDeferredNV");
+    glad_vkCreateAccelerationStructureNV = (PFN_vkCreateAccelerationStructureNV) load(userptr, "vkCreateAccelerationStructureNV");
+    glad_vkCreateRayTracingPipelinesNV = (PFN_vkCreateRayTracingPipelinesNV) load(userptr, "vkCreateRayTracingPipelinesNV");
+    glad_vkDestroyAccelerationStructureNV = (PFN_vkDestroyAccelerationStructureNV) load(userptr, "vkDestroyAccelerationStructureNV");
+    glad_vkGetAccelerationStructureHandleNV = (PFN_vkGetAccelerationStructureHandleNV) load(userptr, "vkGetAccelerationStructureHandleNV");
+    glad_vkGetAccelerationStructureMemoryRequirementsNV = (PFN_vkGetAccelerationStructureMemoryRequirementsNV) load(userptr, "vkGetAccelerationStructureMemoryRequirementsNV");
+    glad_vkGetRayTracingShaderGroupHandlesNV = (PFN_vkGetRayTracingShaderGroupHandlesNV) load(userptr, "vkGetRayTracingShaderGroupHandlesNV");
+}
 
 
 
@@ -523,6 +551,7 @@ static int glad_vk_find_extensions_vulkan( VkPhysicalDevice physical_device) {
     char **extensions = NULL;
     if (!glad_vk_get_extensions(physical_device, &extension_count, &extensions)) return 0;
 
+    GLAD_VK_NV_ray_tracing = glad_vk_has_extension("VK_NV_ray_tracing", extension_count, extensions);
 
     (void) glad_vk_has_extension;
 
@@ -579,6 +608,7 @@ int gladLoadVulkanUserPtr( VkPhysicalDevice physical_device, GLADuserptrloadfunc
     glad_vk_load_VK_VERSION_1_2(load, userptr);
 
     if (!glad_vk_find_extensions_vulkan( physical_device)) return 0;
+    glad_vk_load_VK_NV_ray_tracing(load, userptr);
 
 
     return version;

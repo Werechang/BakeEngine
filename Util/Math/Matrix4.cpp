@@ -13,7 +13,11 @@
  * 5 | 6 | 7 | 8
  */
 
-Matrix4::Matrix4(float matrix2[4][4]) {
+/**
+ *
+ * @param matrix2 For copying a matrix. For internal use only because the array could be destroyed while in use by this matrix.
+ */
+Matrix4::Matrix4(const float matrix2[4][4]) {
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             this->matrix[i][j] = matrix2[i][j];
@@ -26,8 +30,7 @@ Matrix4::Matrix4(float matrix2[4][4]) {
  * @return Identity Matrix
  */
 Matrix4 Matrix4::identity() {
-    float mat[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
-    return Matrix4(mat);
+    return {};
 }
 /**
  * Generates a perspective projection matrix
@@ -131,7 +134,7 @@ void Matrix4::translateZ(float distance) {
 }
 
 
-void Matrix4::translate(Vector3& vec) {
+void Matrix4::translate(const Vector3& vec) {
     matrix[3][0] += vec.x;
     matrix[3][1] += vec.y;
     matrix[3][2] += vec.z;
@@ -143,15 +146,14 @@ void Matrix4::scale(float xScale, float yScale, float zScale) {
     matrix[2][2] *= zScale;
 }
 
-Matrix4 Matrix4::operator*(Matrix4 &other) {
+Matrix4 Matrix4::operator*(const Matrix4 &other) const {
     Matrix4 ret;
     for (auto i = 0; i < 4; i++) {
         for (auto j = 0; j < 4; j++) {
             ret.matrix[j][i] = this->matrix[0][i] * other.matrix[j][0] + this->matrix[1][i] * other.matrix[j][1] + this->matrix[2][i] * other.matrix[j][2] + this->matrix[3][i] * other.matrix[j][3];
         }
     }
-
-    return Matrix4(ret.matrix);
+    return ret;
 }
 
 void Matrix4::print() const {

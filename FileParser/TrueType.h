@@ -1,5 +1,4 @@
-#ifndef BAKEENGINE_TRUETYPE_H
-#define BAKEENGINE_TRUETYPE_H
+#pragma once
 
 #include "File.h"
 
@@ -10,11 +9,10 @@ struct Table {
     unsigned int length;
 };
 
-struct head {
+struct Head {
     unsigned int majorVersion;
     unsigned int minorVersion;
-    // Fixed point value. char is just a placeholder
-    float fontRevision;
+    double fontRevision;
     unsigned int checksumAdjustment;
     unsigned int magicNumber;
     unsigned int flags;
@@ -31,9 +29,8 @@ struct head {
     unsigned int glyphDataFormat;
 };
 
-struct maxp {
-    // version is fixed point
-    float version;
+struct Maxp {
+    double version;
     unsigned int numGlyphs;
     unsigned int maxPoints;
     unsigned int maxContours;
@@ -50,10 +47,49 @@ struct maxp {
     unsigned int maxComponentDepth;
 };
 
-class TrueType : public File {
-private:
-public:
-    explicit TrueType(const std::string &path);
+struct Hhea {
+    double version;
+    unsigned int ascent;
+    unsigned int descent;
+    unsigned int lineGap;
+    unsigned int advanceWidthMax;
+    int minLeftSideBearing;
+    int minRightSideBearing;
+    int xMaxExtent;
+    int caretSlopeRise;
+    int caretSlopeRun;
+    int caretOffset;
+    int metricDataFormat;
+    unsigned int numOfLongHorMetrics;
 };
 
-#endif
+struct HMetric {
+    unsigned int advanceWidth;
+    int leftSideBearing;
+};
+
+struct Hmtx {
+    std::vector<HMetric> metrics;
+    std::vector<int> leftSideBearing;
+};
+
+struct Glyf {
+    int numberOfContours;
+    int xMin;
+    int yMin;
+    int xMax;
+    int yMax;
+};
+
+class TrueType : public File {
+private:
+    Head head;
+    Maxp maxp;
+    Hhea hhea;
+public:
+    explicit TrueType(const std::string &path);
+
+    void readHead(unsigned int offset);
+    void readMaxp(unsigned int offset);
+    void readHhea(unsigned int offset);
+};

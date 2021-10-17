@@ -1,8 +1,5 @@
 #include "GuiElement.h"
 
-std::vector<GuiElement*> GuiElement::guiElements;
-Matrix4 GLRenderer::guiProj;
-// TODO Input
 /**
  *
  * @param xPos x Position in pixel coordinates, from left
@@ -14,7 +11,7 @@ Matrix4 GLRenderer::guiProj;
  * GUI_AXIS_X and GUI_AXIS_Y scales by changing the width/height of the window
  * @param alignWith if the element should stick do a specific edge on resize. 0 if none, look into the definitions in GuiElement.h
  */
-GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith, const char* texturePath) : xPos(xPos), yPos(yPos), xSize(xSize), ySize(ySize), scalingAxis(scalingAxis), alignWith(alignWith), texture(GL_NEAREST, GL_REPEAT, texturePath, TEXTURE_IMAGE, false, 1.0f, false) {
+GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith, const std::string& texturePath) : xPos(xPos), yPos(yPos), xSize(xSize), ySize(ySize), scalingAxis(scalingAxis), alignWith(alignWith), texture(GL_NEAREST, GL_REPEAT, texturePath, TEXTURE_IMAGE, false, 1.0f, false) {
     /*
      * screen in normalized device coordinates
      * (-1,+1)|-----------------|(+1,+1)
@@ -40,9 +37,7 @@ GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int sca
     vao.addVertexBuffer(vertexBuffer, attribs);
     vao.unbind();
     vertexBuffer.unbind();
-    guiElements.emplace_back(this);
     model.translate(xPos, yPos, 0);
-    onResize(GLRenderer::renderer->width, GLRenderer::renderer->height);
 }
 
 void GuiElement::renderElement(GLShader &shader) {
@@ -52,24 +47,21 @@ void GuiElement::renderElement(GLShader &shader) {
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void GuiElement::onResize(int width, int height) {
-    auto oldWidth = (float)GLRenderer::renderer->width;
-    auto oldHeight = (float)GLRenderer::renderer->height;
-
+void GuiElement::onResize(float width, float height, float oldWidth, float oldHeight, const Matrix4& proj) {
     float xScale = 1, yScale = 1;
-    if (scalingAxis > 0) {
+    if (scalingAxis != GUI_NO_SCALING) {
         switch (scalingAxis) {
             case GUI_SCALE_NO_AXIS:
-                xScale = (float)width/oldWidth;
-                yScale = (float)height/oldHeight;
+                xScale = width/oldWidth;
+                yScale = height/oldHeight;
                 break;
             case GUI_AXIS_X:
-                xScale = (float)width/oldWidth;
-                yScale = (float)width/oldWidth;
+                xScale = width/oldWidth;
+                yScale = width/oldWidth;
                 break;
             case GUI_AXIS_Y:
-                xScale = (float)height/oldHeight;
-                yScale = (float)height/oldHeight;
+                xScale = height/oldHeight;
+                yScale = height/oldHeight;
                 break;
         }
         model.scale(xScale, yScale, 1);
@@ -118,7 +110,7 @@ void GuiElement::onResize(int width, int height) {
     yPos = newY;
     xSize = newXSize;
     ySize = newYSize;
-    modelProj = GLRenderer::guiProj * model;
+    modelProj = proj * model;
 }
 
 void GuiElement::addChild(GuiElement* element) {
@@ -131,13 +123,6 @@ void GuiElement::addChild(GuiElement* element) {
         LogHelperBE::error("Element does already have a parent or is nullptr!");
         LogHelperBE::popName();
     }
-}
-
-void GuiElement::setPos(float x, float y) {
-    model.translate(x-xPos, y-yPos, 0);
-    modelProj = GLRenderer::guiProj * model;
-    xPos = x;
-    yPos = y;
 }
 
 bool GuiElement::isMouseHover(int mouseX, int mouseY) {
@@ -153,8 +138,22 @@ bool GuiElement::isMouseHover(int mouseX, int mouseY) {
     return false;
 }
 
-bool GuiElement::hasParent() const {
-    return parent != nullptr;
+void GuiElement::setPos(float x, float y, const Matrix4& proj) {
+    model.translate(x-xPos, y-yPos, 0);
+    modelProj = proj * model;
+    xPos = x;
+    yPos = y;
+}
+
+void GuiElement::setVisible(bool value) {
+    isVisible = value;
+    for (auto & child : children) {
+        setVisible(value);
+    }
+}
+
+bool GuiElement::getVisible() const {
+    return isVisible;
 }
 
 GuiElement *GuiElement::getParent() const {

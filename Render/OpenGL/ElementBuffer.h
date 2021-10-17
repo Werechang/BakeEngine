@@ -1,6 +1,5 @@
 
-#ifndef BAKEENGINE_ELEMENTBUFFER_H
-#define BAKEENGINE_ELEMENTBUFFER_H
+#pragma once
 
 #include <vector>
 
@@ -15,6 +14,3 @@ public:
     void unbind() const;
     unsigned int getSize() const;
 };
-
-
-#endif

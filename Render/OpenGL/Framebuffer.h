@@ -1,6 +1,5 @@
 
-#ifndef BAKEENGINE_FRAMEBUFFER_H
-#define BAKEENGINE_FRAMEBUFFER_H
+#pragma once
 
 #include "glad/gl.h"
 
@@ -21,6 +20,3 @@ public:
     void drawTo(Framebuffer& fb) const;
     void resize(int nWidth, int nHeight);
 };
-
-
-#endif

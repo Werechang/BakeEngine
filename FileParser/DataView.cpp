@@ -48,7 +48,29 @@ std::string DataView::readString(unsigned int length) {
 }
 
 float DataView::readFloat() {
-    return 0;
+    bytes2Float bf{};
+    index += 4;
+    if (endian) {
+        bf.bytes[3] = bytes[index-4];
+        bf.bytes[2] = bytes[index-3];
+        bf.bytes[1] = bytes[index-2];
+        bf.bytes[0] = bytes[index-1];
+    } else {
+        bf.bytes[0] = bytes[index-4];
+        bf.bytes[1] = bytes[index-3];
+        bf.bytes[2] = bytes[index-2];
+        bf.bytes[3] = bytes[index-1];}
+    return bf.f;
+}
+
+double DataView::readFixed() {
+    return (double)readInt()/(1 << 16);
+}
+
+unsigned int DataView::readDate() {
+    unsigned int macTime = readUInt() * 0x100000000 + readUInt();
+    unsigned int utc = macTime * 1000; // TODO: + date 1904, 1, 1
+    return utc;
 }
 
 unsigned int DataView::readUInt(unsigned int offset) {
@@ -108,8 +130,16 @@ float DataView::readFloat(unsigned int offset) {
  * Sets the index of the array to offset
  * @param offset
  */
-void DataView::seek(int offset) {
+void DataView::seek(unsigned int offset) {
     this->index = offset;
+}
+
+void DataView::skip(unsigned int offset) {
+    index += offset;
+}
+
+unsigned int DataView::getOffset() {
+    return index;
 }
 
 void DataView::setEndian(bool isBigEndian) {
@@ -117,6 +147,7 @@ void DataView::setEndian(bool isBigEndian) {
 }
 
 DataView DataView::getBufferSlice(unsigned int offset, unsigned int length) {
+    // TODO Optimize
     std::vector<unsigned char> buffer;
     length = length > bytes.size() ? bytes.size() : length;
     buffer.reserve(length);

@@ -1,6 +1,5 @@
 
-#ifndef BAKEENGINE_DATAVIEW_H
-#define BAKEENGINE_DATAVIEW_H
+#pragma once
 #define LITTLE_ENDIAN 0
 #define BIG_ENDIAN 1
 
@@ -26,18 +25,19 @@ public:
     int readByte();
     std::string readString(unsigned int length);
     float readFloat();
+    double readFixed();
+    unsigned int readDate();
     int readInt(unsigned int offset);
     unsigned int readUInt(unsigned int offset);
     int readByte(unsigned int offset);
     std::string readString(unsigned int offset, unsigned int length, bool nullTerminated);
     float readFloat(unsigned int offset);
-    void seek(int offset);
+    void seek(unsigned int offset);
+    void skip(unsigned int offset);
+    unsigned int getOffset();
     void setEndian(bool isBigEndian);
     DataView getBufferSlice(unsigned int offset, unsigned int length);
     std::vector<unsigned char> getData();
 
     int readShort(unsigned int offset);
 };
-
-
-#endif

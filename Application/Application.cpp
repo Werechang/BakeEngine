@@ -3,9 +3,7 @@
 #include "../Render/OpenGL/Framebuffer.h"
 #include "../FileParser/stb_image.h"
 
-#define glCheckError() glCheckError_(__FILE__, __LINE__)
-
-GLRenderer* GLRenderer::renderer = nullptr;
+/*#define glCheckError() glCheckError_(__FILE__, __LINE__)
 
 GLenum glCheckError_(const char *file, int line) {
     GLenum errorCode;
@@ -19,24 +17,24 @@ GLenum glCheckError_(const char *file, int line) {
             case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
         }
         LogHelperBE::pushName("OpenGL");
-        LogHelperBE::error((error + " | " + file + " (" + std::to_string(line) + ")").c_str());
+        LogHelperBE::error(error + " | " + file + " (" + std::to_string(line) + ")");
         LogHelperBE::popName();
     }
     return errorCode;
-}
+}*/
 
 void errorCallback(int error, const char *description) {
     LogHelperBE::pushName("GLFW");
-    LogHelperBE::error((std::to_string(error) + ": " + description).c_str());
+    LogHelperBE::error(std::to_string(error) + ": " + description);
     LogHelperBE::popName();
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    InputManager::updateKey(window, key, scancode, action, mods);
+    inputManagerPtr->updateKey(window, key, scancode, action, mods);
 }
 
 void mouseCallback(GLFWwindow *window, double xPos, double yPos) {
-    InputManager::updateMouse(window, xPos, yPos);
+    inputManagerPtr->updateMouse(window, xPos, yPos);
 }
 
 void closeCallback(GLFWwindow* window) {
@@ -44,14 +42,14 @@ void closeCallback(GLFWwindow* window) {
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    InputManager::updateMouseButton(window, button, action, mods);
+    inputManagerPtr->updateMouseButton(window, button, action, mods);
 }
 
 void focusCallback(GLFWwindow* window, int focused) {
 
 }
 
-Application::Application(bool isOGL, int width, int height, const char *name) : isOGL(isOGL), width(width), height(height), name(name) {
+Application::Application(bool isOGL, int width, int height, const std::string& name) : isOGL(isOGL), width(width), height(height), name(name) {
     LogHelperBE::pushName("Application");
     if (isOGL) {
         LogHelperBE::info("Starting with OpenGL...");
@@ -67,8 +65,6 @@ Application::Application(bool isOGL, int width, int height, const char *name) : 
 void Application::init() {
     glfwInit();
 
-    // Error function to print out errors
-
     // Specify OGL version
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -80,7 +76,7 @@ void Application::init() {
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     // Creates Application
-    window = glfwCreateWindow(width, height, name, nullptr, nullptr);
+    window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
 
     // exit when Application was not initialized properly
     if (window == nullptr) {
@@ -96,6 +92,7 @@ void Application::init() {
     glfwSwapInterval(1);
 
     // Function for callbacks
+    inputManagerPtr = new InputManager();
     glfwSetErrorCallback(errorCallback);
     glfwSetKeyCallback(window, keyCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
@@ -130,6 +127,7 @@ void Application::terminate() {
     glfwDestroyWindow(window);
     glfwTerminate();
     running = false;
+    delete inputManagerPtr;
 }
 
 void Application::runGL() {
@@ -197,12 +195,16 @@ void Application::runGL() {
             1.0f,  1.0f,  1.0f, 1.0f
     };
     GLRenderer glRenderer = GLRenderer("shaders/gui.shader", width, height);
-    GuiElement gui4(1400, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_RIGHT, "textures/gui_placeholder.png");
-    GuiElement gui6(50, 50, 150, 150, GUI_AXIS_Y, GUI_TOP_LEFT, "textures/gui_placeholder.png");
+    GuiElement gui1(1400.0f, 50.0f, 150.0f, 150.0f, GUI_AXIS_Y, GUI_TOP_RIGHT, "textures/gui_placeholder.png");
+    GuiElement gui2(50.0f, 50.0f, 150.0f, 150.0f, GUI_AXIS_Y, GUI_TOP_LEFT, "textures/gui_placeholder.png");
 
-    InputCallable inputCallableTest;
-    InputManager::addAction(InputCallable::testInput, GLFW_KEY_I, GLFW_MOD_CONTROL | GLFW_MOD_SHIFT);
-    InputManager::addAction(&InputCallable::testInputObj, &inputCallableTest, GLFW_KEY_I, GLFW_MOD_CONTROL);
+    inputManagerPtr->addKeyBind([this] { camera.moveFront(); }, GLFW_KEY_W, 0, INPUT_ON_ACTIVE);
+    inputManagerPtr->addKeyBind([this] { camera.moveLeft(); }, GLFW_KEY_A, 0, INPUT_ON_ACTIVE);
+    inputManagerPtr->addKeyBind([this] { camera.moveBack(); }, GLFW_KEY_S, 0, INPUT_ON_ACTIVE);
+    inputManagerPtr->addKeyBind([this] { camera.moveRight(); }, GLFW_KEY_D, 0, INPUT_ON_ACTIVE);
+    inputManagerPtr->addKeyBind([this] { camera.moveUp(); }, GLFW_KEY_Q, 0, INPUT_ON_ACTIVE);
+    inputManagerPtr->addKeyBind([this] { camera.moveDown(); }, GLFW_KEY_E, 0, INPUT_ON_ACTIVE);
+    inputManagerPtr->addKeyBind([this] { return glfwSetWindowShouldClose(window, true); }, GLFW_KEY_Q, GLFW_MOD_CONTROL, INPUT_ON_PRESS);
     // Vertex Array Object
     VertexArray vao;
     vao.bind();
@@ -294,7 +296,6 @@ void Application::runGL() {
 
     double deltaTime;
 
-    glCheckError();
     while (!glfwWindowShouldClose(window) && running) {
 
         // Time
@@ -318,7 +319,10 @@ void Application::runGL() {
             glRenderer.onResize(width, height);
         }
         glfwPollEvents();
-        getInput((float)deltaTime);
+        // Same speed for different framerate
+        // TODO Lower camera speed if two keys are pressed (i.e. WA)
+        camera.speed = camera.globalSpeed * deltaTime;
+        inputManagerPtr->updateInput(window);
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -330,7 +334,7 @@ void Application::runGL() {
         view = camera.getView();
         shader.bind();
 
-        shader.uniform3f("cameraPos", camera.pos.x, camera.pos.y, camera.pos.z);
+        shader.uniform3f("cameraPos", camera.getPos().x, camera.getPos().y, camera.getPos().z);
         shader.uniformMatrix4fv("view", view);
         shader.uniformMatrix4fv("model", model);
 
@@ -349,7 +353,7 @@ void Application::runGL() {
         viewport.bindTexture();
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        glRenderer.draw();
+        //glRenderer.draw();
 
         glfwSwapBuffers(window);
     }
@@ -357,41 +361,4 @@ void Application::runGL() {
 
 void Application::runVk() {
 
-}
-
-void Application::getInput(float deltaTime) {
-    camera.speed = camera.globalSpeed * deltaTime;
-    // TODO Lower camera speed if two keys are pressed (i.e. WA)
-    if (KeysAndButtons[GLFW_KEY_W]) {
-        camera.moveFront();
-    }
-    if (KeysAndButtons[GLFW_KEY_S]) {
-        camera.moveBack();
-    }
-    if (KeysAndButtons[GLFW_KEY_A]) {
-        camera.moveLeft();
-    }
-    if (KeysAndButtons[GLFW_KEY_D]) {
-        camera.moveRight();
-    }
-    if (KeysAndButtons[ARRAY_MOUSE_BUTTON + GLFW_MOUSE_BUTTON_LEFT]) {
-        if (KeysAndButtonsPressed[ARRAY_MOUSE_BUTTON + GLFW_MOUSE_BUTTON_LEFT]) {
-            firstMouse = true;
-        } else if (!firstMouse) {
-            float xOffset = (float)(mouseX - lastMouseX) * 0.1f;
-            float yOffset = (float)(lastMouseY - mouseY) * 0.1f;
-            camera.turn(xOffset, yOffset);
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-        }
-    }
-
-    for (auto i = 0; i < 8; i++) {
-        if (KeysAndButtons[ARRAY_MOUSE_BUTTON + i] && KeysAndButtonsPressed[ARRAY_MOUSE_BUTTON + i]) {
-            KeysAndButtonsPressed[ARRAY_MOUSE_BUTTON + i] = false;
-        }
-        if (!KeysAndButtons[ARRAY_MOUSE_BUTTON + i] && KeysAndButtonsReleased[ARRAY_MOUSE_BUTTON + i]) {
-            KeysAndButtonsReleased[ARRAY_MOUSE_BUTTON + i] = false;
-        }
-    }
 }

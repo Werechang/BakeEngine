@@ -1,6 +1,5 @@
 
-#ifndef BAKEENGINE_VERTEXARRAY_H
-#define BAKEENGINE_VERTEXARRAY_H
+#pragma once
 
 #include "VertexBuffer.h"
 
@@ -14,6 +13,3 @@ public:
     void unbind() const;
     void addVertexBuffer(const VertexBuffer& buffer, const VertexAttributes& attributes) const;
 };
-
-
-#endif

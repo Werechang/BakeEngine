@@ -8,10 +8,10 @@ GLShader::GLShader(const std::string &filePath) {
     LogHelperBE::pushName("Shader");
     GLShaderSource src = parseShader(Application::absolutePath + filePath);
     programPtr = createProgram(src.vertexSource.c_str(), src.fragmentSource.c_str(), src.geometrySource.empty() ? nullptr : src.geometrySource.c_str());
+    LogHelperBE::popName();
 }
 
 GLShader::~GLShader() {
-    LogHelperBE::popName();
     glDeleteProgram(programPtr);
 }
 
@@ -52,9 +52,10 @@ unsigned int GLShader::compileShader(const unsigned int shaderType, const char* 
             case GL_VERTEX_SHADER: type = "vertex";break;
             case GL_GEOMETRY_SHADER: type = "geometry";break;
         }
-        LogHelperBE::error(("Could not compile " + std::string(type) + " shader\n" + message).c_str());
-        glDeleteShader(shader);
+        LogHelperBE::pushName("Shader");
+        LogHelperBE::error("Could not compile " + std::string(type) + " shader\n" + message);
         LogHelperBE::popName();
+        glDeleteShader(shader);
         return 0;
     }
     return shader;
@@ -86,7 +87,9 @@ int GLShader::getUniformLocation(const std::string &name) {
     int location = glGetUniformLocation(programPtr, name.c_str());
 
     if (location == -1) {
-        LogHelperBE::error(("Uniform " + std::string(name) + " does not exist!").c_str());
+        LogHelperBE::pushName("Shader");
+        LogHelperBE::error("Uniform " + std::string(name) + " does not exist!");
+        LogHelperBE::popName();
     }
     uniformLocationCache[name] = location;
     return location;

@@ -1,7 +1,5 @@
 
-#ifndef BAKEENGINE_SCENE_H
-#define BAKEENGINE_SCENE_H
-
+#pragma once
 
 #include "Node.h"
 #include "Material.h"
@@ -14,6 +12,3 @@ private:
 public:
 
 };
-
-
-#endif //BAKEENGINE_SCENE_H

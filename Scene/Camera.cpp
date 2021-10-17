@@ -28,6 +28,14 @@ void Camera::moveRight() {
     pos -= Vector3::normalize(left) * speed;
 }
 
+void Camera::moveUp() {
+    pos += camUp * speed;
+}
+
+void Camera::moveDown() {
+    pos -= camUp * speed;
+}
+
 void Camera::turn(float xOffset, float yOffset) {
     yaw -= xOffset;
     pitch += yOffset;
@@ -51,4 +59,8 @@ Matrix4 Camera::getView() {
                         {camRight.z, camUp.z, -direction.z, 0},
                         {-Vector3::dot(camRight, pos), -Vector3::dot(camUp, pos), Vector3::dot(direction, pos), 1}};
     return Matrix4(view);
+}
+
+const Vector3 &Camera::getPos() const {
+    return pos;
 }

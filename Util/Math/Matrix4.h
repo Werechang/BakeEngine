@@ -1,14 +1,13 @@
 // Man bekommt beim Schweigen ganz gut ein Maß für die Zeit.
-#ifndef BAKEENGINE_MATRIX4_H
-#define BAKEENGINE_MATRIX4_H
+#pragma once
 
 #include "Vector3.h"
 
 class Matrix4 {
 private:
-    float matrix[4][4] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+    float matrix[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 public:
-    explicit Matrix4(float matrix2[4][4]);
+    explicit Matrix4(const float matrix2[4][4]);
     Matrix4() = default;
 
     static Matrix4 identity();
@@ -25,16 +24,13 @@ public:
     void rotateZ(float rad);
     void rotate(float xRad, float yRad, float zRad);
     void translate(float x, float y, float z);
-    void translate(Vector3& vec);
+    void translate(const Vector3& vec);
     void translateX(float distance);
     void translateY(float distance);
     void translateZ(float distance);
     void scale(float xScale, float yScale, float zScale);
 
-    Matrix4 operator*(Matrix4 &other);
+    Matrix4 operator*(const Matrix4 &other) const;
 
     void print() const;
 };
-
-
-#endif

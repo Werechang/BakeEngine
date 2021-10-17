@@ -1,6 +1,5 @@
 
-#ifndef BAKEENGINE_VERTEXBUFFER_H
-#define BAKEENGINE_VERTEXBUFFER_H
+#pragma once
 
 #include <vector>
 #include "glad/gl.h"
@@ -51,6 +50,3 @@ public:
         return size;
     };
 };
-
-
-#endif

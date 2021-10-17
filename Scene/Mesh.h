@@ -1,7 +1,5 @@
 
-#ifndef BAKEENGINE_MESH_H
-#define BAKEENGINE_MESH_H
-
+#pragma once
 
 #include <vector>
 #include "Material.h"
@@ -33,6 +31,3 @@ public:
 
     void render(GLShader& shader) const;
 };
-
-
-#endif //BAKEENGINE_MESH_H

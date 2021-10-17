@@ -1,14 +1,31 @@
-//
-// Created by tom on 25.08.2021.
-//
 
-#ifndef BAKEENGINE_COLLADA_H
-#define BAKEENGINE_COLLADA_H
+#pragma once
 
+#include <vector>
+#include <string>
+#include <fstream>
+#include "../../Util/LogHelperBE.h"
 
-class Collada {
-
+struct Pair {
+    std::string key;
+    std::string value;
 };
 
+struct Element {
+    std::string name;
+    std::string data;
+    std::vector<Pair> pairs;
+    std::vector<Element> children;
+};
 
-#endif //BAKEENGINE_COLLADA_H
+class Collada {
+private:
+    Element colladaElement;
+    static void parseElement(const std::string& elementLine, Element& element);
+    static void parsePair(const std::string& pairStr, Pair& pair);
+    std::string path;
+public:
+    explicit Collada(std::string& path);
+    void parse();
+    static std::vector<std::string> splitString(const std::string& str, const std::string& splitter);
+};

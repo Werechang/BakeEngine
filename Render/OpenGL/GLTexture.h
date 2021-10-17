@@ -1,6 +1,6 @@
 // Jedem Anfang wohnt ein Zauber inne. Der uns beschützt und der uns hilft, zu leben.
-#ifndef BAKEENGINE_GLTEXTURE_H
-#define BAKEENGINE_GLTEXTURE_H
+#pragma once
+
 #define TEXTURE_IMAGE 0
 #define TEXTURE_DIFFUSE 1
 #define TEXTURE_SPECULAR 2
@@ -16,8 +16,8 @@ private:
     unsigned char* texCache;
     unsigned int type;
 public:
-    GLTexture(const char* path, unsigned int type, bool sRGB) : GLTexture(GL_LINEAR, GL_REPEAT, path, type, sRGB, 1, true) {}
-    GLTexture(int interpolation, int sampling, const char* path, unsigned int type, bool sRGB, float anisotropicLevel, bool mipMaps);
+    GLTexture(const std::string& path, unsigned int type, bool sRGB) : GLTexture(GL_LINEAR, GL_REPEAT, path, type, sRGB, 1, true) {}
+    GLTexture(int interpolation, int sampling, const std::string& path, unsigned int type, bool sRGB, float anisotropicLevel, bool mipMaps);
     ~GLTexture();
 
     void bind(unsigned int slot) const;
@@ -25,6 +25,3 @@ public:
 
     std::string getTypeName() const;
 };
-
-
-#endif

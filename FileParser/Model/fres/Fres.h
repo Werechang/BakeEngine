@@ -1,6 +1,5 @@
 
-#ifndef BAKEENGINE_FRES_H
-#define BAKEENGINE_FRES_H
+#pragma once
 #define FSKL_ROT_MODE_QUATERNION 0x00 << 12
 #define FSKL_ROT_MODE_EULER_XYZ 0x01 << 12
 
@@ -60,23 +59,20 @@ struct Fmdl {
     std::vector<Fmat> materials;
 };
 
-class Fres {
+class Fres : public File {
 private:
-    File file;
     std::string name;
     std::vector<Fmdl> models;
-public:
-    explicit Fres(File& file) : file(file) {};
-
-    void parse();
-    std::string readBinaryString(unsigned int offset);
-    static void p(std::string& str);
-    ResourceDict parseResourceDicIndex(unsigned int index);
-    Fmdl parseFMDL(unsigned int offset, DataView& memoryPoolBuffer);
+    // TODO change return type to void
+    void parseFMDL(unsigned int offset, DataView& memoryPoolBuffer, const std::string& compName);
     Fskl parseFSKL(unsigned int offset);
     Fvtx parseFVTX(unsigned int offset, DataView& memoryPoolBuffer);
     Fshp parseFSHP(unsigned int offset, DataView& memoryPoolBuffer);
     Fmat parseFMAT(unsigned int offset);
-};
+public:
+    explicit Fres(File& file);
 
-#endif
+    void parse();
+    std::string readBinaryString(unsigned int offset);
+    ResourceDict parseResourceDicIndex(unsigned int index);
+};

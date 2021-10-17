@@ -1,7 +1,5 @@
 
-#ifndef BAKEENGINE_NODE_H
-#define BAKEENGINE_NODE_H
-
+#pragma once
 
 #include <vector>
 #include "Mesh.h"
@@ -11,6 +9,3 @@ private:
     std::vector<Node> children;
     std::vector<Mesh*> meshes;
 };
-
-
-#endif //BAKEENGINE_NODE_H

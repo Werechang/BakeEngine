@@ -1,6 +1,5 @@
 
-#ifndef BAKEENGINE_FILE_H
-#define BAKEENGINE_FILE_H
+#pragma once
 
 #include "../Util/LogHelperBE.h"
 #include "DataView.h"
@@ -8,6 +7,7 @@
 class File : public DataView {
 private:
     const std::string path;
+    std::vector<std::string> lines;
 public:
     /**
      *
@@ -16,6 +16,3 @@ public:
      */
     File(const std::string& path, bool endian);
 };
-
-
-#endif

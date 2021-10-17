@@ -1,6 +1,5 @@
 // Wir schaffen das, und dort, wo uns etwas im Wege steht, muss es überwunden werden.
-#ifndef BAKEENGINE_GLSHADER_H
-#define BAKEENGINE_GLSHADER_H
+#pragma once
 
 #include <unordered_map>
 #include "../../Util/Math/Matrix4.h"
@@ -36,6 +35,3 @@ public:
     void bind() const;
     void unbind() const;
 };
-
-
-#endif

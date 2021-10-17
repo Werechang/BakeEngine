@@ -1,7 +1,5 @@
 
-#ifndef BAKEENGINE_LOGHELPERBE_H
-#define BAKEENGINE_LOGHELPERBE_H
-
+#pragma once
 #include <iostream>
 #include <vector>
 
@@ -13,17 +11,10 @@ static std::vector<const char*> messageName;
 
 class LogHelperBE {
 public:
-    static void fatal(const char* message);
-    static void error(const char* message);
-    static void warning(const char* message);
-    static void info(const char* message);
-    static void fatal(std::string& message);
-    static void error(std::string& message);
-    static void warning(std::string& message);
-    static void info(std::string& message);
-    static void pushName(const char* name);
+    static void fatal(const std::string& message);
+    static void error(const std::string& message);
+    static void warning(const std::string& message);
+    static void info(const std::string& message);
+    static void pushName(const char *name);
     static void popName();
 };
-
-
-#endif //BAKEENGINE_LOGHELPERBE_H

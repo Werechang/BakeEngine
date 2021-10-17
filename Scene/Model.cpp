@@ -20,21 +20,35 @@ Model::Model(std::string filePath) : path(std::move(filePath)){
                     LogHelperBE::error("File may be corrupted or incomplete.");
                     break;
                 }
-                fres = new Fres(file);
+                fres = std::make_unique<Fres>(file);
                 fileType = 1;
+                break;
+            }
+            case COLLADA: {
+                if (file.readString(0x0, 38, false) != R"(<?xml version="1.0" encoding="utf-8"?>)") {
+                    LogHelperBE::error("File may be corrupted or incomplete.");
+                    break;
+                }
+                collada = std::make_unique<Collada>(path);
+                fileType = 2;
                 break;
             }
             default: LogHelperBE::error("File type is not supported or corrupted.");
             break;
         }
-    } catch (std::exception& e) {};
+    } catch (std::exception&) {};
     LogHelperBE::popName();
 }
 
 void Model::load() const {
     switch (fileType) {
-        case 1:
+        case 1: {
             fres->parse();
             break;
+        }
+        case 2: {
+            collada->parse();
+            break;
+        }
     }
 }

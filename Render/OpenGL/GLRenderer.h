@@ -1,30 +1,23 @@
 // Ich denke an dichte Fenster! Kein anderes Land kann so dichte und schöne Fenster bauen.
-#ifndef BAKEENGINE_GLRENDERER_H
-#define BAKEENGINE_GLRENDERER_H
+#pragma once
 
 #include "../../UI/GuiElement.h"
 
-static bool isMat4Init = false;
-
 class GLRenderer {
-private:
-    GLShader guiShader;
 public:
-    static Matrix4 guiProj;
-    static GLRenderer* renderer;
+    GLRenderer(const std::string& guiShaderPath, int width, int height);
+    void draw();
+    void onResize(int newWidth, int newHeight);
+
+    const Matrix4& getMatrix() const;
+    int getWidth() const;
+    int getHeight() const;
+private:
     int width;
     int height;
 
-    GLRenderer(const char* guiShaderPath, int width, int height) : guiShader(guiShaderPath), width(width), height(height) {
-        if (!isMat4Init) {
-            isMat4Init = true;
-            guiProj = Matrix4::orthographic(0, (float)width, (float)height, 0, -1.0f, 1.0f);
-        }
-        renderer = this;
-        onResize(width, height);
-    };
-    void draw();
-    void onResize(int newWidth, int newHeight);
-};
+    GLShader guiShader;
+    Matrix4 guiProj;
 
-#endif
+    std::vector<GuiElement*> guiElements;
+};

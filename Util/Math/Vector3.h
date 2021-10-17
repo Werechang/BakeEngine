@@ -1,6 +1,5 @@
 // Zwischendurch einen Moment innehalten, schweigen, nachdenken, Pause machen.
-#ifndef BAKEENGINE_VECTOR3_H
-#define BAKEENGINE_VECTOR3_H
+#pragma once
 
 
 class Vector3 {
@@ -22,6 +21,3 @@ public:
     static float dot(Vector3 &vec1, Vector3 &vec2);
     static Vector3 cross(Vector3& vec1, Vector3& vec2);
 };
-
-
-#endif
