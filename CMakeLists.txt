@@ -3,7 +3,7 @@ project(BakeEngine)
 include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 23)
-include_directories(external/include)
+include_directories(src/external/include)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -20,20 +20,20 @@ if (NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
     file(COPY resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-add_executable(BakeEngine main.cpp external/gl.c external/vulkan.c Application/Application.cpp Application/Application.h
-        Input/InputManager.cpp Input/InputManager.h Render/OpenGL/GLShader.cpp Render/OpenGL/GLShader.h
-        Render/OpenGL/GLTexture.cpp Render/OpenGL/GLTexture.h FileParser/stb_image.cpp FileParser/stb_image.h
-        Util/Math/Matrix4.cpp Util/Math/Matrix4.h Util/Math/Vector3.cpp Util/Math/Vector3.h Render/OpenGL/GLRenderer.cpp
-        Render/OpenGL/GLRenderer.h Render/OpenGL/ElementBuffer.cpp Render/OpenGL/ElementBuffer.h
-        Render/OpenGL/VertexArray.cpp Render/OpenGL/VertexArray.h Render/OpenGL/VertexBuffer.cpp
-        Render/OpenGL/VertexBuffer.h Scene/Camera.cpp Scene/Camera.h Util/Math/Math.cpp Util/Math/Math.h Scene/Scene.cpp
-        Scene/Scene.h Scene/Node.cpp Scene/Node.h Scene/Mesh.cpp Scene/Mesh.h Scene/Material.cpp Scene/Material.h
-        Scene/Model.cpp Scene/Model.h FileParser/File.cpp FileParser/File.h FileParser/Model/Collada.cpp
-        FileParser/Model/Collada.h FileParser/Model/fres/Fres.cpp FileParser/Model/fres/Fres.h
-        Render/OpenGL/Framebuffer.cpp Render/OpenGL/Framebuffer.h Util/LogHelperBE.cpp Util/LogHelperBE.h
-        FileParser/DataView.cpp FileParser/DataView.h UI/GuiElement.cpp UI/GuiElement.h Input/KeyBind.cpp
-        Input/KeyBind.h UI/GuiButton.cpp UI/GuiButton.h FileParser/TrueType.cpp
-        FileParser/TrueType.h)
+add_executable(BakeEngine src/main.cpp src/external/gl.c src/external/vulkan.c src/Application/Application.cpp src/Application/Application.h
+        src/Input/InputManager.cpp src/Input/InputManager.h src/Render/OpenGL/GLShader.cpp src/Render/OpenGL/GLShader.h
+        src/Render/OpenGL/GLTexture.cpp src/Render/OpenGL/GLTexture.h src/FileParser/stb_image.cpp src/FileParser/stb_image.h
+        src/Util/Math/Matrix4.cpp src/Util/Math/Matrix4.h src/Util/Math/Vector3.cpp src/Util/Math/Vector3.h src/Render/OpenGL/GLRenderer.cpp
+        src/Render/OpenGL/GLRenderer.h src/Render/OpenGL/ElementBuffer.cpp src/Render/OpenGL/ElementBuffer.h
+        src/Render/OpenGL/VertexArray.cpp src/Render/OpenGL/VertexArray.h src/Render/OpenGL/VertexBuffer.cpp
+        src/Render/OpenGL/VertexBuffer.h src/Scene/Camera.cpp src/Scene/Camera.h src/Util/Math/Math.cpp src/Util/Math/Math.h src/Scene/Scene.cpp
+        src/Scene/Scene.h src/Scene/Node.cpp src/Scene/Node.h src/Scene/Mesh.cpp src/Scene/Mesh.h src/Scene/Material.cpp src/Scene/Material.h
+        src/Scene/Model.cpp src/Scene/Model.h src/FileParser/File.cpp src/FileParser/File.h src/FileParser/Model/Collada.cpp
+        src/FileParser/Model/Collada.h src/FileParser/Model/fres/Fres.cpp src/FileParser/Model/fres/Fres.h
+        src/Render/OpenGL/Framebuffer.cpp src/Render/OpenGL/Framebuffer.h src/Util/LogHelperBE.cpp src/Util/LogHelperBE.h
+        src/FileParser/DataView.cpp src/FileParser/DataView.h src/UI/GuiElement.cpp src/UI/GuiElement.h src/Input/KeyBind.cpp
+        src/Input/KeyBind.h src/UI/GuiButton.cpp src/UI/GuiButton.h src/FileParser/TrueType.cpp
+        src/FileParser/TrueType.h)
 
 include_directories(${GL_INCLUDE_DIR} ${VULKAN_INCLUDE_DIR})
 

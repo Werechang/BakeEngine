@@ -3,16 +3,16 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
-      <file path="$PROJECT_DIR$/Application" />
-      <file path="$PROJECT_DIR$/FileParser" />
-      <file path="$PROJECT_DIR$/Input" />
-      <file path="$PROJECT_DIR$/Render" />
-      <file path="$PROJECT_DIR$/Scene" />
-      <file path="$PROJECT_DIR$/UI" />
-      <file path="$PROJECT_DIR$/Util" />
+      <file path="$PROJECT_DIR$/src/Application" />
+      <file path="$PROJECT_DIR$/src/FileParser" />
+      <file path="$PROJECT_DIR$/src/Input" />
+      <file path="$PROJECT_DIR$/src/Render" />
+      <file path="$PROJECT_DIR$/src/Scene" />
+      <file path="$PROJECT_DIR$/src/UI" />
+      <file path="$PROJECT_DIR$/src/Util" />
     </sourceRoots>
     <libraryRoots>
-      <file path="$PROJECT_DIR$/external" />
+      <file path="$PROJECT_DIR$/src/external" />
     </libraryRoots>
   </component>
 </project>
