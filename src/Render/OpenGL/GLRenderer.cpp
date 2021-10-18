@@ -13,7 +13,7 @@
 
 GLRenderer::GLRenderer(const std::string& guiShaderPath, int width, int height) : guiShader(guiShaderPath), width(width), height(height) {
     guiProj = Matrix4::orthographic(0, (float)width, (float)height, 0, -1.0f, 1.0f);
-    onResize(width, height);
+    resize(width, height);
 }
 
 void GLRenderer::draw() {
@@ -25,13 +25,13 @@ void GLRenderer::draw() {
     }
 }
 
-void GLRenderer::onResize(int newWidth, int newHeight) {
+void GLRenderer::resize(int newWidth, int newHeight) {
     if ((newWidth == 0) || (newHeight == 0))
         return;
     guiShader.bind();
     guiProj = Matrix4::orthographic(0, (float)newWidth, (float)newHeight, 0, -1, 1);
     for (auto & guiElement : guiElements) {
-        guiElement->onResize((float)newWidth, (float)newHeight, (float)width, (float)height, guiProj);
+        guiElement->resize((float) newWidth, (float) newHeight, (float) width, (float) height, guiProj);
     }
     width = newWidth;
     height = newHeight;

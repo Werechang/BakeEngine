@@ -35,8 +35,8 @@ GLShaderSource GLShader::parseShader(const std::string &filePath) const{
     return {shaderSource[0].str(), shaderSource[1].str(), shaderSource[2].str()};
 }
 
-unsigned int GLShader::compileShader(const unsigned int shaderType, const char* source) const{
-    unsigned int shader = glCreateShader(shaderType);
+uint32_t GLShader::compileShader(const uint32_t shaderType, const char* source) const {
+    uint32_t shader = glCreateShader(shaderType);
     glShaderSource(shader, 1, &source, nullptr);
     glCompileShader(shader);
 
@@ -61,12 +61,12 @@ unsigned int GLShader::compileShader(const unsigned int shaderType, const char* 
     return shader;
 }
 
-unsigned int GLShader::createProgram(const char* vertSource, const char* fragSource, const char* geometrySource) const{
-    unsigned int shaderProgram = glCreateProgram();
-    unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertSource);
-    unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragSource);
+uint32_t GLShader::createProgram(const char* vertSource, const char* fragSource, const char* geometrySource) const{
+    uint32_t shaderProgram = glCreateProgram();
+    uint32_t vertexShader = compileShader(GL_VERTEX_SHADER, vertSource);
+    uint32_t fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragSource);
     if (geometrySource != nullptr) {
-        unsigned int geometryShader = compileShader(GL_GEOMETRY_SHADER, geometrySource);
+        uint32_t geometryShader = compileShader(GL_GEOMETRY_SHADER, geometrySource);
         glAttachShader(shaderProgram, geometryShader);
     }
 
@@ -111,7 +111,7 @@ void GLShader::uniform3f(const std::string &name, float a, float b, float c) {
     glUniform3f(getUniformLocation(name), a, b, c);
 }
 
-void GLShader::uniformVec3(const std::string &name, Vector3 &vec) {
+void GLShader::uniform3f(const std::string &name, const Vector3 &vec) {
     glUniform3f(getUniformLocation(name), vec.x, vec.y, vec.z);
 }
 
@@ -123,6 +123,6 @@ void GLShader::uniform1i(const std::string &name, int a) {
     glUniform1i(getUniformLocation(name), a);
 }
 
-void GLShader::uniformMatrix4fv(const std::string &name, Matrix4 &matrix) {
-    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, matrix.ptr(0, 0));
+void GLShader::uniformMatrix4fv(const std::string &name, const Matrix4 &matrix) {
+    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, matrix[0]);
 }

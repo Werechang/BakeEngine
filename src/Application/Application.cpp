@@ -247,9 +247,10 @@ void Application::runGL() {
     screenDBShader.bind();
     screenDBShader.uniform1i("screen", 0);
 
-    Framebuffer fb(width, height, 4);
+    Renderbuffer renderbuffer(width, height, 4, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT);
+    Framebuffer fb(width, height, 4, &renderbuffer);
 
-    Framebuffer viewport(width, height, 1, false);
+    Framebuffer viewport(width, height, 1, nullptr);
 
     GLShader shader("shaders/standard.shader");
     shader.bind();
@@ -303,6 +304,7 @@ void Application::runGL() {
         deltaTime = thisFrame - last;
         last = thisFrame;
 
+        // TODO Resize callback
         int wNew, hNew;
         glfwGetFramebufferSize(window, &wNew, &hNew);
         bool isResized = wNew != width || hNew != height;
@@ -312,16 +314,17 @@ void Application::runGL() {
             glViewport(0, 0, width, height);
             viewport.resize(width, height);
             fb.resize(width, height);
+            renderbuffer.resize(width, height);
             projection = Matrix4::perspective(toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
             shader.bind();
             shader.uniformMatrix4fv("projection", projection);
             shader.unbind();
-            glRenderer.onResize(width, height);
+            glRenderer.resize(width, height);
         }
         glfwPollEvents();
         // Same speed for different framerate
         // TODO Lower camera speed if two keys are pressed (i.e. WA)
-        camera.speed = camera.globalSpeed * deltaTime;
+        camera.speed = camera.globalSpeed * (float)deltaTime;
         inputManagerPtr->updateInput(window);
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -334,7 +337,7 @@ void Application::runGL() {
         view = camera.getView();
         shader.bind();
 
-        shader.uniform3f("cameraPos", camera.getPos().x, camera.getPos().y, camera.getPos().z);
+        shader.uniform3f("cameraPos", camera.getPos());
         shader.uniformMatrix4fv("view", view);
         shader.uniformMatrix4fv("model", model);
 
@@ -353,7 +356,7 @@ void Application::runGL() {
         viewport.bindTexture();
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        //glRenderer.draw();
+        glRenderer.draw();
 
         glfwSwapBuffers(window);
     }

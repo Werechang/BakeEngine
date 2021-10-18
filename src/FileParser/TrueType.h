@@ -4,55 +4,55 @@
 
 struct Table {
     std::string tag;
-    unsigned int offset;
-    unsigned int checksum;
-    unsigned int length;
+    uint32_t offset;
+    uint32_t checksum;
+    uint32_t length;
 };
 
 struct Head {
-    unsigned int majorVersion;
-    unsigned int minorVersion;
+    uint32_t majorVersion;
+    uint32_t minorVersion;
     double fontRevision;
-    unsigned int checksumAdjustment;
-    unsigned int magicNumber;
-    unsigned int flags;
-    unsigned int unitsPerEm;
+    uint32_t checksumAdjustment;
+    uint32_t magicNumber;
+    uint32_t flags;
+    uint32_t unitsPerEm;
     // created and modified: dates
     int xMin;
     int yMin;
     int xMax;
     int yMax;
-    unsigned int macStyle;
-    unsigned int lowestRecPPEM;
-    unsigned int fontDirectionHint;
-    unsigned int indexToLocFormat;
-    unsigned int glyphDataFormat;
+    uint32_t macStyle;
+    uint32_t lowestRecPPEM;
+    uint32_t fontDirectionHint;
+    uint32_t indexToLocFormat;
+    uint32_t glyphDataFormat;
 };
 
 struct Maxp {
     double version;
-    unsigned int numGlyphs;
-    unsigned int maxPoints;
-    unsigned int maxContours;
-    unsigned int maxCompositePoints;
-    unsigned int maxCompositeContours;
-    unsigned int maxZones;
-    unsigned int maxTwilightPoints;
-    unsigned int maxStorage;
-    unsigned int maxFunctionDefs;
-    unsigned int maxInstructionDefs;
-    unsigned int maxStackElements;
-    unsigned int maxSizeOfInstructions;
-    unsigned int maxComponentElements;
-    unsigned int maxComponentDepth;
+    uint32_t numGlyphs;
+    uint32_t maxPoints;
+    uint32_t maxContours;
+    uint32_t maxCompositePoints;
+    uint32_t maxCompositeContours;
+    uint32_t maxZones;
+    uint32_t maxTwilightPoints;
+    uint32_t maxStorage;
+    uint32_t maxFunctionDefs;
+    uint32_t maxInstructionDefs;
+    uint32_t maxStackElements;
+    uint32_t maxSizeOfInstructions;
+    uint32_t maxComponentElements;
+    uint32_t maxComponentDepth;
 };
 
 struct Hhea {
     double version;
-    unsigned int ascent;
-    unsigned int descent;
-    unsigned int lineGap;
-    unsigned int advanceWidthMax;
+    uint32_t ascent;
+    uint32_t descent;
+    uint32_t lineGap;
+    uint32_t advanceWidthMax;
     int minLeftSideBearing;
     int minRightSideBearing;
     int xMaxExtent;
@@ -60,11 +60,11 @@ struct Hhea {
     int caretSlopeRun;
     int caretOffset;
     int metricDataFormat;
-    unsigned int numOfLongHorMetrics;
+    uint32_t numOfLongHorMetrics;
 };
 
 struct HMetric {
-    unsigned int advanceWidth;
+    uint32_t advanceWidth;
     int leftSideBearing;
 };
 
@@ -89,7 +89,7 @@ private:
 public:
     explicit TrueType(const std::string &path);
 
-    void readHead(unsigned int offset);
-    void readMaxp(unsigned int offset);
-    void readHhea(unsigned int offset);
+    void readHead(uint32_t offset);
+    void readMaxp(uint32_t offset);
+    void readHhea(uint32_t offset);
 };

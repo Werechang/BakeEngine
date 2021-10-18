@@ -13,12 +13,12 @@ struct GLShaderSource {
 };
 class GLShader {
 private:
-    unsigned int programPtr;
+    uint32_t programPtr;
     std::unordered_map<std::string, int> uniformLocationCache;
 
     GLShaderSource parseShader(const std::string& filePath) const;
-    unsigned int compileShader(unsigned int shaderType, const char* source) const;
-    unsigned int createProgram(const char *vertSource, const char *fragSource, const char* geometrySource = nullptr) const;
+    uint32_t compileShader(uint32_t shaderType, const char* source) const;
+    uint32_t createProgram(const char *vertSource, const char *fragSource, const char* geometrySource = nullptr) const;
 
     int getUniformLocation(const std::string& name);
 public:
@@ -27,10 +27,10 @@ public:
 
     void uniform4f(const std::string& name, float a, float b, float c, float d);
     void uniform3f(const std::string& name, float a, float b, float c);
-    void uniformVec3(const std::string& name, Vector3& vec);
+    void uniform3f(const std::string& name, const Vector3& vec);
     void uniform1f(const std::string& name, float a);
     void uniform1i(const std::string& name, int a);
-    void uniformMatrix4fv(const std::string& name, Matrix4& matrix);
+    void uniformMatrix4fv(const std::string& name, const Matrix4& matrix);
 
     void bind() const;
     void unbind() const;

@@ -2,7 +2,7 @@
 #include "ElementBuffer.h"
 #include "glad/gl.h"
 
-ElementBuffer::ElementBuffer(const unsigned int* elements, unsigned int size) : size(size){
+ElementBuffer::ElementBuffer(const uint32_t* elements, uint32_t size) : size(size){
     glGenBuffers(1, &elementBufferObject);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
@@ -21,6 +21,6 @@ void ElementBuffer::unbind() const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-unsigned int ElementBuffer::getSize() const{
+uint32_t ElementBuffer::getSize() const{
     return size;
 }

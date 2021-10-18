@@ -7,7 +7,7 @@ DataView::DataView(std::vector<unsigned char> &data, bool endian) : bytes(data),
 DataView::DataView(bool endian) : bytes(std::vector<unsigned char>()), endian(endian) {
 }
 
-unsigned int DataView::readUInt() {
+uint32_t DataView::readUInt() {
     index += 4;
     if (endian) {
         return ((bytes[index-4] & 0xff) << 24) | ((bytes[index-3] & 0xff) << 16) | ((bytes[index-2] & 0xff) << 8) | (bytes[index-1] & 0xff);
@@ -38,7 +38,7 @@ int DataView::readByte() {
     return (int)(bytes[index++] & 0xff);
 }
 
-std::string DataView::readString(unsigned int length) {
+std::string DataView::readString(uint32_t length) {
     std::string buffer;
     for (auto i = 0; i < length; i++) {
         buffer += (char)(bytes[index] & 0xff);
@@ -67,13 +67,13 @@ double DataView::readFixed() {
     return (double)readInt()/(1 << 16);
 }
 
-unsigned int DataView::readDate() {
-    unsigned int macTime = readUInt() * 0x100000000 + readUInt();
-    unsigned int utc = macTime * 1000; // TODO: + date 1904, 1, 1
+uint32_t DataView::readDate() {
+    uint32_t macTime = readUInt() * 0x100000000 + readUInt();
+    uint32_t utc = macTime * 1000; // TODO: + date 1904, 1, 1
     return utc;
 }
 
-unsigned int DataView::readUInt(unsigned int offset) {
+uint32_t DataView::readUInt(uint32_t offset) {
     if (endian) {
         return ((bytes[offset] & 0xff) << 24) | ((bytes[offset+1] & 0xff) << 16) | ((bytes[offset+2] & 0xff) << 8) | (bytes[offset+3] & 0xff);
     } else {
@@ -81,7 +81,7 @@ unsigned int DataView::readUInt(unsigned int offset) {
     }
 }
 
-int DataView::readInt(unsigned int offset) {
+int DataView::readInt(uint32_t offset) {
     if (endian) {
         return ((bytes[offset] & 0xff) << 24) | ((bytes[offset+1] & 0xff) << 16) | ((bytes[offset+2] & 0xff) << 8) | (bytes[offset+3] & 0xff);
     } else {
@@ -89,7 +89,7 @@ int DataView::readInt(unsigned int offset) {
     }
 }
 
-int DataView::readShort(unsigned int offset) {
+int DataView::readShort(uint32_t offset) {
     if (endian) {
         return ((bytes[offset] & 0xff) << 8) | (bytes[offset+1] & 0xff);
     } else {
@@ -97,11 +97,11 @@ int DataView::readShort(unsigned int offset) {
     }
 }
 
-int DataView::readByte(unsigned int offset) {
+int DataView::readByte(uint32_t offset) {
     return (int)(bytes[offset] & 0xff);
 }
 
-std::string DataView::readString(unsigned int offset, unsigned int length, bool nullTerminated) {
+std::string DataView::readString(uint32_t offset, uint32_t length, bool nullTerminated) {
     std::string buffer;
     for (auto i = 0; i < length; i++) {
         if (nullTerminated && (bytes[offset+i] == 0))
@@ -111,7 +111,7 @@ std::string DataView::readString(unsigned int offset, unsigned int length, bool 
     return buffer;
 }
 
-float DataView::readFloat(unsigned int offset) {
+float DataView::readFloat(uint32_t offset) {
     bytes2Float bf{};
     if (endian) {
         bf.bytes[3] = bytes[offset];
@@ -130,15 +130,15 @@ float DataView::readFloat(unsigned int offset) {
  * Sets the index of the array to offset
  * @param offset
  */
-void DataView::seek(unsigned int offset) {
+void DataView::seek(uint32_t offset) {
     this->index = offset;
 }
 
-void DataView::skip(unsigned int offset) {
+void DataView::skip(uint32_t offset) {
     index += offset;
 }
 
-unsigned int DataView::getOffset() {
+uint32_t DataView::getOffset() {
     return index;
 }
 
@@ -146,8 +146,8 @@ void DataView::setEndian(bool isBigEndian) {
     this->endian = isBigEndian;
 }
 
-DataView DataView::getBufferSlice(unsigned int offset, unsigned int length) {
-    // TODO Optimize
+DataView DataView::getBufferSlice(uint32_t offset, uint32_t length) {
+    // TODO Optimize, with std::span?
     std::vector<unsigned char> buffer;
     length = length > bytes.size() ? bytes.size() : length;
     buffer.reserve(length);

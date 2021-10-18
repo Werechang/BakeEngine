@@ -11,16 +11,16 @@
 
 class GLTexture {
 private:
-    unsigned int texPtr;
+    uint32_t texPtr;
     int width, height, bpp;
     unsigned char* texCache;
-    unsigned int type;
+    uint32_t type;
 public:
-    GLTexture(const std::string& path, unsigned int type, bool sRGB) : GLTexture(GL_LINEAR, GL_REPEAT, path, type, sRGB, 1, true) {}
-    GLTexture(int interpolation, int sampling, const std::string& path, unsigned int type, bool sRGB, float anisotropicLevel, bool mipMaps);
+    GLTexture(const std::string& path, uint32_t type, bool sRGB) : GLTexture(GL_LINEAR, GL_REPEAT, path, type, sRGB, 1, true) {}
+    GLTexture(int interpolation, int sampling, const std::string& path, uint32_t type, bool sRGB, float anisotropicLevel, bool mipMaps);
     ~GLTexture();
 
-    void bind(unsigned int slot) const;
+    void bind(uint32_t slot) const;
     void unbind() const;
 
     std::string getTypeName() const;

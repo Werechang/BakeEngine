@@ -1,7 +1,7 @@
 
 #include "VertexBuffer.h"
 
-VertexBuffer::VertexBuffer(const float* vertices, unsigned int size) {
+VertexBuffer::VertexBuffer(const float* vertices, uint32_t size) {
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);

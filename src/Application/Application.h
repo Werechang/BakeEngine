@@ -14,14 +14,6 @@ static bool running = true;
 static InputManager* inputManagerPtr;
 
 class Application {
-private:
-    int width, height;
-    const std::string& name;
-    bool isOGL;
-
-    Camera camera = Camera();
-    GLFWwindow *window{};
-
 public:
     static std::string absolutePath;
 
@@ -35,6 +27,11 @@ public:
     void runGL();
     void runVk();
     void terminate();
+private:
+    int width, height;
+    const std::string& name;
+    bool isOGL;
 
-    void getInput(float deltaTime);
+    Camera camera = Camera();
+    GLFWwindow *window{};
 };

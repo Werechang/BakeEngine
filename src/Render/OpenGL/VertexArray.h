@@ -5,7 +5,7 @@
 
 class VertexArray {
 private:
-    unsigned int vertexArrayObject;
+    uint32_t vertexArrayObject;
 public:
     VertexArray();
     ~VertexArray();

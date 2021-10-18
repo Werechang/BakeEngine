@@ -17,7 +17,7 @@ struct Vertex {
 class Mesh {
 private:
     std::vector<Vertex> vertices;
-    std::vector<unsigned int> elements;
+    std::vector<uint32_t> elements;
     std::vector<GLTexture> textures;
     Material* material;
 
@@ -27,7 +27,7 @@ private:
 
     void prepareMesh();
 public:
-    Mesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& elements, std::vector<GLTexture>& textures);
+    Mesh(std::vector<Vertex>& vertices, std::vector<uint32_t>& elements, std::vector<GLTexture>& textures);
 
     void render(GLShader& shader) const;
 };

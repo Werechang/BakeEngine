@@ -21,7 +21,7 @@ Vector3 Vector3::operator*(const Vector3 &other) const {
     return {this->x * other.x, this->y * other.y, this->z * other.z};
 }
 
-Vector3& Vector3::operator+=(const Vector3 other) {
+Vector3& Vector3::operator+=(const Vector3& other) {
     this->x += other.x;
     this->y += other.y;
     this->z += other.z;
@@ -29,7 +29,7 @@ Vector3& Vector3::operator+=(const Vector3 other) {
     return *this;
 }
 
-Vector3& Vector3::operator-=(const Vector3 other) {
+Vector3& Vector3::operator-=(const Vector3& other) {
     this->x -= other.x;
     this->y -= other.y;
     this->z -= other.z;
@@ -37,23 +37,25 @@ Vector3& Vector3::operator-=(const Vector3 other) {
     return *this;
 }
 
-Vector3 Vector3::normalize(Vector3& vec) {
+const Vector3& Vector3::normalize() {
     // calculate length
-    if (vec.magnitude == -1.0f) {
-        vec.magnitude = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+    if (magnitude == -1.0f) {
+        magnitude = sqrt(x * x + y * y + z * z);
     }
     // if this is a zero or normalized vector; prevent the vector having x, y, z = NaN or doing unnecessary calculations
-    if (vec.magnitude == 0.0f || vec.magnitude == 1.0f) return {vec.x, vec.y, vec.z};
-
-    return {vec.x / vec.magnitude, vec.y / vec.magnitude, vec.z / vec.magnitude};
+    if (magnitude == 0.0f || magnitude == 1.0f) return *this;
+    x /= magnitude;
+    y /= magnitude;
+    z /= magnitude;
+    return *this;
 }
 
-float Vector3::dot(Vector3 &vec1, Vector3 &vec2) {
-    return vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z;
+float Vector3::dot(const Vector3 &other) const {
+    return x * other.x + y * other.y + z * other.z;
 }
 
-Vector3 Vector3::cross(Vector3 &vec1, Vector3 &vec2) {
-    return {vec1.y * vec2.z - vec1.z * vec2.y,
-            vec1.z * vec2.x - vec1.x * vec2.z,
-            vec1.x * vec2.y - vec1.y * vec2.x};
+Vector3 Vector3::cross(const Vector3 &other) const {
+    return {y * other.z - z * other.y,
+            z * other.x - x * other.z,
+            x * other.y - y * other.x};
 }

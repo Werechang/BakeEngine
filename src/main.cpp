@@ -31,7 +31,7 @@ void printMemUsage() {
 
 int main(int argc, char* args[]) {
     // TODO reduce number of static variables
-    // TODO replace unsigned int with uint32_t and long long with int64_t
+    // TODO private members bottom
     {
         LogHelperBE::pushName("Main");
         // Hide window if on Windows

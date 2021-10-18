@@ -4,7 +4,7 @@
 #include "../../Util/LogHelperBE.h"
 #include "../../Application/Application.h"
 
-GLTexture::GLTexture(int interpolation, int sampling, const std::string& path, unsigned int type, bool sRGB, float anisotropicLevel, bool mipMaps) : type(type) {
+GLTexture::GLTexture(int interpolation, int sampling, const std::string& path, uint32_t type, bool sRGB, float anisotropicLevel, bool mipMaps) : type(type) {
     stbi_set_flip_vertically_on_load(1);
     texCache = stbi_load((Application::absolutePath + path).c_str(), &width, &height, &bpp, 4);
 
@@ -45,7 +45,7 @@ GLTexture::~GLTexture() {
     glDeleteTextures(1, &texPtr);
 }
 
-void GLTexture::bind(unsigned int slot) const {
+void GLTexture::bind(uint32_t slot) const {
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, texPtr);
 }

@@ -6,20 +6,20 @@
 
 class VertexBuffer {
 private:
-    unsigned int vertexBuffer{};
+    uint32_t vertexBuffer{};
 public:
-    explicit VertexBuffer(const float* vertices, unsigned int size);
+    explicit VertexBuffer(const float* vertices, uint32_t size);
     ~VertexBuffer();
     void bind() const;
     void unbind() const;
 };
 
 struct VertexAttribute {
-    unsigned int type;
-    unsigned int size;
+    uint32_t type;
+    uint32_t size;
     bool isNormalized;
 
-    static unsigned int getSizeFromType(const unsigned int type) {
+    static uint32_t getSizeFromType(uint32_t type) {
         switch (type) {
             case GL_FLOAT: return 4;
             default: return 0;
@@ -30,14 +30,14 @@ struct VertexAttribute {
 class VertexAttributes {
 private:
     std::vector<VertexAttribute> attribs;
-    unsigned int size = 0;
+    uint32_t size = 0;
 public:
     template<typename T>
-    void addAttribute(unsigned int count) {
+    void addAttribute(uint32_t count) {
     };
 
     template<>
-    void addAttribute<float>(unsigned int count) {
+    void addAttribute<float>(uint32_t count) {
         attribs.push_back({GL_FLOAT, count, GL_FALSE});
         size += count * 4;
     };
@@ -46,7 +46,7 @@ public:
         return attribs;
     };
 
-    unsigned int getVertexSize() const {
+    uint32_t getVertexSize() const {
         return size;
     };
 };

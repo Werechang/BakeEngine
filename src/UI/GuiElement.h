@@ -45,7 +45,7 @@ public:
     GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith, const std::string& texturePath);
 
     void renderElement(GLShader& shader);
-    void onResize(float width, float height, float oldWidth, float oldHeight, const Matrix4& proj);
+    void resize(float width, float height, float oldWidth, float oldHeight, const Matrix4& proj);
     void addChild(GuiElement* element);
 
     virtual void onKeyAction(int key, int action) {};

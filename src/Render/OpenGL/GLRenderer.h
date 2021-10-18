@@ -7,7 +7,7 @@ class GLRenderer {
 public:
     GLRenderer(const std::string& guiShaderPath, int width, int height);
     void draw();
-    void onResize(int newWidth, int newHeight);
+    void resize(int newWidth, int newHeight);
 
     const Matrix4& getMatrix() const;
     int getWidth() const;

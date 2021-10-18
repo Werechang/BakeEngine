@@ -11,7 +11,7 @@ public:
     float globalSpeed = 2.5f;
 
     Camera();
-    Camera(Vector3& pos, Vector3& up);
+    Camera(const Vector3& pos, const Vector3& up);
 
     void moveFront();
     void moveBack();

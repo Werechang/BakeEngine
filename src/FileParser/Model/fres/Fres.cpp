@@ -9,7 +9,7 @@ Fres::Fres(File &file) : File(file) {
 void Fres::parse() {
     LogHelperBE::pushName("FRES");
     seek(0x00);
-    unsigned int endianMarker = readShort(0x0c);
+    uint32_t endianMarker = readShort(0x0c);
     if (endianMarker == 0xfffe) {
         setEndian(LITTLE_ENDIAN);
     } else if (endianMarker == 0xffef){
@@ -18,8 +18,8 @@ void Fres::parse() {
         LogHelperBE::error("Could not read endian");
         throw std::runtime_error("File endian is corrupted");
     }
-/*    unsigned int version = readUInt(0x08);
-    unsigned int supportedVersions[] = {
+/*    uint32_t version = readUInt(0x08);
+    uint32_t supportedVersions[] = {
             0x00800000,
             0x00050003
     };
@@ -28,16 +28,16 @@ void Fres::parse() {
         throw std::exception("Version is not supported");
     }*/
     {
-        unsigned int fileNameOffset = readShort(0x20);
+        uint32_t fileNameOffset = readShort(0x20);
         name = readBinaryString(fileNameOffset);
 
-        unsigned int memoryPoolInfoOffset = readUInt(0x90);
-        unsigned int memoryPoolSize = memoryPoolInfoOffset != 0 ? readInt(memoryPoolInfoOffset+0x04) : 0;
-        unsigned int memoryPoolDataOffset = memoryPoolInfoOffset != 0 ? readUInt(memoryPoolInfoOffset+0x08) : 0;
+        uint32_t memoryPoolInfoOffset = readUInt(0x90);
+        uint32_t memoryPoolSize = memoryPoolInfoOffset != 0 ? readInt(memoryPoolInfoOffset+0x04) : 0;
+        uint32_t memoryPoolDataOffset = memoryPoolInfoOffset != 0 ? readUInt(memoryPoolInfoOffset+0x08) : 0;
         DataView memoryPoolBuffer = memoryPoolInfoOffset != 0 ? getBufferSlice(memoryPoolDataOffset, memoryPoolSize) : DataView(endian);
 
         ResourceDict fmdlTable = parseResourceDicIndex(0x00);
-        unsigned int fmdlTableIndex = fmdlTable.offset;
+        uint32_t fmdlTableIndex = fmdlTable.offset;
 
         for (auto & mdlName : fmdlTable.names) {
             if (readString(fmdlTableIndex, 0x04, false) != "FMDL")
@@ -51,14 +51,14 @@ void Fres::parse() {
     }
 }
 
-std::string Fres::readBinaryString(unsigned int offset) {
+std::string Fres::readBinaryString(uint32_t offset) {
     return readString(offset+0x02, 0xff, true);
 }
 
-ResourceDict Fres::parseResourceDicIndex(unsigned int index) {
+ResourceDict Fres::parseResourceDicIndex(uint32_t index) {
     ResourceDict buffer{};
-    unsigned int arrayOffset = readUInt(0x28 + index*0x10);
-    unsigned int resourceDicOffset = readUInt(0x30 + index*0x10);
+    uint32_t arrayOffset = readUInt(0x28 + index*0x10);
+    uint32_t resourceDicOffset = readUInt(0x30 + index*0x10);
     buffer.offset = arrayOffset;
 
     if (resourceDicOffset == 0) {
@@ -69,9 +69,9 @@ ResourceDict Fres::parseResourceDicIndex(unsigned int index) {
         LogHelperBE::error("Signature is corrupted!");
     }
     {
-        unsigned int tableCount = readUInt(resourceDicOffset+0x04);
+        uint32_t tableCount = readUInt(resourceDicOffset+0x04);
 
-        unsigned int resourceDicTableIdx = resourceDicOffset + 0x18;
+        uint32_t resourceDicTableIdx = resourceDicOffset + 0x18;
         for (auto i = 0; i < tableCount; i++) {
             buffer.names.emplace_back(readBinaryString(readUInt(resourceDicTableIdx+0x08)));
             resourceDicTableIdx += 0x10;
@@ -80,28 +80,28 @@ ResourceDict Fres::parseResourceDicIndex(unsigned int index) {
     return buffer;
 }
 
-void Fres::parseFMDL(unsigned int offset, DataView& memoryPoolBuffer, const std::string& compName) {
+void Fres::parseFMDL(uint32_t offset, DataView& memoryPoolBuffer, const std::string& compName) {
     Fmdl model{};
     model.name = readBinaryString(readUInt(offset + 0x10));
-    unsigned int sklOffset = readUInt(offset + 0x20);
-    unsigned int vtxArrayOffset = readUInt(offset + 0x28);
-    unsigned int shpArrayOffset = readUInt(offset + 0x30);
-    unsigned int shapeDicOffset = readUInt(offset + 0x38);
-    unsigned int matArrayOffset = readUInt(offset + 0x40);
-    unsigned int matDicOffset = readUInt(offset + 0x48);
-    unsigned int usrDataArrayOffset = readUInt(offset + 0x50);
-    unsigned int usrDataDicOffset = readUInt(offset + 0x58);
+    uint32_t sklOffset = readUInt(offset + 0x20);
+    uint32_t vtxArrayOffset = readUInt(offset + 0x28);
+    uint32_t shpArrayOffset = readUInt(offset + 0x30);
+    uint32_t shapeDicOffset = readUInt(offset + 0x38);
+    uint32_t matArrayOffset = readUInt(offset + 0x40);
+    uint32_t matDicOffset = readUInt(offset + 0x48);
+    uint32_t usrDataArrayOffset = readUInt(offset + 0x50);
+    uint32_t usrDataDicOffset = readUInt(offset + 0x58);
 
-    unsigned int usrDataPtr = readUInt(offset + 0x60);
-    unsigned int vtxCount = readShort(offset + 0x68);
-    unsigned int shpCount = readShort(offset + 0x6a);
-    unsigned int matCount = readShort(offset + 0x6c);
-    unsigned int usrDataCount = readShort(offset + 0x6e);
-    unsigned int totalProcessVtx = readUInt(offset + 0x70);
+    uint32_t usrDataPtr = readUInt(offset + 0x60);
+    uint32_t vtxCount = readShort(offset + 0x68);
+    uint32_t shpCount = readShort(offset + 0x6a);
+    uint32_t matCount = readShort(offset + 0x6c);
+    uint32_t usrDataCount = readShort(offset + 0x6e);
+    uint32_t totalProcessVtx = readUInt(offset + 0x70);
 
     model.skeleton = parseFSKL(sklOffset);
 
-    unsigned int vertexArrayIndex = vtxArrayOffset;
+    uint32_t vertexArrayIndex = vtxArrayOffset;
     for (auto i = 0; i < vtxCount; i++) {
         if (readString(vertexArrayIndex, 0x04, false) != "FVTX")
             LogHelperBE::error("FVTX offset is corrupted");
@@ -109,7 +109,7 @@ void Fres::parseFMDL(unsigned int offset, DataView& memoryPoolBuffer, const std:
         vertexArrayIndex += 0x60;
     }
 
-    unsigned int shpArrayIndex = shpArrayOffset;
+    uint32_t shpArrayIndex = shpArrayOffset;
     for (auto i = 0; i < shpCount; i++) {
         if (readString(shpArrayIndex, 0x04, false) != "FSHP")
             LogHelperBE::error("FSHP offset is corrupted");
@@ -117,7 +117,7 @@ void Fres::parseFMDL(unsigned int offset, DataView& memoryPoolBuffer, const std:
         shpArrayIndex += 0x70;
     }
 
-    unsigned int matArrayIndex = matArrayOffset;
+    uint32_t matArrayIndex = matArrayOffset;
     for (auto i = 0; i < matCount; i++) {
         if (readString(matArrayIndex, 0x04, false) != "FMAT")
             LogHelperBE::error("FMAT offset is corrupted");
@@ -131,28 +131,28 @@ void Fres::parseFMDL(unsigned int offset, DataView& memoryPoolBuffer, const std:
     }
 }
 
-Fskl Fres::parseFSKL(unsigned int offset) {
+Fskl Fres::parseFSKL(uint32_t offset) {
     Fskl skeleton{};
     if (readString(offset, 0x04, false) != "FSKL") {
         LogHelperBE::error("FSKL offset is corrupted!");
     }
     {
-        unsigned int boneArrayOffset = readUInt(offset+0x18);
-        unsigned int flag = readUInt(offset+0x48);
-        unsigned int boneCount = readShort(offset+0x4c);
-        unsigned int smoothMtxCount = readShort(offset+0x4e);
-        unsigned int rigidMtxCount = readShort(offset+0x50);
+        uint32_t boneArrayOffset = readUInt(offset+0x18);
+        uint32_t flag = readUInt(offset+0x48);
+        uint32_t boneCount = readShort(offset+0x4c);
+        uint32_t smoothMtxCount = readShort(offset+0x4e);
+        uint32_t rigidMtxCount = readShort(offset+0x50);
 
-        unsigned int boneArrayIdx = boneArrayOffset;
+        uint32_t boneArrayIdx = boneArrayOffset;
         for (auto i = 0; i < boneCount; i++) {
             FsklBone bone{};
             bone.name = readBinaryString(readUInt(boneArrayIdx));
-            unsigned int index = readShort(boneArrayIdx+0x28);
-            unsigned int parentIndex = readShort(boneArrayIdx+0x2a);
-            unsigned int smoothMtxIndex = readShort(boneArrayIdx+0x2c);
-            unsigned int rigidMtxIndex = readShort(boneArrayIdx+0x2e);
-            unsigned int billboardIndex = readShort(boneArrayIdx+0x30);
-            unsigned int boneFlag = readUInt(boneArrayIdx+0x34);
+            uint32_t index = readShort(boneArrayIdx+0x28);
+            uint32_t parentIndex = readShort(boneArrayIdx+0x2a);
+            uint32_t smoothMtxIndex = readShort(boneArrayIdx+0x2c);
+            uint32_t rigidMtxIndex = readShort(boneArrayIdx+0x2e);
+            uint32_t billboardIndex = readShort(boneArrayIdx+0x30);
+            uint32_t boneFlag = readUInt(boneArrayIdx+0x34);
 
             bone.scaleX = readFloat(boneArrayIdx+0x38);
             bone.scaleY = readFloat(boneArrayIdx+0x3c);
@@ -180,17 +180,17 @@ Fskl Fres::parseFSKL(unsigned int offset) {
     return skeleton;
 }
 
-Fvtx Fres::parseFVTX(unsigned int offset, DataView& memoryPoolBuffer) {
+Fvtx Fres::parseFVTX(uint32_t offset, DataView& memoryPoolBuffer) {
     Fvtx vertex{};
 
-    unsigned int vtxAttribArrayOffset = readUInt(offset+0x10);
-    unsigned int vtxBufferInfoArrayOffset = readUInt(offset+0x38);
-    unsigned int vtxBufferStateInfoArrayOffset = readUInt(offset+0x40);
-    unsigned int memoryPoolOffset = readUInt(offset+0x50);
-    unsigned int vtxAttribCount = readByte(offset+0x54);
-    unsigned int vtxBufferCount = readByte(offset+0x55);
+    uint32_t vtxAttribArrayOffset = readUInt(offset+0x10);
+    uint32_t vtxBufferInfoArrayOffset = readUInt(offset+0x38);
+    uint32_t vtxBufferStateInfoArrayOffset = readUInt(offset+0x40);
+    uint32_t memoryPoolOffset = readUInt(offset+0x50);
+    uint32_t vtxAttribCount = readByte(offset+0x54);
+    uint32_t vtxBufferCount = readByte(offset+0x55);
 
-    unsigned int vtxAttribArrayIndex = vtxAttribArrayOffset;
+    uint32_t vtxAttribArrayIndex = vtxAttribArrayOffset;
     for (auto i = 0; i < vtxAttribCount; i++) {
         Fvtx_Attrib attrib{};
         attrib.name = readBinaryString(readUInt(vtxAttribArrayIndex));
@@ -201,9 +201,9 @@ Fvtx Fres::parseFVTX(unsigned int offset, DataView& memoryPoolBuffer) {
         vtxAttribArrayIndex += 0x10;
     }
 
-    unsigned int vtxBufferInfoArrayIndex = vtxBufferInfoArrayOffset;
-    unsigned int vtxBufferStateInfoArrayIndex = vtxBufferStateInfoArrayOffset;
-    unsigned int memoryPoolRunningOffset = memoryPoolOffset;
+    uint32_t vtxBufferInfoArrayIndex = vtxBufferInfoArrayOffset;
+    uint32_t vtxBufferStateInfoArrayIndex = vtxBufferStateInfoArrayOffset;
+    uint32_t memoryPoolRunningOffset = memoryPoolOffset;
     for (auto i = 0; i < vtxBufferCount; i++) {
         Fvtx_Buffer buffer{};
         buffer.size = readUInt(vtxBufferInfoArrayIndex);
@@ -221,46 +221,46 @@ Fvtx Fres::parseFVTX(unsigned int offset, DataView& memoryPoolBuffer) {
     return vertex;
 }
 
-Fshp Fres::parseFSHP(unsigned int offset, DataView& memoryPoolBuffer) {
+Fshp Fres::parseFSHP(uint32_t offset, DataView& memoryPoolBuffer) {
     // TODO Some work?
     Fshp shape{};
     shape.name = readBinaryString(readUInt(offset+0x10));
-    unsigned int meshArrayOffset = readUInt(offset+0x20);
-    unsigned int boundingBoxArrayOffset = readUInt(offset+0x40);
+    uint32_t meshArrayOffset = readUInt(offset+0x20);
+    uint32_t boundingBoxArrayOffset = readUInt(offset+0x40);
 
-    unsigned int matIndex = readShort(offset+0x5e);
-    unsigned int boneIndex = readShort(offset+0x60);
-    unsigned int vtxIndex = readShort(offset+0x62);
+    uint32_t matIndex = readShort(offset+0x5e);
+    uint32_t boneIndex = readShort(offset+0x60);
+    uint32_t vtxIndex = readShort(offset+0x62);
 
-    unsigned int meshCount = readByte(offset+0x67);
+    uint32_t meshCount = readByte(offset+0x67);
 
     return shape;
 }
 
-Fmat Fres::parseFMAT(unsigned int offset) {
+Fmat Fres::parseFMAT(uint32_t offset) {
     Fmat mat{};
     mat.name = readBinaryString(readUInt(offset+0x10));
-    unsigned int renderInfoArrayOffset = readUInt(offset + 0x18);
-    unsigned int shaderAssignOffset = readUInt(offset+0x28);
-    unsigned int textureArrayOffset = readUInt(offset+0x30);
-    unsigned int textureNameOffset = readUInt(offset+0x38);
-    unsigned int samplerInfoArrayOffset = readUInt(offset+0x48);
-    unsigned int samplerInfoDictOffset = readUInt(offset+0x50);
-    unsigned int shaderParamArrayOffset = readUInt(offset+0x58);
-    unsigned int srcParamOffset = readUInt(offset+0x68);
-    unsigned int userDataArrayOffset = readUInt(offset+0x70);
-    unsigned int flag = readUInt(offset+0xa0);
-    unsigned int index = readShort(offset+0xa4);
-    unsigned int renderInfoCount = readShort(offset+0xa6);
-    unsigned int samplerCount = readByte(offset+0xa8);
-    unsigned int textureCount = readByte(offset+0xa9);
-    unsigned int shaderParamCount = readShort(offset+0xaa);
-    unsigned int shaderParamVolatileCount = readShort(offset+0xac);
-    unsigned int srcParamCount = readShort(offset+0xae);
-    unsigned int rawParamCount = readShort(offset+0xb0);
-    unsigned int userDataCount = readShort(offset+0xb2);
+    uint32_t renderInfoArrayOffset = readUInt(offset + 0x18);
+    uint32_t shaderAssignOffset = readUInt(offset+0x28);
+    uint32_t textureArrayOffset = readUInt(offset+0x30);
+    uint32_t textureNameOffset = readUInt(offset+0x38);
+    uint32_t samplerInfoArrayOffset = readUInt(offset+0x48);
+    uint32_t samplerInfoDictOffset = readUInt(offset+0x50);
+    uint32_t shaderParamArrayOffset = readUInt(offset+0x58);
+    uint32_t srcParamOffset = readUInt(offset+0x68);
+    uint32_t userDataArrayOffset = readUInt(offset+0x70);
+    uint32_t flag = readUInt(offset+0xa0);
+    uint32_t index = readShort(offset+0xa4);
+    uint32_t renderInfoCount = readShort(offset+0xa6);
+    uint32_t samplerCount = readByte(offset+0xa8);
+    uint32_t textureCount = readByte(offset+0xa9);
+    uint32_t shaderParamCount = readShort(offset+0xaa);
+    uint32_t shaderParamVolatileCount = readShort(offset+0xac);
+    uint32_t srcParamCount = readShort(offset+0xae);
+    uint32_t rawParamCount = readShort(offset+0xb0);
+    uint32_t userDataCount = readShort(offset+0xb2);
 
-    unsigned int renderInfoArrayIndex = renderInfoArrayOffset;
+    uint32_t renderInfoArrayIndex = renderInfoArrayOffset;
 
     return mat;
 }

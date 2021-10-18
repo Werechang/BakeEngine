@@ -33,7 +33,7 @@ add_executable(BakeEngine src/main.cpp src/external/gl.c src/external/vulkan.c s
         src/Render/OpenGL/Framebuffer.cpp src/Render/OpenGL/Framebuffer.h src/Util/LogHelperBE.cpp src/Util/LogHelperBE.h
         src/FileParser/DataView.cpp src/FileParser/DataView.h src/UI/GuiElement.cpp src/UI/GuiElement.h src/Input/KeyBind.cpp
         src/Input/KeyBind.h src/UI/GuiButton.cpp src/UI/GuiButton.h src/FileParser/TrueType.cpp
-        src/FileParser/TrueType.h)
+        src/FileParser/TrueType.h src/Render/OpenGL/Renderbuffer.cpp src/Render/OpenGL/Renderbuffer.h)
 
 include_directories(${GL_INCLUDE_DIR} ${VULKAN_INCLUDE_DIR})
 

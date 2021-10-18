@@ -14,18 +14,6 @@
  */
 
 /**
- *
- * @param matrix2 For copying a matrix. For internal use only because the array could be destroyed while in use by this matrix.
- */
-Matrix4::Matrix4(const float matrix2[4][4]) {
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            this->matrix[i][j] = matrix2[i][j];
-        }
-    }
-}
-
-/**
  * Generates an identity matrix. If multiplied with Matrix M1 results in M1 (M1 * identity = M1)
  * @return Identity Matrix
  */
@@ -44,11 +32,14 @@ Matrix4 Matrix4::perspective(float fovY, float aspect, float zNear, float zFar) 
     float fovTanHalf = tan(fovY/2);
     // bottom = -top, right = top * aspect, left = -top * aspect
 
-    float mat[4][4] = {{1/(aspect * fovTanHalf), 0, 0, 0},
-                       {0, 1/(fovTanHalf), 0, 0},
-                       {0, 0, -(zFar + zNear)/(zFar - zNear), -1},
-                       {0, 0, -(2*zFar*zNear)/(zFar - zNear), 0}};
-    return Matrix4(mat);
+    Matrix4 mat;
+    mat[0][0] = 1/(aspect * fovTanHalf);
+    mat[1][1] = 1/(fovTanHalf);
+    mat[2][2] = -(zFar + zNear)/(zFar - zNear);
+    mat[2][3] = -1;
+    mat[3][2] = -(2*zFar*zNear)/(zFar - zNear);
+    mat[3][3] = 0;
+    return mat;
 }
 /**
  * Generates an orthographic projection matrix
@@ -61,25 +52,14 @@ Matrix4 Matrix4::perspective(float fovY, float aspect, float zNear, float zFar) 
  * @return A projection (clip space) matrix
  */
 Matrix4 Matrix4::orthographic(float left, float right, float bottom, float top, float zNear, float zFar) {
-    float mat[4][4] = {{2/(right - left), 0, 0, 0},
-                       {0, 2/(top - bottom), 0, 0},
-                       {0, 0, -2/(zFar - zNear), 0},
-                       {-(right + left)/(right - left), -(top + bottom)/(top - bottom), -(zFar+zNear)/(zFar - zNear), 1}};
-    return Matrix4(mat);
-}
-
-/**
- *
- * @param i column 0-3
- * @param j row 0-3
- * @return A pointer to the (i,j) element of the matrix array
- */
-float *Matrix4::ptr(int i, int j) {
-    return &matrix[i][j];
-}
-
-void Matrix4::set(int col, int row, float value) {
-    matrix[col][row] = value;
+    Matrix4 mat;
+    mat[0][0] = 2/(right - left);
+    mat[1][1] = 2/(top - bottom);
+    mat[2][2] = -2/(zFar - zNear);
+    mat[3][0] = -(right + left)/(right - left);
+    mat[3][1] = -(top + bottom)/(top - bottom);
+    mat[3][2] = -(zFar+zNear)/(zFar - zNear);
+    return mat;
 }
 
 void Matrix4::multiply(float matrix2[4][4]) {
@@ -160,4 +140,8 @@ void Matrix4::print() const {
     for (auto i = 0; i<4;i++) {
         std::cout << "|" << matrix[0][i] << " " << matrix[1][i] << " " << matrix[2][i] << " " << matrix[3][i] << "|" << std::endl;
     }
+}
+
+float* Matrix4::operator[](const uint32_t index) const {
+    return (float*)matrix[index];
 }

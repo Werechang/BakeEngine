@@ -47,7 +47,7 @@ void GuiElement::renderElement(GLShader &shader) {
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void GuiElement::onResize(float width, float height, float oldWidth, float oldHeight, const Matrix4& proj) {
+void GuiElement::resize(float width, float height, float oldWidth, float oldHeight, const Matrix4& proj) {
     float xScale = 1, yScale = 1;
     if (scalingAxis != GUI_NO_SCALING) {
         switch (scalingAxis) {

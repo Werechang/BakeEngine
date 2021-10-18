@@ -14,30 +14,30 @@ class DataView {
 protected:
     std::vector<unsigned char> bytes;
 public:
-    unsigned int index = 0;
+    uint32_t index = 0;
     bool endian;
 
     DataView(std::vector<unsigned char>& data, bool endian);
     explicit DataView(bool endian);
-    unsigned int readUInt();
+    uint32_t readUInt();
     int readInt();
     int readShort();
     int readByte();
-    std::string readString(unsigned int length);
+    std::string readString(uint32_t length);
     float readFloat();
     double readFixed();
-    unsigned int readDate();
-    int readInt(unsigned int offset);
-    unsigned int readUInt(unsigned int offset);
-    int readByte(unsigned int offset);
-    std::string readString(unsigned int offset, unsigned int length, bool nullTerminated);
-    float readFloat(unsigned int offset);
-    void seek(unsigned int offset);
-    void skip(unsigned int offset);
-    unsigned int getOffset();
+    uint32_t readDate();
+    int readInt(uint32_t offset);
+    uint32_t readUInt(uint32_t offset);
+    int readByte(uint32_t offset);
+    std::string readString(uint32_t offset, uint32_t length, bool nullTerminated);
+    float readFloat(uint32_t offset);
+    void seek(uint32_t offset);
+    void skip(uint32_t offset);
+    uint32_t getOffset();
     void setEndian(bool isBigEndian);
-    DataView getBufferSlice(unsigned int offset, unsigned int length);
+    DataView getBufferSlice(uint32_t offset, uint32_t length);
     std::vector<unsigned char> getData();
 
-    int readShort(unsigned int offset);
+    int readShort(uint32_t offset);
 };

@@ -9,21 +9,21 @@
 
 struct ResourceDict {
     std::vector<std::string> names;
-    unsigned int offset;
+    uint32_t offset;
 };
 
 struct Fvtx_Attrib {
     std::string name;
-    unsigned int format;
+    uint32_t format;
     unsigned short offset;
     unsigned char bufferIndex;
 };
 
 struct Fvtx_Buffer {
-    unsigned int size;
+    uint32_t size;
     std::vector<unsigned char> data;
-    unsigned int stride;
-    unsigned int divisor;
+    uint32_t stride;
+    uint32_t divisor;
 };
 
 struct FsklBone {
@@ -64,15 +64,15 @@ private:
     std::string name;
     std::vector<Fmdl> models;
     // TODO change return type to void
-    void parseFMDL(unsigned int offset, DataView& memoryPoolBuffer, const std::string& compName);
-    Fskl parseFSKL(unsigned int offset);
-    Fvtx parseFVTX(unsigned int offset, DataView& memoryPoolBuffer);
-    Fshp parseFSHP(unsigned int offset, DataView& memoryPoolBuffer);
-    Fmat parseFMAT(unsigned int offset);
+    void parseFMDL(uint32_t offset, DataView& memoryPoolBuffer, const std::string& compName);
+    Fskl parseFSKL(uint32_t offset);
+    Fvtx parseFVTX(uint32_t offset, DataView& memoryPoolBuffer);
+    Fshp parseFSHP(uint32_t offset, DataView& memoryPoolBuffer);
+    Fmat parseFMAT(uint32_t offset);
 public:
     explicit Fres(File& file);
 
     void parse();
-    std::string readBinaryString(unsigned int offset);
-    ResourceDict parseResourceDicIndex(unsigned int index);
+    std::string readBinaryString(uint32_t offset);
+    ResourceDict parseResourceDicIndex(uint32_t index);
 };
