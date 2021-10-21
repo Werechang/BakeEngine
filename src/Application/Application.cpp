@@ -375,9 +375,7 @@ void Application::runGL() {
             width = wNew;
             height = hNew;
             glViewport(0, 0, width, height);
-            // TODO Fix INVALID_OPERATION
             fb.resize(width, height);
-            // TODO Fix INVALID_ENUM
             viewport.resize(width, height);
             projection = Matrix4::perspective(toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
             shader.bind();
