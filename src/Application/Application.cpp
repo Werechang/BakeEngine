@@ -6,6 +6,7 @@
 InputManager* Application::inputManagerPtr = new InputManager();
 GuiManager* Application::guiManagerPtr = new GuiManager();
 
+#ifdef _DEBUG
 void GLAPIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
     LogHelperBE::pushName("OpenGL");
     std::string errorType;
@@ -72,6 +73,7 @@ void GLAPIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id, GLen
     }
     LogHelperBE::popName();
 }
+#endif
 
 void errorCallback(int error, const char *description) {
     LogHelperBE::pushName("GLFW");
