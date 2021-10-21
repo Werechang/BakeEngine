@@ -11,6 +11,7 @@ static std::vector<const char*> messageName;
 
 class LogHelperBE {
 public:
+    static void message(const std::string& type, const std::string& msg, bool isError);
     static void fatal(const std::string& message);
     static void error(const std::string& message);
     static void warning(const std::string& message);

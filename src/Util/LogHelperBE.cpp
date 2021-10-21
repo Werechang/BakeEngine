@@ -1,6 +1,14 @@
 
 #include "LogHelperBE.h"
 
+void LogHelperBE::message(const std::string &type, const std::string &msg, bool isError) {
+    if (isError) {
+        std::cerr << "[BakeEngine]:[" << messageName.back() << "]:[" << type << "] " << msg << std::endl;
+    } else {
+        std::cout << "[BakeEngine]:[" << messageName.back() << "]:[" << type << "] " << msg << std::endl;
+    }
+}
+
 void LogHelperBE::fatal(const std::string& message) {
     std::cerr << "[BakeEngine]:[" << messageName.back() << "]:[Fatal Error] " << message << std::endl;
 }

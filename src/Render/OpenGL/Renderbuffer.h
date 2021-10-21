@@ -7,15 +7,19 @@
 
 class Renderbuffer {
 public:
-    Renderbuffer(int width, int height, int samples, int type, int attachmentType);
+    Renderbuffer(int width, int height, int samples, int type);
     ~Renderbuffer();
-    void attach() const;
+
     void resize(int newWidth, int newHeight) const;
+
+    void bind() const;
+    void unbind() const;
+
+    uint32_t get() const;
 private:
-    uint32_t renderBuffer;
+    uint32_t renderbuffer;
     int samples;
     int type;
-    int attachmentType;
 };
 
 

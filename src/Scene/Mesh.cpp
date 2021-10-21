@@ -24,7 +24,7 @@ void Mesh::prepareMesh() {
 void Mesh::render(GLShader& shader) const {
     for (uint32_t i = 0; i < textures.size(); i++) {
         GLTexture t = textures[i];
-        t.bind(i);
-        shader.uniform1i(t.getTypeName() + std::to_string(i+1), (int)i);
+        t.activate(i);
+        //shader.uniform1i(t.getTypeName() + std::to_string(i+1), (int)i);
     }
 }

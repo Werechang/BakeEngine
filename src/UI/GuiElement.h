@@ -27,6 +27,7 @@
 
 class GuiElement {
 public:
+    ~GuiElement();
     GuiElement() : GuiElement(0, 0, 0, 0) {};
     /**
     *
@@ -50,10 +51,15 @@ public:
 
     virtual void onKeyAction(int key, int action) {};
     virtual void onMouseButtonAction(int button, int action) {};
-    virtual void onMouseHover() {};
+    virtual void onMouseHover(int mouseX, int mouseY) {};
+    virtual void onSelectAction(bool isSelected) {
+        LogHelperBE::info("Select action: " + std::to_string(isSelected) + " (" + std::to_string((int)this) + ")");
+    };
     bool isMouseHover(int mouseX, int mouseY);
 
     void setPos(float x, float y, const Matrix4& proj);
+    void setInputListenable(bool value);
+    bool getInputListenable() const;
     void setVisible(bool value);
     bool getVisible() const;
     GuiElement* getParent() const;
@@ -67,5 +73,15 @@ private:
     Matrix4 model = Matrix4::identity();
     Matrix4 modelProj = Matrix4::identity();
     GLTexture texture;
+    // If this gets rendered. The setVisible function applies that for this and children
     bool isVisible = true;
+    // If it is visible for input actions. The setInputListenable function applies that for this and children
+    bool inputListenable = true;
+
+    // For internal use of GuiElement child classes
+    virtual void addKeyBinds() {};
+};
+
+struct GuiManager {
+    std::vector<GuiElement*> elements;
 };

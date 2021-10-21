@@ -1,4 +1,5 @@
 #include "GuiElement.h"
+#include "../Application/Application.h"
 
 /**
  *
@@ -11,7 +12,7 @@
  * GUI_AXIS_X and GUI_AXIS_Y scales by changing the width/height of the window
  * @param alignWith if the element should stick do a specific edge on resize. 0 if none, look into the definitions in GuiElement.h
  */
-GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith, const std::string& texturePath) : xPos(xPos), yPos(yPos), xSize(xSize), ySize(ySize), scalingAxis(scalingAxis), alignWith(alignWith), texture(GL_NEAREST, GL_REPEAT, texturePath, TEXTURE_IMAGE, false, 1.0f, false) {
+GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int scalingAxis, int alignWith, const std::string& texturePath) : xPos(xPos), yPos(yPos), xSize(xSize), ySize(ySize), scalingAxis(scalingAxis), alignWith(alignWith), texture(GL_NEAREST, GL_REPEAT, texturePath, GL_RGBA8, GL_RGBA, 1.0f, false) {
     /*
      * screen in normalized device coordinates
      * (-1,+1)|-----------------|(+1,+1)
@@ -19,6 +20,7 @@ GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int sca
      *        |                 |
      * (-1,-1)|-----------------|(+1,-1)
      */
+    // TODO put it into quad class with batched rendering
     float vertices[] = {
             0,       0,          0.0f, 1.0f, // Top left
             0,       ySize,    0.0f, 0.0f, // Bottom left
@@ -38,13 +40,16 @@ GuiElement::GuiElement(float xPos, float yPos, float xSize, float ySize, int sca
     vao.unbind();
     vertexBuffer.unbind();
     model.translate(xPos, yPos, 0);
+    Application::guiManagerPtr->elements.emplace_back(this);
+    addKeyBinds();
 }
 
 void GuiElement::renderElement(GLShader &shader) {
     shader.uniformMatrix4fv("modelProj", modelProj);
-    texture.bind(0);
     vao.bind();
+    texture.activate(0);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    vao.unbind();
 }
 
 void GuiElement::resize(float width, float height, float oldWidth, float oldHeight, const Matrix4& proj) {
@@ -114,7 +119,6 @@ void GuiElement::resize(float width, float height, float oldWidth, float oldHeig
 }
 
 void GuiElement::addChild(GuiElement* element) {
-    // TODO children (with updatePos)
     if (element && !element->parent && (this->parent != element)) {
         children.emplace_back(element);
         element->parent = this;
@@ -132,7 +136,6 @@ bool GuiElement::isMouseHover(int mouseX, int mouseY) {
     int guiSizeY = (int)std::round(ySize);
 
     if ((mouseX > guiPosX) && (mouseY > guiPosY) && (mouseX < (guiPosX+guiSizeX)) && (mouseY < (guiPosY+guiSizeY))) {
-        onMouseHover();
         return true;
     }
     return false;
@@ -143,6 +146,20 @@ void GuiElement::setPos(float x, float y, const Matrix4& proj) {
     modelProj = proj * model;
     xPos = x;
     yPos = y;
+    for (auto & child : children) {
+        setPos(x+child->xPos, y+child->yPos, proj);
+    }
+}
+
+void GuiElement::setInputListenable(bool value) {
+    inputListenable = value;
+    for (auto & child : children) {
+        setInputListenable(value);
+    }
+}
+
+bool GuiElement::getInputListenable() const {
+    return inputListenable;
 }
 
 void GuiElement::setVisible(bool value) {
@@ -158,4 +175,11 @@ bool GuiElement::getVisible() const {
 
 GuiElement *GuiElement::getParent() const {
     return parent;
+}
+
+GuiElement::~GuiElement() {
+    auto it = std::find(Application::guiManagerPtr->elements.begin(), Application::guiManagerPtr->elements.end(), this);
+    if (it != Application::guiManagerPtr->elements.end()) {
+        Application::guiManagerPtr->elements.erase(it);
+    }
 }

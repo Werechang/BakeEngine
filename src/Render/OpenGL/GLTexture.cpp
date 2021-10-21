@@ -4,25 +4,30 @@
 #include "../../Util/LogHelperBE.h"
 #include "../../Application/Application.h"
 
-GLTexture::GLTexture(int interpolation, int sampling, const std::string& path, uint32_t type, bool sRGB, float anisotropicLevel, bool mipMaps) : type(type) {
+GLTexture::GLTexture(int interpolation, int wrapping, const std::string& path, int textureType, int imageType, float anisotropicLevel, bool mipMaps) : textureType(textureType), imageType(imageType), samples(1) {
     stbi_set_flip_vertically_on_load(1);
+    if (path.empty()) {
+        LogHelperBE::pushName("GLTexture");
+        LogHelperBE::error("Path is not defined!");
+        LogHelperBE::popName();
+        return;
+    }
     texCache = stbi_load((Application::absolutePath + path).c_str(), &width, &height, &bpp, 4);
 
     if (anisotropicLevel < 1.0f) {
         LogHelperBE::error("Anisotropic level is too low. Minimum is 1.0f");
         anisotropicLevel = 1.0f;
     }
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
-    glGenTextures(1, &texPtr);
-    glBindTexture(GL_TEXTURE_2D, texPtr);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampling);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampling);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolation);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpolation);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texCache);
+    glTexImage2D(GL_TEXTURE_2D, 0, textureType, width, height, 0, imageType, GL_UNSIGNED_BYTE, texCache);
 
     if (mipMaps) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -40,21 +45,78 @@ GLTexture::GLTexture(int interpolation, int sampling, const std::string& path, u
     unbind();
 }
 
-GLTexture::~GLTexture() {
+GLTexture::GLTexture(int width, int height, int interpolation, int samples, int textureType,
+                     float anisotropicLevel, bool mipMaps) : textureType(textureType), texCache(
+        nullptr), width(width), height(height), samples(samples), bpp(-1), imageType(textureType) {
+    if (anisotropicLevel < 1.0f) {
+        LogHelperBE::error("Anisotropic level is too low. Minimum is 1.0f");
+        anisotropicLevel = 1.0f;
+    }
+    int multisampling = samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+    glGenTextures(1, &texture);
+    glBindTexture(multisampling, texture);
+
+    if (samples < 2) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolation);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpolation);
+    }
+
+    if (samples > 1) {
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, textureType, width, height, true);
+    } else {
+        glTexImage2D(GL_TEXTURE_2D, 0, textureType, width, height, 0, textureType, GL_UNSIGNED_BYTE, nullptr);
+    }
+
+    if (mipMaps) {
+        glTexParameteri(multisampling, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(multisampling);
+        if (anisotropicLevel > 1.0f) {
+            float maxAnisotropic;
+            glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropic);
+            glTexParameterf(multisampling, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropic > anisotropicLevel ? anisotropicLevel : maxAnisotropic);
+        }
+    }
     unbind();
-    glDeleteTextures(1, &texPtr);
 }
 
-void GLTexture::bind(uint32_t slot) const {
+GLTexture::~GLTexture() {
+    unbind();
+    glDeleteTextures(1, &texture);
+}
+
+void GLTexture::resize(int newWidth, int newHeight) {
+    if (texCache) {
+        // TODO Is it ok to resize this?
+        return;
+    }
+    bind();
+    width = newWidth;
+    height = newHeight;
+    if (samples > 1) {
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, textureType, newWidth, newHeight, GL_TRUE);
+    } else {
+        glTexImage2D(GL_TEXTURE_2D, 0, textureType, newWidth, newHeight, 0, imageType, GL_UNSIGNED_BYTE, nullptr);
+    }
+}
+
+void GLTexture::activate(uint32_t slot) const {
     glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, texPtr);
+    bind();
+}
+
+void GLTexture::bind() const {
+    glBindTexture(samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, texture);
 }
 
 void GLTexture::unbind() const{
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-std::string GLTexture::getTypeName() const {
+uint32_t GLTexture::get() const {
+    return texture;
+}
+
+/*std::string GLTexture::getTypeName() const {
     switch (type) {
         case TEXTURE_IMAGE: return "textureImage";
         case TEXTURE_DIFFUSE: return "textureDiffuse";
@@ -62,9 +124,9 @@ std::string GLTexture::getTypeName() const {
         case TEXTURE_NORMAL_MAP: return "textureNormal";
         default: {
             LogHelperBE::pushName("GLTexture");
-            LogHelperBE::error(("Texture type " + std::to_string(type) + " is not defined").c_str());
+            LogHelperBE::error("Texture type " + std::to_string(type) + " is not defined");
             LogHelperBE::popName();
             return "";
         }
     }
-}
+}*/

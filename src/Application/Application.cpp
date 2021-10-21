@@ -3,25 +3,75 @@
 #include "../Render/OpenGL/Framebuffer.h"
 #include "../FileParser/stb_image.h"
 
-/*#define glCheckError() glCheckError_(__FILE__, __LINE__)
+InputManager* Application::inputManagerPtr = new InputManager();
+GuiManager* Application::guiManagerPtr = new GuiManager();
 
-GLenum glCheckError_(const char *file, int line) {
-    GLenum errorCode;
-    while ((errorCode = glGetError()) != GL_NO_ERROR) {
-        std::string error;
-        switch (errorCode) {
-            case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
-            case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
-            case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
-            case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+void GLAPIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+    LogHelperBE::pushName("OpenGL");
+    std::string errorType;
+    bool error = false;
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR: {
+            errorType = "Error";
+            error = true;
+            break;
         }
-        LogHelperBE::pushName("OpenGL");
-        LogHelperBE::error(error + " | " + file + " (" + std::to_string(line) + ")");
-        LogHelperBE::popName();
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: {
+            errorType = "Deprecated Behavior";
+            break;
+        }
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: {
+            errorType = "Undefined Behavior";
+            break;
+        }
+        case GL_DEBUG_TYPE_PORTABILITY: {
+            errorType = "Portability";
+            break;
+        }
+        case GL_DEBUG_TYPE_PERFORMANCE: {
+            errorType = "Performance";
+            break;
+        }
+        case GL_DEBUG_TYPE_OTHER: {
+            errorType = "Other";
+            break;
+        }
+        default: {
+            errorType = "Unknown";
+            break;
+        }
     }
-    return errorCode;
-}*/
+    std::string temp("Error Code: ");
+    temp += std::to_string(id);
+    temp += " (";
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_LOW: {
+            temp += "Low Severity";
+            break;
+        }
+        case GL_DEBUG_SEVERITY_MEDIUM: {
+            temp += "Medium Severity";
+            break;
+        }
+        case GL_DEBUG_SEVERITY_HIGH: {
+            temp += "High Severity";
+            break;
+        }
+        default: {
+            temp += "Unknown Severity";
+            break;
+        }
+    }
+    temp += ") ";
+    temp += message;
+    // if statement for breakpoint
+    if (error) {
+        LogHelperBE::message(errorType, temp, true);
+    } else {
+        LogHelperBE::message(errorType, temp, false);
+    }
+    LogHelperBE::popName();
+}
 
 void errorCallback(int error, const char *description) {
     LogHelperBE::pushName("GLFW");
@@ -30,11 +80,11 @@ void errorCallback(int error, const char *description) {
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    inputManagerPtr->updateKey(window, key, scancode, action, mods);
+    Application::inputManagerPtr->updateKey(window, key, scancode, action, mods);
 }
 
 void mouseCallback(GLFWwindow *window, double xPos, double yPos) {
-    inputManagerPtr->updateMouse(window, xPos, yPos);
+    Application::inputManagerPtr->updateMouse(window, xPos, yPos);
 }
 
 void closeCallback(GLFWwindow* window) {
@@ -42,7 +92,7 @@ void closeCallback(GLFWwindow* window) {
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    inputManagerPtr->updateMouseButton(window, button, action, mods);
+    Application::inputManagerPtr->updateMouseButton(window, button, action, mods);
 }
 
 void focusCallback(GLFWwindow* window, int focused) {
@@ -66,9 +116,12 @@ void Application::init() {
     glfwInit();
 
     // Specify OGL version
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+#ifdef _DEBUG
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+#endif
 
     // Core for easier coding; newer devices only
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -92,7 +145,6 @@ void Application::init() {
     glfwSwapInterval(1);
 
     // Function for callbacks
-    inputManagerPtr = new InputManager();
     glfwSetErrorCallback(errorCallback);
     glfwSetKeyCallback(window, keyCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
@@ -128,6 +180,7 @@ void Application::terminate() {
     glfwTerminate();
     running = false;
     delete inputManagerPtr;
+    delete guiManagerPtr;
 }
 
 void Application::runGL() {
@@ -136,6 +189,11 @@ void Application::runGL() {
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#ifdef _DEBUG
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(debugMessageCallback, nullptr);
+#endif
 
     /*glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);*/
@@ -197,14 +255,17 @@ void Application::runGL() {
     GLRenderer glRenderer = GLRenderer("shaders/gui.shader", width, height);
     GuiElement gui1(1400.0f, 50.0f, 150.0f, 150.0f, GUI_AXIS_Y, GUI_TOP_RIGHT, "textures/gui_placeholder.png");
     GuiElement gui2(50.0f, 50.0f, 150.0f, 150.0f, GUI_AXIS_Y, GUI_TOP_LEFT, "textures/gui_placeholder.png");
+    // To refresh the gui projection matrix
+    glRenderer.resize(width, height);
 
-    inputManagerPtr->addKeyBind([this] { camera.moveFront(); }, GLFW_KEY_W, 0, INPUT_ON_ACTIVE);
-    inputManagerPtr->addKeyBind([this] { camera.moveLeft(); }, GLFW_KEY_A, 0, INPUT_ON_ACTIVE);
-    inputManagerPtr->addKeyBind([this] { camera.moveBack(); }, GLFW_KEY_S, 0, INPUT_ON_ACTIVE);
-    inputManagerPtr->addKeyBind([this] { camera.moveRight(); }, GLFW_KEY_D, 0, INPUT_ON_ACTIVE);
-    inputManagerPtr->addKeyBind([this] { camera.moveUp(); }, GLFW_KEY_Q, 0, INPUT_ON_ACTIVE);
-    inputManagerPtr->addKeyBind([this] { camera.moveDown(); }, GLFW_KEY_E, 0, INPUT_ON_ACTIVE);
-    inputManagerPtr->addKeyBind([this] { return glfwSetWindowShouldClose(window, true); }, GLFW_KEY_Q, GLFW_MOD_CONTROL, INPUT_ON_PRESS);
+    inputManagerPtr->addKeyBind([this] { camera.moveFront(); }, GLFW_KEY_W, 0, INPUT_ON_ACTIVE, nullptr);
+    inputManagerPtr->addKeyBind([this] { camera.moveLeft(); }, GLFW_KEY_A, 0, INPUT_ON_ACTIVE, nullptr);
+    inputManagerPtr->addKeyBind([this] { camera.moveBack(); }, GLFW_KEY_S, 0, INPUT_ON_ACTIVE, nullptr);
+    inputManagerPtr->addKeyBind([this] { camera.moveRight(); }, GLFW_KEY_D, 0, INPUT_ON_ACTIVE, nullptr);
+    inputManagerPtr->addKeyBind([this] { camera.moveUp(); }, GLFW_KEY_Q, 0, INPUT_ON_ACTIVE, nullptr);
+    inputManagerPtr->addKeyBind([this] { camera.moveDown(); }, GLFW_KEY_E, 0, INPUT_ON_ACTIVE, nullptr);
+    inputManagerPtr->addKeyBind([this] { return glfwSetWindowShouldClose(window, true); }, GLFW_KEY_Q, GLFW_MOD_CONTROL, INPUT_ON_PRESS,
+                                nullptr);
     // Vertex Array Object
     VertexArray vao;
     vao.bind();
@@ -243,20 +304,22 @@ void Application::runGL() {
     screenShader.bind();
     screenShader.uniform1i("screen", 0);
 
-    GLShader screenDBShader("shaders/fbDepth.shader");
-    screenDBShader.bind();
-    screenDBShader.uniform1i("screen", 0);
+    Framebuffer fb(width, height, 4);
+    fb.attachTexture(GL_RGB, GL_COLOR_ATTACHMENT0);
+    fb.attachRenderbuffer(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT);
+    fb.checkStatus();
+    fb.unbind();
 
-    Renderbuffer renderbuffer(width, height, 4, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT);
-    Framebuffer fb(width, height, 4, &renderbuffer);
-
-    Framebuffer viewport(width, height, 1, nullptr);
+    Framebuffer viewport(width, height, 1);
+    viewport.attachTexture(GL_RGB, GL_COLOR_ATTACHMENT0);
+    viewport.checkStatus();
+    viewport.unbind();
 
     GLShader shader("shaders/standard.shader");
     shader.bind();
 
-    GLTexture tex(GL_LINEAR, GL_REPEAT, "textures/container2.png", TEXTURE_IMAGE, false, 8.0f, true);
-    GLTexture texSpec(GL_LINEAR, GL_REPEAT, "textures/container2_specular.png", TEXTURE_SPECULAR, false, 8.0f, true);
+    GLTexture tex(GL_LINEAR, GL_REPEAT, "textures/container2.png", GL_RGBA8, GL_RGBA, 8.0f, true);
+    GLTexture texSpec(GL_LINEAR, GL_REPEAT, "textures/container2_specular.png", GL_RGBA8, GL_RGBA, 8.0f, true);
     shader.uniform1i("textureImage1", 0);
     shader.uniform1i("material.diffuse", 0);
     shader.uniform1i("material.specular", 1);
@@ -285,7 +348,7 @@ void Application::runGL() {
     shader.uniform3f("dirLight.specular", 0.8f, 0.8f, 0.8f);
 
     Matrix4 model = Matrix4::identity();
-    Matrix4 view = Matrix4::identity();
+    Matrix4 view;
     Matrix4 projection = Matrix4::perspective(toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
 
     shader.uniformMatrix4fv("projection", projection);
@@ -312,9 +375,10 @@ void Application::runGL() {
             width = wNew;
             height = hNew;
             glViewport(0, 0, width, height);
-            viewport.resize(width, height);
+            // TODO Fix INVALID_OPERATION
             fb.resize(width, height);
-            renderbuffer.resize(width, height);
+            // TODO Fix INVALID_ENUM
+            viewport.resize(width, height);
             projection = Matrix4::perspective(toRadians(45), ((float)width)/((float)height), 0.1f, 1000.0f);
             shader.bind();
             shader.uniformMatrix4fv("projection", projection);
@@ -326,12 +390,15 @@ void Application::runGL() {
         // TODO Lower camera speed if two keys are pressed (i.e. WA)
         camera.speed = camera.globalSpeed * (float)deltaTime;
         inputManagerPtr->updateInput(window);
+        // Start rendering
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+        // Draw scene
         fb.bind();
         glEnable(GL_DEPTH_TEST);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glEnable(GL_STENCIL_TEST);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         view = camera.getView();
@@ -342,20 +409,25 @@ void Application::runGL() {
         shader.uniformMatrix4fv("model", model);
 
         vao.bind();
-        tex.bind(0);
-        texSpec.bind(1);
+        tex.activate(0);
+        texSpec.activate(1);
         glDrawArrays(GL_TRIANGLES, 0, vertCount);
         vao.unbind();
 
+        // Blit multisampled buffer to normal buffer
         fb.drawTo(viewport);
+        // Render screen quad
         fb.unbind();
+        shader.unbind();
         glDisable(GL_DEPTH_TEST);
+        glDisable(GL_STENCIL_TEST);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         screenShader.bind();
         quadArray.bind();
-        glActiveTexture(GL_TEXTURE0);
-        viewport.bindTexture();
+        viewport.bindTexture(0);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
         glRenderer.draw();
 
         glfwSwapBuffers(window);

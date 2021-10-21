@@ -1,14 +1,16 @@
 // Now the door to a new light is opening. That's exciting and inspiring.
 #include "InputManager.h"
+#include "../Application/Application.h"
 
 /**
  * Sets a function to get called if a specific key gets pressed/released/repeated (updates every frame)
- * @param function Pointer to function. Use std::bind or lambda (example: [this] {return function(param1, param2)}) to use function with arguments and non-static member functions.
- * @param key A specific key on which the function gets called. Use the definitions provided by GLFW. Example: GLFW_KEY_ESCAPE
+ * @param function Pointer to function. Use std::activate or lambda (example: [this] {return function(param1, param2)}) to use function with arguments and non-static member functions.
+ * @param key A specific key on which the function gets called. Use the definitions provided by GLFW. Example: GLFW_KEY_ESCAPE. If the key should be a mouse button then do GLFW_MOUSE_BUTTONS + {mouse button}
  * @param mods Keys which need te be pressed to activate this KeyBind. Mods are GLFW_MOD_CONTROL, GLFW_MOD_ALT and GLFW_MOD_SHIFT. You do not need to specify one (pass 0 as a param). If you want to have multiple mods use the bitwise or | operator.
- * @param onAction The action on which the KeyBind is activated. Actions are INPUT_ON_PRESS, INPUT_ON_ACTIVE (on press and repeat) and INPUT_ON_RELEASE
+ * @param action The action on which the KeyBind is activated. Actions are INPUT_ON_PRESS, INPUT_ON_ACTIVE (on press and repeat) and INPUT_ON_RELEASE
+ * @param onHoverElement Nullptr if the KeyBind should be global. Else it gets activated when
  */
-void InputManager::addKeyBind(const std::function<void()>& function, int key, int mods, int onAction) {
+void InputManager::addKeyBind(const std::function<void()>& function, int key, int mods, int action, GuiElement* onHoverElement) {
     if (((mods & GLFW_MOD_SUPER) == GLFW_MOD_SUPER) || ((mods & GLFW_MOD_CAPS_LOCK) == GLFW_MOD_CAPS_LOCK) || ((mods & GLFW_MOD_NUM_LOCK) == GLFW_MOD_NUM_LOCK)) {
         LogHelperBE::pushName("InputManager");
         LogHelperBE::error("This mod is not supported");
@@ -30,31 +32,10 @@ void InputManager::addKeyBind(const std::function<void()>& function, int key, in
                                                 LogHelperBE::popName();
                                                 break;
                                                 default:
-                                                    switch (onAction) {
-                                                        case INPUT_ON_PRESS: {
-                                                            if (keyBindsOnPress.find(key) != keyBindsOnPress.end()) {
-                                                                keyBindsOnPress[key]->addFunction(mods ,function);
-                                                                break;
-                                                            } else {
-                                                                keyBindsOnPress.insert(std::make_pair(key, std::make_unique<KeyBind>(mods, function)));
-                                                            }
-                                                        }
-                                                        case INPUT_ON_ACTIVE: {
-                                                            if (keyBindsOnActive.find(key) != keyBindsOnActive.end()) {
-                                                                keyBindsOnActive[key]->addFunction(mods ,function);
-                                                                break;
-                                                            } else {
-                                                                keyBindsOnActive.insert(std::make_pair(key, std::make_unique<KeyBind>(mods, function)));
-                                                            }
-                                                        }
-                                                        case INPUT_ON_RELEASE: {
-                                                            if (keyBindsOnRelease.find(key) != keyBindsOnRelease.end()) {
-                                                                keyBindsOnRelease[key]->addFunction(mods ,function);
-                                                                break;
-                                                            } else {
-                                                                keyBindsOnRelease.insert(std::make_pair(key, std::make_unique<KeyBind>(mods, function)));
-                                                            }
-                                                        }
+                                                    if (keyBinds.find(std::make_pair(key, action)) != keyBinds.end()) {
+                                                        keyBinds[std::make_pair(key, action)]->addFunction(mods, function);
+                                                    } else {
+                                                        keyBinds.insert(std::make_pair(std::make_pair(key, action), std::make_unique<KeyBind>(mods, function)));
                                                     }
     }
 }
@@ -63,8 +44,8 @@ void InputManager::updateInput(GLFWwindow* window) {
     for (auto & pair : activeKeys) {
         // pair.second : if this is not in the same frame as this action was added (to prevent double inputs)
         if (pair.second) {
-            if (glfwGetKey(window, pair.first) == GLFW_PRESS) {
-                keyBindsOnActive[pair.first]->checkActive(activeMods);
+            if ((pair.first >= GLFW_MOUSE_BUTTONS ? glfwGetMouseButton(window, pair.first-GLFW_MOUSE_BUTTONS) == GLFW_PRESS : glfwGetKey(window, pair.first) == GLFW_PRESS )) {
+                keyBinds[std::make_pair(pair.first, INPUT_ON_ACTIVE)]->checkActive(activeMods);
             }
         } else {
             pair.second = true;
@@ -88,12 +69,12 @@ void InputManager::updateInput(GLFWwindow* window) {
 void InputManager::updateKey(GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_UNKNOWN) return;
     else if (action == GLFW_PRESS) {
-        if (keyBindsOnPress.find(key) != keyBindsOnPress.end()) {
-            keyBindsOnPress[key]->checkActive(mods);
+        if (keyBinds.find(std::make_pair(key, INPUT_ON_PRESS)) != keyBinds.end()) {
+            keyBinds[std::make_pair(key, INPUT_ON_PRESS)]->checkActive(mods);
         }
-        if (keyBindsOnActive.find(key) != keyBindsOnActive.end()) {
-            keyBindsOnActive[key]->checkActive(mods);
-            // If this key is not already in the vector. Put it only in there if this is a keybind
+        if (keyBinds.find(std::make_pair(key, INPUT_ON_ACTIVE)) != keyBinds.end()) {
+            keyBinds[std::make_pair(key, INPUT_ON_ACTIVE)]->checkActive(mods);
+            // If this key is not already in the vector. Put it only in there if this is a KeyBind
             if (activeKeys.find(key) == activeKeys.end()) {
                 activeKeys.insert(std::make_pair(key, false));
             }
@@ -106,8 +87,8 @@ void InputManager::updateKey(GLFWwindow *window, int key, int scancode, int acti
             activeMods += GLFW_MOD_ALT;
         }
     } else if (action == GLFW_RELEASE) {
-        if (keyBindsOnRelease.find(key) != keyBindsOnRelease.end()) {
-            keyBindsOnRelease[key]->checkActive(mods);
+        if (keyBinds.find(std::make_pair(key, INPUT_ON_RELEASE)) != keyBinds.end()) {
+            keyBinds[std::make_pair(key, INPUT_ON_RELEASE)]->checkActive(mods);
             auto it = activeKeys.find(key);
             if (it != activeKeys.end()) {
                 activeKeys.erase(it);
@@ -120,11 +101,10 @@ void InputManager::updateKey(GLFWwindow *window, int key, int scancode, int acti
         } else if (key == GLFW_KEY_LEFT_ALT || key == GLFW_KEY_RIGHT_ALT) {
             activeMods -= GLFW_MOD_ALT;
         }
-    } /*else if (action == GLFW_REPEAT) {
-        if (keyBindsOnActive.find(key) != keyBindsOnActive.end()) {
-            keyBindsOnActive[key]->checkActive(mods);
-        }
-    }*/
+    }
+    if (selectedElement) {
+        selectedElement->onKeyAction(key, action);
+    }
 }
 
 void InputManager::updateMouse(GLFWwindow *window, double xPos, double yPos) {
@@ -135,26 +115,55 @@ void InputManager::updateMouse(GLFWwindow *window, double xPos, double yPos) {
     }
     mouseX = xPos;
     mouseY = yPos;
-    int screenX = (int)std::round(mouseX);
-    int screenY = (int)std::round(mouseY);
-    // TODO Fix input
-    /*for (auto & guiElement : GuiElement::guiElements) {
-        if (guiElement->getVisible()) {
+    int screenX = (int)std::round(xPos);
+    int screenY = (int)std::round(yPos);
+
+    for (auto & guiElement : Application::guiManagerPtr->elements) {
+        if (guiElement->getVisible() && guiElement->getInputListenable()) {
             if (guiElement->isMouseHover(screenX, screenY)) {
-                onMouseHoverGuiElement = guiElement;
+                guiElement->onMouseHover(screenX, screenY);
+                currentHoverElement = guiElement;
                 return;
             }
         }
-    }*/
+    }
+    currentHoverElement = nullptr;
 }
 
 void InputManager::updateMouseButton(GLFWwindow *window, int button, int action, int mods) {
     if (action == GLFW_PRESS) {
-        mouseButtons[button] = true;
-        // TODO set a variable to true which says that the app should update the mouse buttons on the next frame (for GLFW_REPEAT)
+        if (keyBinds.find(std::make_pair(GLFW_MOUSE_BUTTONS + button, INPUT_ON_PRESS)) != keyBinds.end()) {
+            keyBinds[std::make_pair(GLFW_MOUSE_BUTTONS + button, INPUT_ON_PRESS)]->checkActive(mods);
+        }
+        if (keyBinds.find(std::make_pair(GLFW_MOUSE_BUTTONS + button, INPUT_ON_ACTIVE)) != keyBinds.end()) {
+            keyBinds[std::make_pair(GLFW_MOUSE_BUTTONS + button, INPUT_ON_ACTIVE)]->checkActive(mods);
+            // If this key is not already in the vector. Put it only in there if this is a KeyBind
+            if (activeKeys.find(GLFW_MOUSE_BUTTONS + button) == activeKeys.end()) {
+                activeKeys.insert(std::make_pair(GLFW_MOUSE_BUTTONS + button, false));
+            }
+        }
+        if (button == GLFW_MOUSE_BUTTON_LEFT && currentHoverElement) {
+            if (selectedElement && selectedElement != currentHoverElement) {
+                selectedElement->onSelectAction(false);
+            }
+            selectedElement = currentHoverElement;
+            selectedElement->onSelectAction(true);
+        } else if (button == GLFW_MOUSE_BUTTON_LEFT && selectedElement) {
+            selectedElement->onSelectAction(false);
+            selectedElement = nullptr;
+        }
     }
     else if (action == GLFW_RELEASE) {
-        mouseButtons[button] = false;
+        if (keyBinds.find(std::make_pair(GLFW_MOUSE_BUTTONS + button, INPUT_ON_RELEASE)) != keyBinds.end()) {
+            keyBinds[std::make_pair(GLFW_MOUSE_BUTTONS + button, INPUT_ON_RELEASE)]->checkActive(mods);
+            auto it = activeKeys.find(GLFW_MOUSE_BUTTONS + button);
+            if (it != activeKeys.end()) {
+                activeKeys.erase(it);
+            }
+        }
+    }
+    if (selectedElement) {
+        selectedElement->onMouseButtonAction(button, action);
     }
 }
 

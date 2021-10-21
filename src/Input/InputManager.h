@@ -4,6 +4,7 @@
 #define INPUT_ON_PRESS 1
 #define INPUT_ON_ACTIVE 2
 #define INPUT_ON_RELEASE 0
+#define GLFW_MOUSE_BUTTONS 349
 
 #include <map>
 #include <vector>
@@ -15,7 +16,7 @@
 
 class InputManager {
 public:
-    void addKeyBind(const std::function<void()>& function, int key, int mods, int onAction);
+    void addKeyBind(const std::function<void()>& function, int key, int mods, int action, GuiElement* onHoverElement);
 
     // Called every frame by the application
     void updateInput(GLFWwindow* window);
@@ -31,11 +32,13 @@ private:
     // For mouse repeat. Maybe deleted later
     int activeMods;
     std::map<int, bool> activeKeys;
-    bool mouseButtons[8];
     double mouseX, mouseY;
     double lastMouseX = 800, lastMouseY = 450;
     bool firstMouse = true;
-    std::unordered_map<int, std::unique_ptr<KeyBind>> keyBindsOnPress;
-    std::unordered_map<int, std::unique_ptr<KeyBind>> keyBindsOnActive;
-    std::unordered_map<int, std::unique_ptr<KeyBind>> keyBindsOnRelease;
+    // map<pair<key, action>, KeyBind>, unordered map doesn't work with pairs
+    std::map<std::pair<int, int>, std::unique_ptr<KeyBind>> keyBinds;
+    // The element over which the mouse is currently hovering
+    GuiElement* currentHoverElement;
+    // The GuiElement which was left clicked last
+    GuiElement* selectedElement;
 };

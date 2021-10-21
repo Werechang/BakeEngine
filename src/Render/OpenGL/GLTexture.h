@@ -10,18 +10,25 @@
 #include "glad/gl.h"
 
 class GLTexture {
-private:
-    uint32_t texPtr;
-    int width, height, bpp;
-    unsigned char* texCache;
-    uint32_t type;
 public:
-    GLTexture(const std::string& path, uint32_t type, bool sRGB) : GLTexture(GL_LINEAR, GL_REPEAT, path, type, sRGB, 1, true) {}
-    GLTexture(int interpolation, int sampling, const std::string& path, uint32_t type, bool sRGB, float anisotropicLevel, bool mipMaps);
+    GLTexture(const std::string& path, int textureType, int imageType) : GLTexture(GL_LINEAR, GL_REPEAT, path, textureType, imageType, 1.0f, true) {}
+    GLTexture(int interpolation, int wrapping, const std::string& path, int textureType, int imageType, float anisotropicLevel, bool mipMaps);
+    GLTexture(int width, int height, int interpolation, int samples, int textureType, float anisotropicLevel, bool mipMaps);
     ~GLTexture();
 
-    void bind(uint32_t slot) const;
+    void resize(int newWidth, int newHeight);
+
+    void activate(uint32_t slot) const;
+    void bind() const;
     void unbind() const;
 
-    std::string getTypeName() const;
+    uint32_t get() const;
+    //std::string getTypeName() const;
+private:
+    uint32_t texture;
+    int width, height, bpp;
+    int samples;
+    unsigned char* texCache;
+    //uint32_t type;
+    int textureType, imageType;
 };

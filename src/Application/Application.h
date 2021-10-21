@@ -11,11 +11,12 @@
 #include "../Util/LogHelperBE.h"
 
 static bool running = true;
-static InputManager* inputManagerPtr;
 
 class Application {
 public:
     static std::string absolutePath;
+    static InputManager* inputManagerPtr;
+    static GuiManager* guiManagerPtr;
 
     Application(bool isOGL, int width, int height, const std::string& name);
     ~Application() {
