@@ -11,12 +11,12 @@
 File::File(const std::string& path, bool endian) : DataView(endian), path(Application::absolutePath + path) {
     LogHelperBE::pushName("File");
 
-    std::ifstream input(this->path, std::ios::binary);
-    if (!input) {
+    std::ifstream elseStream(this->path, std::ios::binary);
+    if (!elseStream) {
         LogHelperBE::error("File does not exist!");
         throw std::runtime_error("File does not exist!");
     } else {
-        bytes = std::vector<unsigned char>(std::istreambuf_iterator<char>(input), {});
+        bytes = std::vector<unsigned char>(std::istreambuf_iterator<char>(elseStream), {});
     }
     LogHelperBE::popName();
 }

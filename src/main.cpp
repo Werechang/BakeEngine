@@ -30,15 +30,15 @@ void printMemUsage() {
 }
 
 int main(int argc, char* args[]) {
-    // TODO reduce number of static variables
-    // TODO private members bottom
     {
         LogHelperBE::pushName("Main");
         // Hide window if on Windows
         char buffer[PATH_MAX_LEN];
     #ifdef _WIN32
         // Hide console
+#ifndef _DEBUG
         ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
         // Copy exe path to buffer
         // TODO Error check
         GetModuleFileNameA(nullptr, buffer, PATH_MAX_LEN);
