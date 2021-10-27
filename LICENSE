@@ -1,3 +1,7 @@
+ 
+ directory src/external/ : multiple different licenses
+ 
+ directory src/(excluding subfolder external) :
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
