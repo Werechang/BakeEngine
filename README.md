@@ -1,5 +1,5 @@
 # BakeEngine
-A WIP 3D Game Engine for the game project "Project G"
+A (WIP) 3D Game Engine for the game project "Project G"
 
 # Building
 Please refer to the [wiki](https://github.com/Werechang/BakeEngine/wiki) for building instructions.
