@@ -10,7 +10,7 @@ If you have problems with building, feel free to open an issue with the `buildin
 # Dependencies & Third Party Code
 Some files are from vendors:
 | Vendor | Files/Filepaths |
-| [glad](https://github.com/dav1dde/glad-web) | src/external/include/glad/ src/external/include/gl.c src/external/include/vulkan.c |
 |:--------------------------------------------|:---------------------------|
+| [glad](https://github.com/dav1dde/glad-web) | src/external/include/glad/ src/external/include/gl.c src/external/include/vulkan.c |
 | [GLFW](https://glfw.org) | src/external/include/GLFW/ src/external/include/KHR/ src/external/include/vk_platform.h |
 | [stb](https://github.com/nothings/stb) | src/FileParser/stb_image (both .cpp and .h) |
