@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/werechang/bakeengine/badge)](https://www.codefactor.io/repository/github/werechang/bakeengine)
+
 # BakeEngine
 A (WIP) 3D Game Engine for the game project "Project G"
 
